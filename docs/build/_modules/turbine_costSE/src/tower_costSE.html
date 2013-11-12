@@ -1,0 +1,153 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>turbine_costSE.src.tower_costSE &mdash; turbine_costSE 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/nrel.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="turbine_costSE 0.1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../../../index.html">turbine_costSE 0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for turbine_costSE.src.tower_costSE</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">towercost.py</span>
+
+<span class="sd">Created by George Scott on 2012-08-01.</span>
+<span class="sd">Modified by Katherine Dykes 2012.</span>
+<span class="sd">Copyright (c) NREL. All rights reserved.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">common</span> <span class="kn">import</span> <span class="n">ComponentCost</span>
+<span class="kn">from</span> <span class="nn">zope.interface</span> <span class="kn">import</span> <span class="n">implements</span>
+
+<span class="c">#-------------------------------------------------------------------------------        </span>
+
+<div class="viewcode-block" id="TowerCost"><a class="viewcode-back" href="../../../documentation.html#turbine_costSE.src.tower_costSE.TowerCost">[docs]</a><span class="k">class</span> <span class="nc">TowerCost</span><span class="p">():</span>  <span class="c"># TODO: advanced tower not included here</span>
+    <span class="n">implements</span><span class="p">(</span><span class="n">ComponentCost</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TowerCost.__init__"><a class="viewcode-back" href="../../../generated/turbine_costSE.src.tower_costSE.TowerCost.__init__.html#turbine_costSE.src.tower_costSE.TowerCost.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">towerMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">          Initial computation of the costs for the wind turbine tower component.       </span>
+<span class="sd">          </span>
+<span class="sd">          Parameters</span>
+<span class="sd">          ----------</span>
+<span class="sd">          towerMass : float</span>
+<span class="sd">            mass [kg] of the wind turbine tower</span>
+<span class="sd">          curr_yr : int</span>
+<span class="sd">            Project start year</span>
+<span class="sd">          curr_mon : int</span>
+<span class="sd">            Project start month        </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c"># assign input variables</span>
+        <span class="n">ppi</span><span class="o">.</span><span class="n">curr_yr</span>   <span class="o">=</span> <span class="n">curr_yr</span>
+        <span class="n">ppi</span><span class="o">.</span><span class="n">curr_mon</span>   <span class="o">=</span> <span class="n">curr_mon</span>
+
+        <span class="n">twrCostEscalator</span>  <span class="o">=</span> <span class="n">ppi</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="s">&#39;IPPI_TWR&#39;</span><span class="p">)</span>
+        
+        <span class="n">twrCostCoeff</span>      <span class="o">=</span> <span class="mf">1.5</span> <span class="c"># $/kg    </span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">towerCost2002</span> <span class="o">=</span> <span class="n">towerMass</span> <span class="o">*</span> <span class="n">twrCostCoeff</span>               
+        <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">towerCost2002</span> <span class="o">*</span> <span class="n">twrCostEscalator</span>
+        
+<span class="c">#-------------------------------------------------------------------------------       </span>
+</div></div>
+<span class="k">def</span> <span class="nf">example</span><span class="p">():</span>
+
+    <span class="c"># simple test of module</span>
+    
+    <span class="n">ref_yr</span>  <span class="o">=</span> <span class="mi">2002</span>
+    <span class="n">ref_mon</span> <span class="o">=</span>    <span class="mi">9</span>
+    <span class="n">curr_yr</span> <span class="o">=</span> <span class="mi">2009</span>
+    <span class="n">curr_mon</span> <span class="o">=</span>  <span class="mi">12</span>
+    
+    <span class="n">ppi</span><span class="o">.</span><span class="n">ref_yr</span>   <span class="o">=</span> <span class="n">ref_yr</span>
+    <span class="n">ppi</span><span class="o">.</span><span class="n">ref_mon</span>  <span class="o">=</span> <span class="n">ref_mon</span>
+
+    <span class="n">towerMass</span> <span class="o">=</span> <span class="mf">434559.0</span>
+    <span class="n">tower</span> <span class="o">=</span> <span class="n">TowerCost</span><span class="p">(</span><span class="n">towerMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">)</span>
+    
+    <span class="k">print</span> <span class="s">&quot;Tower cost is ${0:.2f} USD&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tower</span><span class="o">.</span><span class="n">cost</span><span class="p">)</span> <span class="c"># $987180.30</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>  
+
+    <span class="n">example</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../../../index.html">turbine_costSE 0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, NREL.
+      Last updated on Aug 30, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

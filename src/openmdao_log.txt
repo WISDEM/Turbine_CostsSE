@@ -1,0 +1,351 @@
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 13:31:23.457000) PID=5220
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 13:32:52.984000) PID=5004
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 13:34:06.366000) PID=5752
+
+Nov 04 13:34:07 E hubSystemCost: Can't connect 'parent.spinnerCost.cost' to 'spinnerCost': 'spinnerCost.curr_yr' is already connected to source 'curr_yr'
+Nov 04 13:34:07 E root: Can't connect 'spinnerCost.cost' to 'hubSystemCost.spinnerCost': hubSystemCost: Can't connect 'parent.spinnerCost.cost' to 'spinnerCost': 'spinnerCost.curr_yr' is already connected to source 'curr_yr'
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 13:34:52.682000) PID=9460
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 13:35:09.390000) PID=3632
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 13:39:19.560000) PID=5336
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 13:39:37.125000) PID=7436
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 13:40:08.294000) PID=5788
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 13:40:35.142000) PID=5944
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 13:46:20.610000) PID=4460
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 13:49:18.976000) PID=8000
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 13:50:56.393000) PID=5088
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 13:51:52.116000) PID=1672
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 13:52:19.151000) PID=3232
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 13:55:11.828000) PID=6100
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 13:56:42.454000) PID=9672
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 13:57:24.028000) PID=9040
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 13:57:58.941000) PID=5368
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 13:59:37.299000) PID=2004
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 14:16:39.319000) PID=5260
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 14:17:18.569000) PID=2784
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 14:17:37.289000) PID=3296
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:08:48.332000) PID=7296
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:09:13.604000) PID=8984
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:09:34.862000) PID=9000
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:11:19.517000) PID=7868
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:13:39.614000) PID=6000
+
+Nov 04 19:13:40 E root: Can't find 'nacelleCostAdder.lowSpeedShaftCost'
+Nov 04 19:13:40 E root: Can't connect 'lowSpeedShaftCost.cost' to 'nacelleCostAdder.lowSpeedShaftCost': : Can't find 'nacelleCostAdder.lowSpeedShaftCost'
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:14:08.781000) PID=7556
+
+Nov 04 19:14:09 E root: Can't find 'bedplateCost.cost2002'
+Nov 04 19:14:09 E root: Can't connect 'bedplateCost.cost2002' to 'mainframeCost.bedplateCost2002': : Can't find 'bedplateCost.cost2002'
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:16:16.369000) PID=6408
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:17:20.262000) PID=7556
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:17:41.416000) PID=5944
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:18:12.886000) PID=5816
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:18:23.442000) PID=3648
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:19:03.149000) PID=4896
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:20:50.035000) PID=9564
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:21:27.485000) PID=9208
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:23:06.727000) PID=4448
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:23:42.274000) PID=2740
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:24:44.076000) PID=5200
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:31:54.374000) PID=5072
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:32:15.044000) PID=6704
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:33:28.967000) PID=1932
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:35:35.129000) PID=3520
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 19:35:57.401000) PID=8052
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:06:09.992000) PID=1620
+
+Nov 04 20:06:17 E root: 'rotorCost.curr_yr' is already connected to source 'curr_yr'
+Nov 04 20:06:17 E root: Can't connect 'curr_mon' to 'rotorCost.curr_yr': : 'rotorCost.curr_yr' is already connected to source 'curr_yr'
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:11:25.198000) PID=304
+
+Nov 04 20:11:32 E root: 'rotorCostSE.curr_yr' is already connected to source 'curr_yr'
+Nov 04 20:11:32 E root: Can't connect 'curr_mon' to 'rotorCostSE.curr_yr': : 'rotorCostSE.curr_yr' is already connected to source 'curr_yr'
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:12:13.979000) PID=3900
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:21:21.653000) PID=2988
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:21:49.047000) PID=9696
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:22:26.301000) PID=4536
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:23:51.155000) PID=4324
+
+Nov 04 20:23:58 E root: 'rotorCostSE.curr_yr' is already connected to source 'curr_yr'
+Nov 04 20:23:58 E root: Can't connect 'curr_mon' to 'rotorCostSE.curr_yr': : 'rotorCostSE.curr_yr' is already connected to source 'curr_yr'
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:27:30.618000) PID=4712
+
+Nov 04 20:27:38 E turbineCostAdder: 'cost' is already connected to source 'parent.cost' and cannot be directly set
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:30:13.001000) PID=5016
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:31:15.043000) PID=9332
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:32:28.336000) PID=820
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:33:03.717000) PID=8948
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:33:30.035000) PID=10084
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:34:58.023000) PID=668
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:36:01.015000) PID=6404
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:38:36.899000) PID=1972
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:44:39.738000) PID=9312
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:45:05.679000) PID=5016
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:46:00.790000) PID=6208
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:47:27.069000) PID=9752
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:49:23.011000) PID=3332
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:53:41.610000) PID=5012
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:55:49.160000) PID=2624
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 20:59:45.280000) PID=3204
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 21:01:53.705000) PID=2720
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 21:03:15.418000) PID=668
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 21:03:33.592000) PID=4628
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 21:03:51.298000) PID=6820
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 21:04:41.515000) PID=5404
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 21:14:30.917000) PID=2416
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 21:15:07.611000) PID=5684
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 21:15:30.185000) PID=8824
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 21:16:26.518000) PID=9676
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 21:17:47.343000) PID=144
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 21:21:16.979000) PID=8160
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 21:22:07.197000) PID=8128
+
+Nov 04 21:22:14 E root: turbineCostAdder must be an output variable
+Nov 04 21:22:14 E root: Can't connect 'offshore' to 'turbineCostAdder': : turbineCostAdder must be an output variable
+
+
+*********** BEGIN NEW LOG ************** (2013-11-04 21:22:51.750000) PID=4856
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-12 10:09:26.337000) PID=6136
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-12 10:11:32.010000) PID=3660
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-12 10:12:12.006000) PID=9656
+

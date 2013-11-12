@@ -1,0 +1,366 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>turbine_costSE.src.rotor_costsSE &mdash; turbine_costSE 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/nrel.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="turbine_costSE 0.1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../../../index.html">turbine_costSE 0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for turbine_costSE.src.rotor_costsSE</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">rotorcosts.py</span>
+
+<span class="sd">Created by Katherine Dykes 2012.</span>
+<span class="sd">Copyright (c) NREL. All rights reserved.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">common</span> <span class="kn">import</span> <span class="n">ComponentCost</span>
+<span class="kn">from</span> <span class="nn">zope.interface</span> <span class="kn">import</span> <span class="n">implements</span>
+
+<span class="c">#-------------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="BladeCost"><a class="viewcode-back" href="../../../documentation.html#turbine_costSE.src.rotor_costsSE.BladeCost">[docs]</a><span class="k">class</span> <span class="nc">BladeCost</span><span class="p">():</span>
+    <span class="n">implements</span><span class="p">(</span><span class="n">ComponentCost</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BladeCost.__init__"><a class="viewcode-back" href="../../../generated/turbine_costSE.src.rotor_costsSE.BladeCost.__init__.html#turbine_costSE.src.rotor_costsSE.BladeCost.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bladeMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">,</span> <span class="n">advanced</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">          Initial computation of the costs for the wind turbine blade component.       </span>
+<span class="sd">          </span>
+<span class="sd">          Parameters</span>
+<span class="sd">          ----------</span>
+<span class="sd">          bladeMass : float</span>
+<span class="sd">            blade mass [kg]</span>
+<span class="sd">          curr_yr : int</span>
+<span class="sd">            Project start year</span>
+<span class="sd">          curr_mon : int</span>
+<span class="sd">            Project start month</span>
+<span class="sd">          advanced : bool</span>
+<span class="sd">            boolean for advanced (using carbon) or basline (all fiberglass) blade          </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c"># assign input variables</span>
+        <span class="n">ppi</span><span class="o">.</span><span class="n">curr_yr</span>   <span class="o">=</span> <span class="n">curr_yr</span>
+        <span class="n">ppi</span><span class="o">.</span><span class="n">curr_mon</span>   <span class="o">=</span> <span class="n">curr_mon</span>
+         
+        <span class="n">ppi_labor</span>  <span class="o">=</span> <span class="n">ppi</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="s">&#39;IPPI_BLL&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">advanced</span> <span class="o">==</span> <span class="bp">True</span><span class="p">):</span>
+            <span class="n">ppi</span><span class="o">.</span><span class="n">ref_yr</span> <span class="o">=</span> <span class="mi">2003</span>
+            <span class="n">ppi_mat</span>   <span class="o">=</span> <span class="n">ppi</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="s">&#39;IPPI_BLA&#39;</span><span class="p">)</span>
+            <span class="n">slope</span>   <span class="o">=</span> <span class="mf">13.0</span> <span class="c">#14.0 from model</span>
+            <span class="n">intercept</span>     <span class="o">=</span> <span class="mf">5813.9</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ppi_mat</span>   <span class="o">=</span> <span class="n">ppi</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="s">&#39;IPPI_BLD&#39;</span><span class="p">)</span>
+            <span class="n">slope</span>   <span class="o">=</span> <span class="mf">8.0</span>
+            <span class="n">intercept</span>     <span class="o">=</span> <span class="mf">21465.0</span>
+            
+        <span class="n">laborCoeff</span>    <span class="o">=</span> <span class="mf">2.7445</span>         <span class="c"># todo: ignoring labor impacts for now</span>
+        <span class="n">laborExp</span>      <span class="o">=</span> <span class="mf">2.5025</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="p">((</span><span class="n">slope</span><span class="o">*</span><span class="n">bladeMass</span> <span class="o">+</span> <span class="n">intercept</span><span class="p">)</span><span class="o">*</span><span class="n">ppi_mat</span><span class="p">)</span>
+
+<span class="c"># -----------------------------------------------------------------------------------------------</span>
+</div></div>
+<div class="viewcode-block" id="HubCost"><a class="viewcode-back" href="../../../documentation.html#turbine_costSE.src.rotor_costsSE.HubCost">[docs]</a><span class="k">class</span> <span class="nc">HubCost</span><span class="p">():</span>
+    <span class="n">implements</span><span class="p">(</span><span class="n">ComponentCost</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HubCost.__init__"><a class="viewcode-back" href="../../../generated/turbine_costSE.src.rotor_costsSE.HubCost.__init__.html#turbine_costSE.src.rotor_costsSE.HubCost.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hubMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">          Initial computation of the costs for the wind turbine hub component.       </span>
+<span class="sd">          </span>
+<span class="sd">          Parameters</span>
+<span class="sd">          ----------</span>
+<span class="sd">          hubMass : float</span>
+<span class="sd">            hub mass [kg]</span>
+<span class="sd">          curr_yr : int</span>
+<span class="sd">            Project start year</span>
+<span class="sd">          curr_mon : int</span>
+<span class="sd">            Project start month</span>
+<span class="sd">          </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c"># assign input variables</span>
+        <span class="n">ppi</span><span class="o">.</span><span class="n">curr_yr</span>   <span class="o">=</span> <span class="n">curr_yr</span>
+        <span class="n">ppi</span><span class="o">.</span><span class="n">curr_mon</span>   <span class="o">=</span> <span class="n">curr_mon</span>
+
+        <span class="c">#calculate system costs</span>
+        <span class="n">ppi_labor</span>  <span class="o">=</span> <span class="n">ppi</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="s">&#39;IPPI_BLL&#39;</span><span class="p">)</span>
+            
+        <span class="n">laborCoeff</span>    <span class="o">=</span> <span class="mf">2.7445</span>
+        <span class="n">laborExp</span>      <span class="o">=</span> <span class="mf">2.5025</span>    
+
+        <span class="n">hubCost2002</span>      <span class="o">=</span> <span class="p">(</span><span class="n">hubMass</span> <span class="o">*</span> <span class="mf">4.25</span><span class="p">)</span> <span class="c"># $/kg</span>
+        <span class="n">hubCostEscalator</span> <span class="o">=</span> <span class="n">ppi</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="s">&#39;IPPI_HUB&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="p">(</span><span class="n">hubCost2002</span> <span class="o">*</span> <span class="n">hubCostEscalator</span> <span class="p">)</span>
+        
+<span class="c">#-------------------------------------------------------------------------------</span>
+</div></div>
+<div class="viewcode-block" id="PitchCost"><a class="viewcode-back" href="../../../documentation.html#turbine_costSE.src.rotor_costsSE.PitchCost">[docs]</a><span class="k">class</span> <span class="nc">PitchCost</span><span class="p">():</span>
+    <span class="n">implements</span><span class="p">(</span><span class="n">ComponentCost</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PitchCost.__init__"><a class="viewcode-back" href="../../../generated/turbine_costSE.src.rotor_costsSE.PitchCost.__init__.html#turbine_costSE.src.rotor_costsSE.PitchCost.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pitchSystemMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">          Initial computation of the costs for the wind turbine pitch system.       </span>
+<span class="sd">          </span>
+<span class="sd">          Parameters</span>
+<span class="sd">          ----------</span>
+<span class="sd">          pitchSystemMass : float</span>
+<span class="sd">            pitch system mass [kg]</span>
+<span class="sd">          curr_yr : int</span>
+<span class="sd">            Project start year</span>
+<span class="sd">          curr_mon : int</span>
+<span class="sd">            Project start month</span>
+<span class="sd">          </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c"># assign input variables</span>
+        <span class="n">ppi</span><span class="o">.</span><span class="n">curr_yr</span>   <span class="o">=</span> <span class="n">curr_yr</span>
+        <span class="n">ppi</span><span class="o">.</span><span class="n">curr_mon</span>   <span class="o">=</span> <span class="n">curr_mon</span>
+
+        <span class="c">#calculate system costs</span>
+        <span class="n">ppi_labor</span>  <span class="o">=</span> <span class="n">ppi</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="s">&#39;IPPI_BLL&#39;</span><span class="p">)</span>
+            
+        <span class="n">laborCoeff</span>    <span class="o">=</span> <span class="mf">2.7445</span>
+        <span class="n">laborExp</span>      <span class="o">=</span> <span class="mf">2.5025</span>    
+
+        <span class="n">pitchSysCost2002</span>     <span class="o">=</span> <span class="mf">2.28</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.0808</span> <span class="o">*</span> <span class="p">(</span><span class="n">pitchSystemMass</span> <span class="o">**</span> <span class="mf">1.4985</span><span class="p">))</span>            <span class="c"># new cost based on mass - x1.328 for housing proportion</span>
+        <span class="n">bearingCostEscalator</span> <span class="o">=</span> <span class="n">ppi</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="s">&#39;IPPI_PMB&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="p">(</span><span class="n">bearingCostEscalator</span> <span class="o">*</span> <span class="n">pitchSysCost2002</span><span class="p">)</span>
+        
+<span class="c">#-------------------------------------------------------------------------------</span>
+</div></div>
+<div class="viewcode-block" id="SpinnerCost"><a class="viewcode-back" href="../../../documentation.html#turbine_costSE.src.rotor_costsSE.SpinnerCost">[docs]</a><span class="k">class</span> <span class="nc">SpinnerCost</span><span class="p">():</span>
+    <span class="n">implements</span><span class="p">(</span><span class="n">ComponentCost</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SpinnerCost.__init__"><a class="viewcode-back" href="../../../generated/turbine_costSE.src.rotor_costsSE.SpinnerCost.__init__.html#turbine_costSE.src.rotor_costsSE.SpinnerCost.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spinnerMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">          Initial computation of the costs for the wind turbine spinner component.       </span>
+<span class="sd">          </span>
+<span class="sd">          Parameters</span>
+<span class="sd">          ----------</span>
+<span class="sd">          spinnerMass : float</span>
+<span class="sd">            spinner mass [kg]</span>
+<span class="sd">          curr_yr : int</span>
+<span class="sd">            Project start year</span>
+<span class="sd">          curr_mon : int</span>
+<span class="sd">            Project start month</span>
+<span class="sd">          </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c"># assign input variables</span>
+        <span class="n">ppi</span><span class="o">.</span><span class="n">curr_yr</span>   <span class="o">=</span> <span class="n">curr_yr</span>
+        <span class="n">ppi</span><span class="o">.</span><span class="n">curr_mon</span>   <span class="o">=</span> <span class="n">curr_mon</span>
+
+        <span class="c">#calculate system costs</span>
+        <span class="n">ppi_labor</span>  <span class="o">=</span> <span class="n">ppi</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="s">&#39;IPPI_BLL&#39;</span><span class="p">)</span>
+            
+        <span class="n">laborCoeff</span>    <span class="o">=</span> <span class="mf">2.7445</span>
+        <span class="n">laborExp</span>      <span class="o">=</span> <span class="mf">2.5025</span>    
+
+        <span class="n">spinnerCostEscalator</span> <span class="o">=</span> <span class="n">ppi</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="s">&#39;IPPI_NAC&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="p">(</span><span class="n">spinnerCostEscalator</span> <span class="o">*</span> <span class="p">(</span><span class="mf">5.57</span><span class="o">*</span><span class="n">spinnerMass</span><span class="p">))</span>
+
+<span class="c">#-------------------------------------------------------------------------------</span>
+</div></div>
+<div class="viewcode-block" id="HubSystemCost"><a class="viewcode-back" href="../../../documentation.html#turbine_costSE.src.rotor_costsSE.HubSystemCost">[docs]</a><span class="k">class</span> <span class="nc">HubSystemCost</span><span class="p">():</span>
+    <span class="n">implements</span><span class="p">(</span><span class="n">ComponentCost</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HubSystemCost.__init__"><a class="viewcode-back" href="../../../generated/turbine_costSE.src.rotor_costsSE.HubSystemCost.__init__.html#turbine_costSE.src.rotor_costsSE.HubSystemCost.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hubMass</span><span class="p">,</span> <span class="n">pitchSystemMass</span><span class="p">,</span> <span class="n">spinnerMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">          Initial computation of the costs for the wind turbine hub component.       </span>
+<span class="sd">          </span>
+<span class="sd">          Parameters</span>
+<span class="sd">          ----------</span>
+<span class="sd">          hubMass : float</span>
+<span class="sd">            hub mass [kg]</span>
+<span class="sd">          pitchSystemMass : float</span>
+<span class="sd">            pitch system mass [kg]</span>
+<span class="sd">          spinnerMass : float</span>
+<span class="sd">            spinner mass [kg]</span>
+<span class="sd">          curr_yr : int</span>
+<span class="sd">            Project start year</span>
+<span class="sd">          curr_mon : int</span>
+<span class="sd">            Project start month</span>
+<span class="sd">          </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">hub</span> <span class="o">=</span> <span class="n">HubCost</span><span class="p">(</span><span class="n">hubMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pitch</span> <span class="o">=</span> <span class="n">PitchCost</span><span class="p">(</span><span class="n">pitchSystemMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinner</span> <span class="o">=</span> <span class="n">SpinnerCost</span><span class="p">(</span><span class="n">spinnerMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hub</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">pitch</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">spinner</span><span class="o">.</span><span class="n">cost</span>
+
+<span class="c">#-------------------------------------------------------------------------------</span>
+</div></div>
+<div class="viewcode-block" id="RotorCost"><a class="viewcode-back" href="../../../documentation.html#turbine_costSE.src.rotor_costsSE.RotorCost">[docs]</a><span class="k">class</span> <span class="nc">RotorCost</span><span class="p">():</span>
+    <span class="n">implements</span><span class="p">(</span><span class="n">ComponentCost</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RotorCost.__init__"><a class="viewcode-back" href="../../../generated/turbine_costSE.src.rotor_costsSE.RotorCost.__init__.html#turbine_costSE.src.rotor_costsSE.RotorCost.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bladeMass</span><span class="p">,</span> <span class="n">bladeNum</span><span class="p">,</span> <span class="n">hubMass</span><span class="p">,</span> <span class="n">pitchSystemMass</span><span class="p">,</span> <span class="n">spinnerMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">,</span> <span class="n">advanced</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">          Initial computation of the costs for the wind turbine hub component.       </span>
+<span class="sd">          </span>
+<span class="sd">          Parameters</span>
+<span class="sd">          ----------</span>
+<span class="sd">          bladeMass : float</span>
+<span class="sd">            blade mass [kg]</span>
+<span class="sd">          bladeNum : int</span>
+<span class="sd">            Number of blades on rotor</span>
+<span class="sd">          hubMass : float</span>
+<span class="sd">            hub mass [kg]</span>
+<span class="sd">          pitchSystemMass : float</span>
+<span class="sd">            pitch system mass [kg]</span>
+<span class="sd">          spinnerMass : float</span>
+<span class="sd">            spinner mass [kg]</span>
+<span class="sd">          curr_yr : int</span>
+<span class="sd">            Project start year</span>
+<span class="sd">          curr_mon : int</span>
+<span class="sd">            Project start month</span>
+<span class="sd">          advanced : bool</span>
+<span class="sd">            boolean for advanced (using carbon) or basline (all fiberglass) blade           </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">hub</span> <span class="o">=</span> <span class="n">HubCost</span><span class="p">(</span><span class="n">hubMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pitch</span> <span class="o">=</span> <span class="n">PitchCost</span><span class="p">(</span><span class="n">pitchSystemMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinner</span> <span class="o">=</span> <span class="n">SpinnerCost</span><span class="p">(</span><span class="n">spinnerMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blade</span> <span class="o">=</span> <span class="n">BladeCost</span><span class="p">(</span><span class="n">bladeMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">,</span> <span class="n">advanced</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade</span><span class="o">.</span><span class="n">cost</span> <span class="o">*</span> <span class="n">bladeNum</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">hub</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">pitch</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">spinner</span><span class="o">.</span><span class="n">cost</span>        
+
+<span class="c"># ------------------------------------------------------------------------------------------------      </span>
+</div></div>
+<span class="k">def</span> <span class="nf">example</span><span class="p">():</span>
+  
+    <span class="c"># simple test of module</span>
+
+    <span class="n">ref_yr</span>  <span class="o">=</span> <span class="mi">2002</span>
+    <span class="n">ref_mon</span> <span class="o">=</span>    <span class="mi">9</span>
+    <span class="n">curr_yr</span> <span class="o">=</span> <span class="mi">2009</span>
+    <span class="n">curr_mon</span> <span class="o">=</span>  <span class="mi">12</span>
+    
+    <span class="n">ppi</span><span class="o">.</span><span class="n">ref_yr</span>   <span class="o">=</span> <span class="n">ref_yr</span>
+    <span class="n">ppi</span><span class="o">.</span><span class="n">ref_mon</span>  <span class="o">=</span> <span class="n">ref_mon</span>
+
+    <span class="c"># NREL 5 MW turbine</span>
+    <span class="k">print</span> <span class="s">&quot;NREL 5 MW turbine test&quot;</span>
+
+    <span class="c"># Blade Test 1</span>
+    <span class="n">bladeMass</span> <span class="o">=</span> <span class="mf">25614.38</span>
+    <span class="n">advanced</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="n">blade</span> <span class="o">=</span> <span class="n">BladeCost</span><span class="p">(</span><span class="n">bladeMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">,</span> <span class="n">advanced</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Conventional blade: ${0:.2f} USD&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">blade</span><span class="o">.</span><span class="n">cost</span><span class="p">)</span>
+  
+    <span class="c"># Blade Test 2</span>
+    <span class="n">bladeMass</span> <span class="o">=</span> <span class="mf">17650.67</span>  <span class="c"># inline with the windpact estimates</span>
+    <span class="n">advanced</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="n">blade</span> <span class="o">=</span> <span class="n">BladeCost</span><span class="p">(</span><span class="n">bladeMass</span><span class="p">,</span><span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">,</span> <span class="n">advanced</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Advanced blade: ${0:.2f} USD&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">blade</span><span class="o">.</span><span class="n">cost</span><span class="p">)</span>
+
+    <span class="n">hubMass</span> <span class="o">=</span> <span class="mf">31644.5</span>
+    <span class="n">pitchSystemMass</span> <span class="o">=</span> <span class="mf">17004.0</span>
+    <span class="n">spinnerMass</span> <span class="o">=</span> <span class="mf">1810.5</span>
+    <span class="n">curr_yr</span> <span class="o">=</span> <span class="mi">2009</span>
+    <span class="n">curr_mon</span> <span class="o">=</span> <span class="mi">12</span>
+
+    <span class="n">hub</span> <span class="o">=</span> <span class="n">HubCost</span><span class="p">(</span><span class="n">hubMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">)</span>
+    <span class="n">pitch</span> <span class="o">=</span> <span class="n">PitchCost</span><span class="p">(</span><span class="n">pitchSystemMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">)</span>
+    <span class="n">spinner</span> <span class="o">=</span> <span class="n">SpinnerCost</span><span class="p">(</span><span class="n">spinnerMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">)</span>
+
+    <span class="k">print</span> <span class="s">&quot;Hub cost is ${0:.2f} USD&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hub</span><span class="o">.</span><span class="n">cost</span><span class="p">)</span>   <span class="c"># $175513.50</span>
+    <span class="k">print</span> <span class="s">&quot;Pitch cost is ${0:.2f} USD&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pitch</span><span class="o">.</span><span class="n">cost</span><span class="p">)</span>  <span class="c"># $535075.0</span>
+    <span class="k">print</span> <span class="s">&quot;Spinner cost is ${0:.2f} USD&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">spinner</span><span class="o">.</span><span class="n">cost</span><span class="p">)</span>  <span class="c"># $10509.00</span>
+
+    <span class="n">hubsystem</span> <span class="o">=</span> <span class="n">HubSystemCost</span><span class="p">(</span><span class="n">hubMass</span><span class="p">,</span> <span class="n">pitchSystemMass</span><span class="p">,</span> <span class="n">spinnerMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">)</span>
+    
+    <span class="k">print</span> <span class="s">&quot;Hub system cost is ${0:.2f} USD&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hubsystem</span><span class="o">.</span><span class="n">cost</span><span class="p">)</span>
+    
+    <span class="n">bladeNum</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">rotor</span> <span class="o">=</span> <span class="n">RotorCost</span><span class="p">(</span><span class="n">bladeMass</span><span class="p">,</span> <span class="n">bladeNum</span><span class="p">,</span> <span class="n">hubMass</span><span class="p">,</span> <span class="n">pitchSystemMass</span><span class="p">,</span> <span class="n">spinnerMass</span><span class="p">,</span> <span class="n">curr_yr</span><span class="p">,</span> <span class="n">curr_mon</span><span class="p">,</span> <span class="n">advanced</span><span class="p">)</span>
+    
+    <span class="k">print</span> <span class="s">&quot;Overall rotor cost with 3 advanced blades is ${0:.2f} USD&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rotor</span><span class="o">.</span><span class="n">cost</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">example</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../../../index.html">turbine_costSE 0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, NREL.
+      Last updated on Aug 30, 2013.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
