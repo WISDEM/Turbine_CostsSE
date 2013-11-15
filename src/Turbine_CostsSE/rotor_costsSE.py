@@ -11,9 +11,11 @@ from openmdao.main.datatypes.api import Array, Float, Bool, Int
 from math import pi
 import numpy as np
 
+from fusedwind.plant_cost.fused_tcc_asym import FullRotorCostModel, FullRotorCostAggregator, FullHubSystemCostAggregator, BaseComponentCostModel
+
 #-------------------------------------------------------------------------------
 
-class BladeCost(Component):
+class BladeCost(BaseComponentCostModel):
 
     # variables
     bladeMass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -22,9 +24,6 @@ class BladeCost(Component):
     curr_yr = Int(iotype='in', desc='Current Year')
     curr_mon = Int(iotype='in', desc='Current Month')
     advanced = Bool(True, iotype='in', desc='advanced (True) or traditional (False) blade design')
-    
-    # returns
-    cost = Float(iotype='out', units='USD', desc='Blade cost for an individual blade')
 
     def __init__(self):
         '''
@@ -89,7 +88,7 @@ class BladeCost(Component):
 
 # -----------------------------------------------------------------------------------------------
 
-class HubCost(Component):
+class HubCost(BaseComponentCostModel):
 
     # variables
     hubMass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -97,9 +96,6 @@ class HubCost(Component):
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
     curr_mon = Int(iotype='in', desc='Current Month')
-    
-    # returns
-    cost = Float(iotype='out', units='USD', desc='Blade cost for an individual blade')
 
     def __init__(self):
         '''
@@ -153,7 +149,7 @@ class HubCost(Component):
         
 #-------------------------------------------------------------------------------
 
-class PitchSystemCost(Component):
+class PitchSystemCost(BaseComponentCostModel):
 
     # variables
     pitchSystemMass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -161,9 +157,6 @@ class PitchSystemCost(Component):
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
     curr_mon = Int(iotype='in', desc='Current Month')
-    
-    # returns
-    cost = Float(iotype='out', units='USD', desc='Blade cost for an individual blade')
 
     def __init__(self):
         '''
@@ -217,7 +210,7 @@ class PitchSystemCost(Component):
         
 #-------------------------------------------------------------------------------
 
-class SpinnerCost(Component):
+class SpinnerCost(BaseComponentCostModel):
 
     # variables
     spinnerMass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -225,9 +218,6 @@ class SpinnerCost(Component):
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
     curr_mon = Int(iotype='in', desc='Current Month')
-    
-    # returns
-    cost = Float(iotype='out', units='USD', desc='Blade cost for an individual blade')
 
     def __init__(self):
         '''
@@ -279,15 +269,7 @@ class SpinnerCost(Component):
 
 #-------------------------------------------------------------------------------
 
-class HubSystemCostAdder(Component):
-
-    # variables
-    hubCost = Float(iotype='in', units='USD', desc='hub component cost')
-    pitchSystemCost = Float(iotype='in', units='USD', desc='pitch system cost')
-    spinnerCost = Float(iotype='in', units='USD', desc='spinner component cost')
-    
-    # returns
-    cost = Float(iotype='out', units='USD', desc='overall hub system cost')
+class HubSystemCostAdder(FullHubSystemCostAggregator):
 
     def __init__(self):
         '''
@@ -312,7 +294,7 @@ class HubSystemCostAdder(Component):
 
     def execute(self):
     
-        partsCost = self.hubCost + self.pitchSystemCost + self.spinnerCost
+        partsCost = self.hub_cost + self.pitch_system_cost + self.spinner_cost
 
         # updated calculations below to account for assembly, transport, overhead and profits
         assemblyCostMultiplier = 0.0 # (4/72)       
@@ -332,71 +314,17 @@ class HubSystemCostAdder(Component):
 
     def provideJ(self):
 
-        input_keys = ['hubCost', 'pitchSystemCost', 'spinnerCost']
+        input_keys = ['hub_cost', 'pitch_system_cost', 'spinner_cost']
         output_keys = ['cost']
 
         self.derivatives.set_first_derivative(input_keys, output_keys, self.J)   
 
 #-------------------------------------------------------------------------------
 
-class HubSystemCost(Assembly):
-
-    ''' 
-       HubSystemCost class
-          The HubSystemCost class is used to represent the hub system costs of a wind turbine.             
-    '''
-
-    # variables
-    hubMass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    pitchSystemMass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    spinnerMass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    
-    # parameters
-    curr_yr = Int(iotype='in', desc='Current Year')
-    curr_mon = Int(iotype='in', desc='Current Month')
-
-    def configure(self):
-
-        # select components
-        self.add('hubSystemCostAdder', HubSystemCostAdder())
-        self.add('hubCost', HubCost())
-        self.add('pitchSystemCost', PitchSystemCost())
-        self.add('spinnerCost', SpinnerCost())
-        
-        # workflow
-        self.driver.workflow.add(['hubSystemCostAdder','hubCost', 'pitchSystemCost', 'spinnerCost'])
-        
-        # connect inputs
-        self.connect('hubMass', 'hubCost.hubMass')
-        self.connect('pitchSystemMass', 'pitchSystemCost.pitchSystemMass')
-        self.connect('spinnerMass', 'spinnerCost.spinnerMass')
-        self.connect('curr_yr', ['hubCost.curr_yr', 'pitchSystemCost.curr_yr', 'spinnerCost.curr_yr'])
-        self.connect('curr_mon', ['hubCost.curr_mon', 'pitchSystemCost.curr_mon', 'spinnerCost.curr_mon'])
-        
-        # connect components
-        self.connect('hubCost.cost', 'hubSystemCostAdder.hubCost')
-        self.connect('pitchSystemCost.cost', 'hubSystemCostAdder.pitchSystemCost')
-        self.connect('spinnerCost.cost', 'hubSystemCostAdder.spinnerCost')
-        
-        # create passthroughs
-        self.create_passthrough('hubSystemCostAdder.cost')
-
-#-------------------------------------------------------------------------------
-
-class RotorCostAdder(Component):
+class RotorCostAdder(FullRotorCostAggregator):
     """
     RotorCostAdder adds up individual rotor system and component costs to get overall rotor cost.
     """
-
-    # variables
-    bladeCost = Float(iotype='in', units='USD', desc='individual blade cost')
-    hubSystemCost = Float(iotype='in', units='USD', desc='cost for hub system')
-    
-    # parameters
-    bladeNumber = Int(iotype='in', desc='number of rotor blades')
-    
-    # returns
-    cost = Float(iotype='out', units='USD', desc='overall rotor cost')
 
     def __init__(self):
         '''
@@ -421,10 +349,10 @@ class RotorCostAdder(Component):
     
     def execute(self):
 
-        self.cost = self.bladeCost * self.bladeNumber + self.hubSystemCost
+        self.cost = self.blade_cost * self.blade_number + self.hub_system_cost
 
         # derivatives
-        d_cost_d_bladeCost = self.bladeNumber
+        d_cost_d_bladeCost = self.blade_number
         d_cost_d_hubSystemCost = 1
         
         # Jacobian
@@ -432,14 +360,14 @@ class RotorCostAdder(Component):
 
     def provideJ(self):
 
-        input_keys = ['bladeCost', 'hubSystemCost']
+        input_keys = ['blade_cost', 'hub_system_cost']
         output_keys = ['cost']
 
         self.derivatives.set_first_derivative(input_keys, output_keys, self.J)
 
 #-------------------------------------------------------------------------------
 
-class Rotor_CostsSE(Assembly):
+class Rotor_CostsSE(FullRotorCostModel):
 
     ''' 
        Rotor_CostsSE class
@@ -455,35 +383,32 @@ class Rotor_CostsSE(Assembly):
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
     curr_mon = Int(iotype='in', desc='Current Month')
-    bladeNumber = Int(iotype='in', desc='number of rotor blades')
     advanced = Bool(True, iotype='in', desc='advanced (True) or traditional (False) blade design') 
+
+    def __init__(self):
+
+        super(Rotor_CostsSE, self).__init__()
 
     def configure(self):
 
+        super(Rotor_CostsSE,self).configure()
+
         # select components
-        self.add('hubSystemCost', HubSystemCost())
-        self.add('bladeCost', BladeCost())
-        self.add('rotorCostAdder', RotorCostAdder())
-        
-        # workflow
-        self.driver.workflow.add(['hubSystemCost', 'bladeCost', 'rotorCostAdder'])
+        self.replace('bladeCC', BladeCost())
+        self.replace('hubCC', HubCost())
+        self.replace('pitchSysCC', PitchSystemCost())
+        self.replace('spinnerCC', SpinnerCost())
+        self.replace('hubSysCC', HubSystemCostAdder())
+        self.replace('rcc', RotorCostAdder())
         
         # connect inputs
-        self.connect('bladeMass', 'bladeCost.bladeMass')
-        self.connect('hubMass', 'hubSystemCost.hubMass')
-        self.connect('pitchSystemMass', 'hubSystemCost.pitchSystemMass')
-        self.connect('spinnerMass', 'hubSystemCost.spinnerMass')
-        self.connect('curr_yr', ['hubSystemCost.curr_yr', 'bladeCost.curr_yr'])
-        self.connect('curr_mon', ['hubSystemCost.curr_mon', 'bladeCost.curr_mon'])
-        self.connect('bladeNumber', 'rotorCostAdder.bladeNumber')
-        self.connect('advanced', 'bladeCost.advanced')
-        
-        # connect components
-        self.connect('hubSystemCost.cost', 'rotorCostAdder.hubSystemCost')
-        self.connect('bladeCost.cost', 'rotorCostAdder.bladeCost')
-        
-        # create passthroughs
-        self.create_passthrough('rotorCostAdder.cost')
+        self.connect('bladeMass', 'bladeCC.bladeMass')
+        self.connect('hubMass', 'hubCC.hubMass')
+        self.connect('pitchSystemMass', 'pitchSysCC.pitchSystemMass')
+        self.connect('spinnerMass', 'spinnerCC.spinnerMass')
+        self.connect('curr_yr', ['hubCC.curr_yr', 'pitchSysCC.curr_yr', 'spinnerCC.curr_yr', 'bladeCC.curr_yr'])
+        self.connect('curr_mon', ['hubCC.curr_mon', 'pitchSysCC.curr_mon', 'spinnerCC.curr_mon', 'bladeCC.curr_mon'])
+        self.connect('advanced', 'bladeCC.advanced')      
 
 #-------------------------------------------------------------------------------     
 
@@ -498,16 +423,16 @@ def example():
     rotor = Rotor_CostsSE()
 
     # Blade Test 1
-    rotor.bladeMass = 17650.67  # inline with the windpact estimates
+    rotor.blade_number = 3
     rotor.advanced = True
-    rotor.bladeNumber = 3
+    rotor.bladeMass = 17650.67  # inline with the windpact estimates
     rotor.hubMass = 31644.5
     rotor.pitchSystemMass = 17004.0
     rotor.spinnerMass = 1810.5
     rotor.curr_yr = 2009
     rotor.curr_mon = 12
     
-    rotor.run()
+    rotor.execute()
     
     print "Overall rotor cost with 3 advanced blades is ${0:.2f} USD".format(rotor.cost)
 

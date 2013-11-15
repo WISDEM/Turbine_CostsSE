@@ -11,9 +11,11 @@ from openmdao.main.api import Component, Assembly
 from openmdao.main.datatypes.api import Array, Float, Bool, Int
 import numpy as np
 
+from fusedwind.plant_cost.fused_tcc_asym import FullTowerCostModel, FullTowerCostAggregator, BaseComponentCostModel
+
 #-------------------------------------------------------------------------------        
 
-class TowerCost(Component):
+class TowerCost(BaseComponentCostModel):
 
     # variables
     towerMass = Float(iotype='in', units='kg', desc='tower mass [kg]')
@@ -21,9 +23,6 @@ class TowerCost(Component):
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
     curr_mon = Int(iotype='in', desc='Current Month')
-    
-    # returns
-    cost = Float(iotype='out', units='USD', desc='Blade cost for an individual blade')    
 
     def __init__(self):
         '''
@@ -58,6 +57,7 @@ class TowerCost(Component):
         
         self.towerCost2002 = self.towerMass * twrCostCoeff               
         self.cost = self.towerCost2002 * twrCostEscalator
+
         
         # derivatives
         d_cost_d_towerMass = twrCostEscalator * twrCostCoeff
@@ -70,14 +70,74 @@ class TowerCost(Component):
         input_keys = ['towerMass']
         output_keys = ['cost']
 
-        self.derivatives.set_first_derivative(input_keys, output_keys, self.J)        
+        self.derivatives.set_first_derivative(input_keys, output_keys, self.J)  
+
+
+#-------------------------------------------------------------------------------
+
+class TowerCostAdder(FullTowerCostAggregator):
+
+    def __init__(self):
+        
+        super(TowerCostAdder,self).__init__()
+
+    def execute(self):
+    
+        partsCost = self.tower_cost
+
+        # updated calculations below to account for assembly, transport, overhead and profits
+        assemblyCostMultiplier = 0.0 # (4/72)       
+        overheadCostMultiplier = 0.0 # (24/72)       
+        profitMultiplier = 0.0       
+        transportMultiplier = 0.0
+        
+        self.cost = (1 + transportMultiplier + profitMultiplier) * ((1+overheadCostMultiplier+assemblyCostMultiplier)*partsCost)
+        
+        # derivatives
+        d_cost_d_tower_cost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+        
+        # Jacobian
+        self.J = np.array([[d_cost_d_tower_cost]])
+
+    def provideJ(self):
+
+        input_keys = ['tower_cost']
+        output_keys = ['cost']
+
+        self.derivatives.set_first_derivative(input_keys, output_keys, self.J)  
+
+
+class Tower_CostsSE(FullTowerCostModel):
+
+    # variables
+    towerMass = Float(iotype='in', units='kg', desc='tower mass [kg]')
+    
+    # parameters
+    curr_yr = Int(iotype='in', desc='Current Year')
+    curr_mon = Int(iotype='in', desc='Current Month')
+    
+    def __init__(self):
+    	
+    	  super(Tower_CostsSE, self).__init__()
+    
+    def configure(self):
+    	  
+    	  super(Tower_CostsSE, self).configure()
+    	  
+    	  self.replace('towerCC', TowerCost())
+    	  self.replace('twrcc', TowerCostAdder())
+    	  
+    	  self.connect('towerMass', 'towerCC.towerMass')
+    	  self.connect('curr_yr', 'towerCC.curr_yr')
+    	  self.connect('curr_mon', 'towerCC.curr_mon')
+      
         
 #-------------------------------------------------------------------------------       
 
 def example():
 
     # simple test of module
-    tower = TowerCost()
+    tower = Tower_CostsSE()
     
     ppi.ref_yr   = 2002
     ppi.ref_mon  = 9

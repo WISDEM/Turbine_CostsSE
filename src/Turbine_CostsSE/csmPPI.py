@@ -6,6 +6,7 @@ Modified by Katherine Dykes 2012.
 Copyright (c) NREL. All rights reserved.
 """
 
+import os
 import sys
 import re
  
@@ -114,7 +115,7 @@ class PPI:
         
         #self.escData = [None] * 37
         self.escData = {}  # try a dictionary
-        self.tblfile = 'C:/Python26/openmdao-0.2.5/wese2/models/cst/turbine/drivetrain/PPI_Tables.txt'   #TODO: temporary solution - should update so it can locate it from dictionary etc
+        self.tblfile = 'PPI_Tables.txt'   #TODO: temporary solution - should update so it can locate it from dictionary etc
         self.ppitbls = {} # dictionary of PPITbl objects 
         self.yrs_gdp = []
         self.ppi_gdp = []
@@ -124,9 +125,11 @@ class PPI:
         self.curr_yr  = curr_yr
         self.curr_mon = curr_mon
         self.debug = debug
-        
+
+        thisdir = os.path.dirname(os.path.realpath(__file__))   
+        fullfile = thisdir + '\\' + self.tblfile       
         try:
-            infile = open(self.tblfile)
+            infile = open(fullfile, 'r') #infile = open(self.tblfile)
         except:
             sys.stdout.write ("Error opening or reading %s\n" % self.tblfile)
             pass

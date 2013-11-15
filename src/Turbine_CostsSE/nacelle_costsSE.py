@@ -11,9 +11,11 @@ from openmdao.main.datatypes.api import Array, Float, Bool, Int
 from math import pi
 import numpy as np
 
+from fusedwind.plant_cost.fused_tcc_asym import FullNacelleCostModel, BaseComponentCostModel, FullNacelleCostAggregator
+
 # -------------------------------------------------
 
-class LowSpeedShaftCost(Component):
+class LowSpeedShaftCost(BaseComponentCostModel):
 
     # variables
     lowSpeedShaftMass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -21,9 +23,6 @@ class LowSpeedShaftCost(Component):
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
     curr_mon = Int(iotype='in', desc='Current Month')
-    
-    # returns
-    cost = Float(iotype='out', units='USD', desc='component cost')
 
     def __init__(self):
         '''
@@ -72,7 +71,7 @@ class LowSpeedShaftCost(Component):
 
 #-------------------------------------------------------------------------------
 
-class BearingsCost(Component):
+class BearingsCost(BaseComponentCostModel):
 
     # variables
     mainBearingMass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -81,9 +80,6 @@ class BearingsCost(Component):
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
     curr_mon = Int(iotype='in', desc='Current Month')
-    
-    # returns
-    cost = Float(iotype='out', units='USD', desc='component cost')
 
     def __init__(self):
         '''
@@ -138,7 +134,7 @@ class BearingsCost(Component):
 
 #-------------------------------------------------------------------------------
 
-class GearboxCost(Component):
+class GearboxCost(BaseComponentCostModel):
 
     # variables
     gearboxMass = Float(iotype='in', units='kg', desc='component mass')
@@ -148,9 +144,6 @@ class GearboxCost(Component):
     drivetrainDesign = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
     curr_yr = Int(iotype='in', desc='Current Year')
     curr_mon = Int(iotype='in', desc='Current Month')
-    
-    # returns
-    cost = Float(iotype='out', units='USD', desc='component cost')
 
     def __init__(self):
         '''
@@ -218,7 +211,7 @@ class GearboxCost(Component):
 
 #-------------------------------------------------------------------------------
               
-class HighSpeedSideCost(Component):
+class HighSpeedSideCost(BaseComponentCostModel):
 
     # variables
     highSpeedSideMass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -226,9 +219,6 @@ class HighSpeedSideCost(Component):
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
     curr_mon = Int(iotype='in', desc='Current Month')
-    
-    # returns
-    cost = Float(iotype='out', units='USD', desc='component cost')
 
     def __init__(self):
         '''
@@ -276,7 +266,7 @@ class HighSpeedSideCost(Component):
 
 #-------------------------------------------------------------------------------
 
-class GeneratorCost(Component):
+class GeneratorCost(BaseComponentCostModel):
 
     # variables
     generatorMass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -285,9 +275,6 @@ class GeneratorCost(Component):
     drivetrainDesign = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
     curr_yr = Int(iotype='in', desc='Current Year')
     curr_mon = Int(iotype='in', desc='Current Month')
-    
-    # returns
-    cost = Float(iotype='out', units='USD', desc='component cost')
 
     def __init__(self):
         '''
@@ -340,7 +327,7 @@ class GeneratorCost(Component):
 
 #-------------------------------------------------------------------------------
 
-class BedplateCost(Component):
+class BedplateCost(BaseComponentCostModel):
 
     # variables
     bedplateMass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -350,7 +337,6 @@ class BedplateCost(Component):
     curr_mon = Int(iotype='in', desc='Current Month')
     
     # returns
-    cost = Float(iotype='out', units='USD', desc='component cost')
     cost2002 = Float(iotype='out', units='USD', desc='component cost in 2002 USD')
 
     def __init__(self):
@@ -405,84 +391,9 @@ class BedplateCost(Component):
 
         self.derivatives.set_first_derivative(input_keys, output_keys, self.J)       
 
-#-------------------------------------------------------------------------------
-
-class MainframeCost(Component):
-
-    # variables
-    bedplateMass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    bedplateCost = Float(iotype='in', units='USD', desc='component cost [USD]')
-    bedplateCost2002 = Float(iotype='in', units='USD', desc='component cost in 2002 USD')
-    
-    # parameters
-    crane = Bool(iotype='in', desc='flag for presence of onboard crane')
-    curr_yr = Int(iotype='in', desc='Current Year')
-    curr_mon = Int(iotype='in', desc='Current Month')
-    
-    # returns
-    cost = Float(iotype='out', units='USD', desc='component cost')
-
-    def __init__(self):
-
-        '''
-        Initial computation of the costs for the wind turbine bedplate component.       
-        
-        Parameters
-        ----------
-        bedplateMass : float
-          bedplate mass [kg]
-        bedplateCost : float
-          bedplate cost [USD]
-        bedplateCost2002 : float
-          bedplate cost in 2002 USD
-        curr_yr : int
-          Project start year
-        curr_mon : int
-          Project start month
-          
-        Returns
-        -------
-        cost : float
-          component cost [USD]     
-        '''
-
-        super(MainframeCost, self).__init__()
-      
-    def execute(self):
-
-        BedplateCostEsc      = ppi.compute('IPPI_MFM')
-
-        # mainframe system including bedplate, platforms, crane and miscellaneous hardware
-        nacellePlatformsMass = 0.125 * self.bedplateMass
-        NacellePlatforms2002 = 8.7 * nacellePlatformsMass
-
-        if (self.crane):
-            craneCost2002  = 12000.0
-        else:
-            craneCost2002  = 0.0
-
-        # aggregation of mainframe components: bedplate, crane and platforms into single mass and cost
-        BaseHardwareCost2002  = self.bedplateCost2002 * 0.7
-        MainFrameCost2002   = (NacellePlatforms2002 + craneCost2002  + \
-                          BaseHardwareCost2002 )
-        self.cost  = MainFrameCost2002 * BedplateCostEsc + self.bedplateCost  
-
-        # derivatives
-        d_cost_d_bedplateMass = BedplateCostEsc * 8.7 * 0.125
-        d_cost_d_bedplateCost2002 = BedplateCostEsc * 0.7
-        d_cost_d_bedplateCost = 1  
- 
-        # Jacobian
-        self.J = np.array([[d_cost_d_bedplateMass, d_cost_d_bedplateCost, d_cost_d_bedplateCost2002]])
-
-    def provideJ(self):
-
-        input_keys = ['bedplateMass', 'bedplateCost', 'bedplateCost2002']
-        output_keys = ['cost']
-
-        self.derivatives.set_first_derivative(input_keys, output_keys, self.J)  
+#--------------------------------------------------------------------------------- 
    
-class YawSystemCost(Component):
+class YawSystemCost(BaseComponentCostModel):
 
     # variables
     yawSystemMass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -490,9 +401,6 @@ class YawSystemCost(Component):
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
     curr_mon = Int(iotype='in', desc='Current Month')
-    
-    # returns
-    cost = Float(iotype='out', units='USD', desc='component cost')
 
     def __init__(self):
         '''
@@ -542,25 +450,19 @@ class YawSystemCost(Component):
 
 #-------------------------------------------------------------------------------
 
-class NacelleSystemCostAdder(Component):
+class NacelleSystemCostAdder(FullNacelleCostAggregator):
 
     # variables
-    lowSpeedShaftCost = Float(iotype='in', units='USD', desc='component cost')
-    bearingsCost = Float(iotype='in', units='USD', desc='component cost')
-    gearboxCost = Float(iotype='in', units='USD', desc='component cost')
-    highSpeedSideCost = Float(iotype='in', units='USD', desc='component cost')
-    generatorCost = Float(iotype='in', units='USD', desc='component cost')
-    mainframeCost = Float(iotype='in', units='USD', desc='component cost')
-    yawSystemCost = Float(iotype='in', units='USD', desc='component cost')
     machineRating = Float(iotype='in', units='kW', desc='machine rating')   
+    bedplateMass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    bedplate_cost = Float(iotype='in', units='USD', desc='component cost [USD]')
+    bedplateCost2002 = Float(iotype='in', units='USD', desc='component cost in 2002 USD')
     
     # parameters
+    crane = Bool(iotype='in', desc='flag for presence of onboard crane')
     offshore = Bool(iotype='in', desc='flag for offshore project')
     curr_yr = Int(iotype='in', desc='Current Year')
     curr_mon = Int(iotype='in', desc='Current Month')
-    
-    # returns
-    cost = Float(iotype='out', units='USD', desc='component cost')
 
     def __init__(self):
         '''
@@ -605,6 +507,23 @@ class NacelleSystemCostAdder(Component):
         ppi.curr_yr   = self.curr_yr
         ppi.curr_mon   = self.curr_mon
 
+        BedplateCostEsc      = ppi.compute('IPPI_MFM')
+
+        # mainframe system including bedplate, platforms, crane and miscellaneous hardware
+        nacellePlatformsMass = 0.125 * self.bedplateMass
+        NacellePlatforms2002 = 8.7 * nacellePlatformsMass
+
+        if (self.crane):
+            craneCost2002  = 12000.0
+        else:
+            craneCost2002  = 0.0
+
+        # aggregation of mainframe components: bedplate, crane and platforms into single mass and cost
+        BaseHardwareCost2002  = self.bedplateCost2002 * 0.7
+        MainFrameCost2002   = (NacellePlatforms2002 + craneCost2002  + \
+                          BaseHardwareCost2002 )
+        self.mainframe_cost  = MainFrameCost2002 * BedplateCostEsc + self.bedplate_cost
+
         # calculations of mass and cost for other systems not included above as main drivetrain load-bearing components
         # Cost Escalators - should be obtained from PPI tables
         VspdEtronicsCostEsc  = ppi.compute('IPPI_VSE')
@@ -634,13 +553,13 @@ class NacelleSystemCostAdder(Component):
         self.nacelleCovCost = nacelleCovCost2002 * nacelleCovCostEsc
         
         # aggregation of nacelle costs
-        partsCost = self.lowSpeedShaftCost + \
-                    self.bearingsCost + \
-                    self.gearboxCost + \
-                    self.highSpeedSideCost + \
-                    self.generatorCost + \
-                    self.mainframeCost + \
-                    self.yawSystemCost + \
+        partsCost = self.lss_cost + \
+                    self.bearings_cost + \
+                    self.gearbox_cost + \
+                    self.hss_cost + \
+                    self.generator_cost + \
+                    self.mainframe_cost + \
+                    self.yaw_system_cost + \
                     self.econnectionsCost + \
                     self.vspdEtronicsCost + \
                     self.hydrCoolingCost + \
@@ -656,30 +575,36 @@ class NacelleSystemCostAdder(Component):
         self.cost = (1 + transportMultiplier + profitMultiplier) * ((1+overheadCostMultiplier+assemblyCostMultiplier)*partsCost)
 
         # derivatives
+        # derivatives
+        d_cost_d_bedplateMass = BedplateCostEsc * 8.7 * 0.125
+        d_cost_d_bedplateCost2002 = BedplateCostEsc * 0.7
+        d_cost_d_bedplateCost = 1
         d_cost_d_lowSpeedShaftCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
         d_cost_d_bearingsCost= (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
         d_cost_d_gearboxCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
         d_cost_d_highSpeedSideCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
         d_cost_d_generatorCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
-        d_cost_d_mainframeCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
         d_cost_d_yawSystemCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
         d_cost_d_machineRating = (1 + transportMultiplier + profitMultiplier) * ((1+overheadCostMultiplier+assemblyCostMultiplier) * \
                                  (econnectionsCostEsc * 40.0 + VspdEtronicsCostEsc * 79.32 + hydrCoolingCostEsc * 12.0 + nacelleCovCostEsc * 11.537))
  
         # Jacobian
-        self.J = np.array([[d_cost_d_lowSpeedShaftCost, d_cost_d_bearingsCost, d_cost_d_gearboxCost, d_cost_d_highSpeedSideCost, d_cost_d_generatorCost, \
-                            d_cost_d_mainframeCost, d_cost_d_yawSystemCost, d_cost_d_machineRating]])
+        self.J = np.array([[d_cost_d_bedplateMass, d_cost_d_bedplateCost, d_cost_d_bedplateCost2002, \
+                            d_cost_d_lowSpeedShaftCost, d_cost_d_bearingsCost, d_cost_d_gearboxCost, \
+                            d_cost_d_highSpeedSideCost, d_cost_d_generatorCost, \
+                            d_cost_d_yawSystemCost, d_cost_d_machineRating]])
 
     def provideJ(self):
 
-        input_keys = ['lowSpeedShaftMass', 'bearingsCost', 'gearboxCost', 'highSpeedSideCost', 'generatorCost', 'mainframeCost', 'yawSystemCost', 'machineRating']
+        input_keys = ['bedplateMass', 'bedplateCos2002', 'bedplate_cost', 'lss_cost', 'bearings_cost', \
+                      'gearbox_cost', 'hss_cost', 'generator_cost', 'yaw_system_cost', 'machineRating']
         output_keys = ['cost']
 
         self.derivatives.set_first_derivative(input_keys, output_keys, self.J) 
 
 #------------------------------------------------------------------
 
-class Nacelle_CostsSE(Assembly):
+class Nacelle_CostsSE(FullNacelleCostModel):
 
     ''' 
        Nacelle_CostsSE class
@@ -704,51 +629,39 @@ class Nacelle_CostsSE(Assembly):
     curr_yr = Int(iotype='in', desc='Current Year')
     curr_mon = Int(iotype='in', desc='Current Month')
 
+    def __init__(self):
+
+        super(Nacelle_CostsSE, self).__init__()
+
     def configure(self):
 
+        super(Nacelle_CostsSE, self).configure()
+
         # select components
-        self.add('lowSpeedShaftCost', LowSpeedShaftCost())
-        self.add('bearingsCost', BearingsCost())
-        self.add('gearboxCost', GearboxCost())
-        self.add('highSpeedSideCost', HighSpeedSideCost())
-        self.add('generatorCost', GeneratorCost())
-        self.add('bedplateCost', BedplateCost())
-        self.add('mainframeCost', MainframeCost())
-        self.add('yawSystemCost', YawSystemCost())
-        self.add('nacelleCostAdder', NacelleSystemCostAdder())
-        
-        # workflow
-        self.driver.workflow.add(['lowSpeedShaftCost', 'bearingsCost', 'gearboxCost', 'highSpeedSideCost', 'generatorCost', 'bedplateCost', 'mainframeCost', 'yawSystemCost', 'nacelleCostAdder'])
+        self.replace('lssCC', LowSpeedShaftCost())
+        self.replace('bearingsCC', BearingsCost())
+        self.replace('gearboxCC', GearboxCost())
+        self.replace('hssCC', HighSpeedSideCost())
+        self.replace('generatorCC', GeneratorCost())
+        self.replace('bedplateCC', BedplateCost())
+        self.replace('yawSysCC', YawSystemCost())
+        self.replace('ncc', NacelleSystemCostAdder())
         
         # connect inputs
-        self.connect('lowSpeedShaftMass', 'lowSpeedShaftCost.lowSpeedShaftMass')
-        self.connect('mainBearingMass', 'bearingsCost.mainBearingMass')
-        self.connect('secondBearingMass', 'bearingsCost.secondBearingMass')
-        self.connect('gearboxMass', 'gearboxCost.gearboxMass')
-        self.connect('highSpeedSideMass', 'highSpeedSideCost.highSpeedSideMass')
-        self.connect('generatorMass', 'generatorCost.generatorMass')
-        self.connect('bedplateMass', ['bedplateCost.bedplateMass', 'mainframeCost.bedplateMass'])
-        self.connect('yawSystemMass', 'yawSystemCost.yawSystemMass')
-        self.connect('machineRating', ['gearboxCost.machineRating', 'nacelleCostAdder.machineRating'])
-        self.connect('drivetrainDesign', ['gearboxCost.drivetrainDesign', 'generatorCost.drivetrainDesign'])
-        self.connect('crane', 'mainframeCost.crane')
-        self.connect('offshore', 'nacelleCostAdder.offshore')
-        self.connect('curr_yr', ['lowSpeedShaftCost.curr_yr', 'bearingsCost.curr_yr', 'gearboxCost.curr_yr', 'highSpeedSideCost.curr_yr', 'generatorCost.curr_yr', 'bedplateCost.curr_yr', 'mainframeCost.curr_yr', 'yawSystemCost.curr_yr', 'nacelleCostAdder.curr_yr'])
-        self.connect('curr_mon', ['lowSpeedShaftCost.curr_mon', 'bearingsCost.curr_mon', 'gearboxCost.curr_mon', 'highSpeedSideCost.curr_mon', 'generatorCost.curr_mon', 'bedplateCost.curr_mon', 'mainframeCost.curr_mon', 'yawSystemCost.curr_mon', 'nacelleCostAdder.curr_mon'])
-        
-        # connect components
-        self.connect('lowSpeedShaftCost.cost', 'nacelleCostAdder.lowSpeedShaftCost')
-        self.connect('bearingsCost.cost', 'nacelleCostAdder.bearingsCost')
-        self.connect('gearboxCost.cost', 'nacelleCostAdder.gearboxCost')
-        self.connect('highSpeedSideCost.cost', 'nacelleCostAdder.highSpeedSideCost')
-        self.connect('generatorCost.cost', 'nacelleCostAdder.generatorCost')
-        self.connect('bedplateCost.cost', 'mainframeCost.bedplateCost')
-        self.connect('bedplateCost.cost2002', 'mainframeCost.bedplateCost2002')
-        self.connect('mainframeCost.cost', 'nacelleCostAdder.mainframeCost')
-        self.connect('yawSystemCost.cost', 'nacelleCostAdder.yawSystemCost')
-
-        # create passthroughs
-        self.create_passthrough('nacelleCostAdder.cost')
+        self.connect('lowSpeedShaftMass', 'lssCC.lowSpeedShaftMass')
+        self.connect('mainBearingMass', 'bearingsCC.mainBearingMass')
+        self.connect('secondBearingMass', 'bearingsCC.secondBearingMass')
+        self.connect('gearboxMass', 'gearboxCC.gearboxMass')
+        self.connect('highSpeedSideMass', 'hssCC.highSpeedSideMass')
+        self.connect('generatorMass', 'generatorCC.generatorMass')
+        self.connect('bedplateMass', ['bedplateCC.bedplateMass', 'ncc.bedplateMass'])
+        self.connect('yawSystemMass', 'yawSysCC.yawSystemMass')
+        self.connect('machineRating', ['gearboxCC.machineRating', 'ncc.machineRating'])
+        self.connect('drivetrainDesign', ['gearboxCC.drivetrainDesign', 'generatorCC.drivetrainDesign'])
+        self.connect('crane', 'ncc.crane')
+        self.connect('offshore', 'ncc.offshore')
+        self.connect('curr_yr', ['lssCC.curr_yr', 'bearingsCC.curr_yr', 'gearboxCC.curr_yr', 'hssCC.curr_yr', 'generatorCC.curr_yr', 'bedplateCC.curr_yr', 'yawSysCC.curr_yr', 'ncc.curr_yr'])
+        self.connect('curr_mon', ['lssCC.curr_mon', 'bearingsCC.curr_mon', 'gearboxCC.curr_mon', 'hssCC.curr_mon', 'generatorCC.curr_mon', 'bedplateCC.curr_mon', 'yawSysCC.curr_mon', 'ncc.curr_mon'])
 
 
 #==================================================================
@@ -780,14 +693,13 @@ def example():
     
     nacelle.run()
 
-    print "LSS cost is ${0:.2f} USD".format(nacelle.lowSpeedShaftCost.cost) # $183363.52
-    print "Main bearings cost is ${0:.2f} USD".format(nacelle.bearingsCost.cost) # $56660.71
-    print "Gearbox cost is ${0:.2f} USD".format(nacelle.gearboxCost.cost) # $648030.18
-    print "HSS cost is ${0:.2f} USD".format(nacelle.highSpeedSideCost.cost) # $15218.20
-    print "Generator cost is ${0:.2f} USD".format(nacelle.generatorCost.cost) # $435157.75
-    print "Bedplate cost is ${0:.2f} USD".format(nacelle.bedplateCost.cost)
-    print "Mainframe cost is ${0:.2f} USD".format(nacelle.mainframeCost.cost)
-    print "Yaw system cost is ${0:.2f} USD".format(nacelle.yawSystemCost.cost) # $137609.38
+    print "LSS cost is ${0:.2f} USD".format(nacelle.lssCC.cost) # $183363.52
+    print "Main bearings cost is ${0:.2f} USD".format(nacelle.bearingsCC.cost) # $56660.71
+    print "Gearbox cost is ${0:.2f} USD".format(nacelle.gearboxCC.cost) # $648030.18
+    print "HSS cost is ${0:.2f} USD".format(nacelle.hssCC.cost) # $15218.20
+    print "Generator cost is ${0:.2f} USD".format(nacelle.generatorCC.cost) # $435157.75
+    print "Bedplate cost is ${0:.2f} USD".format(nacelle.bedplateCC.cost)
+    print "Yaw system cost is ${0:.2f} USD".format(nacelle.yawSysCC.cost) # $137609.38
     
     print "Overall nacelle cost is ${0:.2f} USD".format(nacelle.cost) # $2884227.08
 

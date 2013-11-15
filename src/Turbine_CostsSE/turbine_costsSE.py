@@ -10,13 +10,15 @@ from openmdao.main.api import Component, Assembly
 from openmdao.main.datatypes.api import Array, Float, Bool, Int
 import numpy as np
 
+from fusedwind.plant_cost.fused_tcc_asym import FullTurbineCapitalCostModel, FullTCCAggregator
+
 from rotor_costsSE import Rotor_CostsSE
 from nacelle_costsSE import Nacelle_CostsSE
-from tower_costSE import TowerCost
+from tower_costsSE import Tower_CostsSE
 
 #-------------------------------------------------------------------------------        
 
-class Turbine_CostSE(Assembly):
+class Turbine_CostsSE(FullTurbineCapitalCostModel):
 
     '''
     Initial computation of the costs for the wind turbine.
@@ -95,72 +97,58 @@ class Turbine_CostSE(Assembly):
     curr_yr = Int(iotype='in', desc='Current Year')
     curr_mon = Int(iotype='in', desc='Current Month')
 
+    def __init__(self):
+
+        super(Turbine_CostsSE, self).__init__()
+
     def configure(self):
 
+        super(Turbine_CostsSE, self).configure()
+
         # select components
-        self.add('rotorCostSE', Rotor_CostsSE())
-        self.add('nacelleCostSE', Nacelle_CostsSE())
-        self.add('towerCostSE', TowerCost())
-        self.add('turbineCostAdder', TurbineCostAdder())
-        
-        # workflow
-        self.driver.workflow.add(['rotorCostSE', 'nacelleCostSE', 'towerCostSE', 'turbineCostAdder'])
+        self.replace('rotorCC', Rotor_CostsSE())
+        self.replace('nacelleCC', Nacelle_CostsSE())
+        self.replace('towerCC', Tower_CostsSE())
+        self.replace('tcc', TurbineCostAdder())
         
         # connect inputs
-        self.connect('bladeMass', 'rotorCostSE.bladeMass')
-        self.connect('hubMass', 'rotorCostSE.hubMass')
-        self.connect('pitchSystemMass', 'rotorCostSE.pitchSystemMass')
-        self.connect('spinnerMass', 'rotorCostSE.spinnerMass')
-        self.connect('bladeNumber', 'rotorCostSE.bladeNumber')
-        self.connect('advanced', 'rotorCostSE.advanced')
-        self.connect('lowSpeedShaftMass', 'nacelleCostSE.lowSpeedShaftMass')
-        self.connect('mainBearingMass', 'nacelleCostSE.mainBearingMass')
-        self.connect('secondBearingMass', 'nacelleCostSE.secondBearingMass')
-        self.connect('gearboxMass', 'nacelleCostSE.gearboxMass')
-        self.connect('highSpeedSideMass', 'nacelleCostSE.highSpeedSideMass')
-        self.connect('generatorMass', 'nacelleCostSE.generatorMass')
-        self.connect('bedplateMass', ['nacelleCostSE.bedplateMass'])
-        self.connect('yawSystemMass', 'nacelleCostSE.yawSystemMass')
-        self.connect('machineRating', ['nacelleCostSE.machineRating'])
-        self.connect('drivetrainDesign', ['nacelleCostSE.drivetrainDesign'])
-        self.connect('crane', 'nacelleCostSE.crane')
-        self.connect('offshore', ['nacelleCostSE.offshore', 'turbineCostAdder.offshore'])
-        self.connect('towerMass', 'towerCostSE.towerMass')
-        self.connect('curr_yr', ['rotorCostSE.curr_yr', 'nacelleCostSE.curr_yr', 'towerCostSE.curr_yr'])
-        self.connect('curr_mon', ['rotorCostSE.curr_mon', 'nacelleCostSE.curr_mon', 'towerCostSE.curr_mon'])
-        
-        # connect components
-        self.connect('rotorCostSE.cost', 'turbineCostAdder.rotorCost')
-        self.connect('nacelleCostSE.cost', 'turbineCostAdder.nacelleCost')
-        self.connect('towerCostSE.cost', 'turbineCostAdder.towerCost')
-        
-        # create passthroughs
-        self.create_passthrough('turbineCostAdder.cost')
+        self.connect('bladeMass', 'rotorCC.bladeMass')
+        self.connect('hubMass', 'rotorCC.hubMass')
+        self.connect('pitchSystemMass', 'rotorCC.pitchSystemMass')
+        self.connect('spinnerMass', 'rotorCC.spinnerMass')
+        self.connect('advanced', 'rotorCC.advanced')
+        self.connect('lowSpeedShaftMass', 'nacelleCC.lowSpeedShaftMass')
+        self.connect('mainBearingMass', 'nacelleCC.mainBearingMass')
+        self.connect('secondBearingMass', 'nacelleCC.secondBearingMass')
+        self.connect('gearboxMass', 'nacelleCC.gearboxMass')
+        self.connect('highSpeedSideMass', 'nacelleCC.highSpeedSideMass')
+        self.connect('generatorMass', 'nacelleCC.generatorMass')
+        self.connect('bedplateMass', ['nacelleCC.bedplateMass'])
+        self.connect('yawSystemMass', 'nacelleCC.yawSystemMass')
+        self.connect('machineRating', ['nacelleCC.machineRating'])
+        self.connect('drivetrainDesign', ['nacelleCC.drivetrainDesign'])
+        self.connect('crane', 'nacelleCC.crane')
+        self.connect('offshore', ['nacelleCC.offshore', 'tcc.offshore'])
+        self.connect('towerMass', 'towerCC.towerMass')
+        self.connect('curr_yr', ['rotorCC.curr_yr', 'nacelleCC.curr_yr', 'towerCC.curr_yr'])
+        self.connect('curr_mon', ['rotorCC.curr_mon', 'nacelleCC.curr_mon', 'towerCC.curr_mon'])
 
 
 #-------------------------------------------------------------------------------
 
-class TurbineCostAdder(Component):
-
-    # variables
-    rotorCost = Float(iotype='in', units='USD', desc='rotor cost')
-    nacelleCost = Float(iotype='in', units='USD', desc='nacelle cost')
-    towerCost = Float(iotype='in', units='USD', desc='tower cost')
+class TurbineCostAdder(FullTCCAggregator):
     
     # parameters
     offshore = Bool(iotype='in', desc='flag for offshore site')
-
-    # return
-    cost = Float(iotype='out', units='USD', desc='turbine overall cost')
 
     def __init__(self):
       
         '''
         Turbine cost adder
         
-        rotorCost : float
+        rotor_cost : float
           rotor cost [USD]
-        nacelleCost : float
+        nacelle_cost : float
           nacelle cost [USD]
         towerCost : float
           tower cost [USD]
@@ -175,7 +163,7 @@ class TurbineCostAdder(Component):
     
     def execute(self):
       
-        partsCost = self.rotorCost + self.nacelleCost + self.towerCost
+        partsCost = self.rotor_cost + self.nacelle_cost + self.tower_cost
 
         # updated calculations below to account for assembly, transport, overhead and profits
         assemblyCostMultiplier = 0.0 # (4/72)       
@@ -183,28 +171,28 @@ class TurbineCostAdder(Component):
         profitMultiplier = 0.0       
         transportMultiplier = 0.0
         
-        self.cost = (1 + transportMultiplier + profitMultiplier) * ((1+overheadCostMultiplier+assemblyCostMultiplier)*partsCost)
+        self.turbine_cost = (1 + transportMultiplier + profitMultiplier) * ((1+overheadCostMultiplier+assemblyCostMultiplier)*partsCost)
         
         # derivatives
-        d_cost_d_rotorCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
-        d_cost_d_nacelleCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
-        d_cost_d_towerCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+        d_cost_d_rotor_cost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+        d_cost_d_nacelle_cost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+        d_cost_d_tower_cost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
 
         if self.offshore:
-            self.cost *= 1.1
+            self.turbine_cost *= 1.1
 
             # derivatives
-            d_cost_d_rotorCost *= 1.1
-            d_cost_d_nacelleCost *= 1.1
-            d_cost_d_towerCost *= 1.1
+            d_cost_d_rotor_cost *= 1.1
+            d_cost_d_nacelle_cost *= 1.1
+            d_cost_d_tower_cost *= 1.1
         
         # Jacobian
-        self.J = np.array([[d_cost_d_rotorCost, d_cost_d_nacelleCost, d_cost_d_towerCost]])
+        self.J = np.array([[d_cost_d_rotor_cost, d_cost_d_nacelle_cost, d_cost_d_tower_cost]])
 
     def provideJ(self):
 
-        input_keys = ['rotorCost', 'nacelleCost', 'towerCost']
-        output_keys = ['cost']
+        input_keys = ['rotor_cost', 'nacelle_cost', 'tower_cost']
+        output_keys = ['turbine_cost']
 
         self.derivatives.set_first_derivative(input_keys, output_keys, self.J)
         
@@ -217,7 +205,7 @@ def example():
     ppi.ref_yr   = 2002
     ppi.ref_mon  = 9
 
-    turbine = Turbine_CostSE()
+    turbine = Turbine_CostsSE()
 
     turbine.bladeMass = 17650.67  # inline with the windpact estimates
     turbine.hubMass = 31644.5
@@ -244,23 +232,23 @@ def example():
 
     turbine.run()
     
-    print "Turbine cost is ${0:.2f} USD".format(turbine.cost) # $5350414.10
+    print "Turbine cost is ${0:.2f} USD".format(turbine.turbine_cost) # $5350414.10
     print
-    print "Overall rotor cost with 3 advanced blades is ${0:.2f} USD".format(turbine.rotorCostSE.cost)
-    print "Hub cost is ${0:.2f} USD".format(turbine.rotorCostSE.hubSystemCost.hubCost.cost)   # $175513.50
-    print "Pitch cost is ${0:.2f} USD".format(turbine.rotorCostSE.hubSystemCost.pitchSystemCost.cost)  # $535075.0
-    print "Spinner cost is ${0:.2f} USD".format(turbine.rotorCostSE.hubSystemCost.spinnerCost.cost)  # $10509.00
+    print "Overall rotor cost with 3 advanced blades is ${0:.2f} USD".format(turbine.rotorCC.cost)
+    print "Hub cost is ${0:.2f} USD".format(turbine.rotorCC.hubCC.cost)   # $175513.50
+    print "Pitch cost is ${0:.2f} USD".format(turbine.rotorCC.pitchSysCC.cost)  # $535075.0
+    print "Spinner cost is ${0:.2f} USD".format(turbine.rotorCC.spinnerCC.cost)  # $10509.00
     print
-    print "Overall nacelle cost is ${0:.2f} USD".format(turbine.nacelleCostSE.cost) # $2884227.08
-    print "LSS cost is ${0:.2f} USD".format(turbine.nacelleCostSE.lowSpeedShaftCost.cost) # $183363.52
-    print "Main bearings cost is ${0:.2f} USD".format(turbine.nacelleCostSE.bearingsCost.cost) # $56660.71
-    print "Gearbox cost is ${0:.2f} USD".format(turbine.nacelleCostSE.gearboxCost.cost) # $648030.18
-    print "HSS cost is ${0:.2f} USD".format(turbine.nacelleCostSE.highSpeedSideCost.cost) # $15218.20
-    print "Generator cost is ${0:.2f} USD".format(turbine.nacelleCostSE.generatorCost.cost) # $435157.75
-    print "Bedplate cost is ${0:.2f} USD".format(turbine.nacelleCostSE.bedplateCost.cost)
-    print "Yaw system cost is ${0:.2f} USD".format(turbine.nacelleCostSE.yawSystemCost.cost) # $137609.38
+    print "Overall nacelle cost is ${0:.2f} USD".format(turbine.nacelleCC.cost) # $2884227.08
+    print "LSS cost is ${0:.2f} USD".format(turbine.nacelleCC.lssCC.cost) # $183363.52
+    print "Main bearings cost is ${0:.2f} USD".format(turbine.nacelleCC.bearingsCC.cost) # $56660.71
+    print "Gearbox cost is ${0:.2f} USD".format(turbine.nacelleCC.gearboxCC.cost) # $648030.18
+    print "HSS cost is ${0:.2f} USD".format(turbine.nacelleCC.hssCC.cost) # $15218.20
+    print "Generator cost is ${0:.2f} USD".format(turbine.nacelleCC.generatorCC.cost) # $435157.75
+    print "Bedplate cost is ${0:.2f} USD".format(turbine.nacelleCC.bedplateCC.cost)
+    print "Yaw system cost is ${0:.2f} USD".format(turbine.nacelleCC.yawSysCC.cost) # $137609.38
     print
-    print "Tower cost is ${0:.2f} USD".format(turbine.towerCostSE.cost) # $987180.30 
+    print "Tower cost is ${0:.2f} USD".format(turbine.towerCC.cost) # $987180.30 
 
 if __name__ == "__main__":  
 
