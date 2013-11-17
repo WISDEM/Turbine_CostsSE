@@ -1,3 +1,6 @@
 graft src/Turbine_CostsSE/sphinx_build/html
 recursive-include src/Turbine_CostsSE/test *.py
+include *.txt
+include src/Turbine_CostsSE/Turbine_CostsSE/static/*
+recursive-include docs *.txt
 

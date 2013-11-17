@@ -12,9 +12,9 @@ import numpy as np
 
 from fusedwind.plant_cost.fused_tcc_asym import FullTurbineCapitalCostModel, FullTCCAggregator
 
-from rotor_costsSE import Rotor_CostsSE
-from nacelle_costsSE import Nacelle_CostsSE
-from tower_costsSE import Tower_CostsSE
+from Rotor_CostsSE import Rotor_CostsSE
+from Nacelle_CostsSE import Nacelle_CostsSE
+from Tower_CostsSE import Tower_CostsSE
 
 #-------------------------------------------------------------------------------        
 
