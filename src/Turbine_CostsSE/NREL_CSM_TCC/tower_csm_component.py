@@ -10,7 +10,7 @@ import sys
 from openmdao.main.api import Component, Assembly, set_as_top, VariableTree
 from openmdao.main.datatypes.api import Int, Bool, Float, Array, VarTree
 
-from twister.models.csm.csmTower import csmTower
+from NREL_CSM.csmTower import csmTower
 
 class tower_csm_component(Component):
     """
@@ -21,8 +21,8 @@ class tower_csm_component(Component):
     
     # Turbine Configuration
     # rotor
-    rotorDiameter = Float(126.0, units = 'm', iotype='in', desc= 'rotor diameter of the machine') 
-    hubHeight = Float(90.0, units = 'm', iotype='in', desc = 'hub height of machine')
+    rotor_diameter = Float(126.0, units = 'm', iotype='in', desc= 'rotor diameter of the machine') 
+    hub_height = Float(90.0, units = 'm', iotype='in', desc = 'hub height of machine')
     
     # Plant Configuration
     year = Int(2009, units = 'yr', iotype='in', desc = 'year of project start')
@@ -30,18 +30,18 @@ class tower_csm_component(Component):
 
     # ------------- Outputs -------------- 
   
-    towerCost = Float(0.0, units='USD', iotype='out', desc='cost for a tower')
-    towerMass = Float(0.0, units='kg', iotype='out', desc='mass for a turbine tower')
+    tower_cost = Float(0.0, units='USD', iotype='out', desc='cost for a tower')
+    tower_mass = Float(0.0, units='kg', iotype='out', desc='mass for a turbine tower')
 
     def __init__(self):
         """
-        OpenMDAO component to wrap tower model based of the NREL Cost and Scaling Model data (csmTower.py).
+        OpenMDAO component to wrap tower model based of the NREL _cost and Scaling Model data (csmTower.py).
 
         Parameters
         ----------
-        rotorDiameter : float
+        rotor_diameter : float
           rotor diameter of the machine [m]
-        hubHeight : float
+        hub_height : float
           hub height of machine [m]
         year : int
           year of project start
@@ -50,9 +50,9 @@ class tower_csm_component(Component):
         
         Returns
         -------
-        towerCost : float
+        tower_cost : float
           cost for a tower [USD]
-        towerMass : float
+        tower_mass : float
           mass for a turbine tower [kg]       
         """        
 
@@ -62,14 +62,14 @@ class tower_csm_component(Component):
 
     def execute(self):
         """
-        Executes the tower model of the NREL Cost and Scaling Model.
+        Executes the tower model of the NREL _cost and Scaling Model.
         """
         print "In {0}.execute()...".format(self.__class__)
         
-        self.tower.compute(self.rotorDiameter, self.hubHeight, self.year, self.month)
+        self.tower.compute(self.rotor_diameter, self.hub_height, self.year, self.month)
 
-        self.towerCost = self.tower.getCost()
-        self.towerMass = self.tower.getMass()
+        self.tower_cost = self.tower.getCost()
+        self.tower_mass = self.tower.getMass()
            
 #-----------------------------------------------------------------
 
@@ -81,7 +81,7 @@ class tower_cost_csm_component(Component):
     # ---- Design Variables -------------- 
     
     # Turbine Configuration
-    towerMass = Float(0.0, units='kg', iotype='in', desc='mass for a turbine tower')
+    tower_mass = Float(0.0, units='kg', iotype='in', desc='mass for a turbine tower')
     
     # Plant Configuration
     year = Int(2009, units = 'yr', iotype='in', desc = 'year of project start')
@@ -89,16 +89,16 @@ class tower_cost_csm_component(Component):
 
     # ------------- Outputs -------------- 
   
-    towerCost = Float(0.0, units='USD', iotype='out', desc='cost for a tower')
+    tower_cost = Float(0.0, units='USD', iotype='out', desc='cost for a tower')
 
 
     def __init__(self):
         """
-        OpenMDAO component to wrap tower model based of the NREL Cost and Scaling Model data (csmTower.py).
+        OpenMDAO component to wrap tower model based of the NREL _cost and Scaling Model data (csmTower.py).
 
         Parameters
         ----------
-        towerMass : float
+        tower_mass : float
           mass for a turbine tower [kg]
         year : int
           year of project start
@@ -107,7 +107,7 @@ class tower_cost_csm_component(Component):
         
         Returns
         -------
-        towerCost : float
+        tower_cost : float
           cost for a tower [USD]    
         """ 
         super(tower_cost_csm_component, self).__init__()
@@ -116,13 +116,13 @@ class tower_cost_csm_component(Component):
 
     def execute(self):
         """
-        Executes the tower model of the NREL Cost and Scaling Model.
+        Executes the tower model of the NREL _cost and Scaling Model.
         """
         print "In {0}.execute()...".format(self.__class__)
         
-        self.tower.computeCost(self.year, self.month,self.towerMass)
+        self.tower.compute_cost(self.year, self.month,self.tower_mass)
 
-        self.towerCost = self.tower.getCost()
+        self.tower_cost = self.tower.getCost()
            
 #-----------------------------------------------------------------
 
@@ -135,27 +135,27 @@ class tower_mass_csm_component(Component):
     
     # Turbine Configuration
     # rotor
-    rotorDiameter = Float(126.0, units = 'm', iotype='in', desc= 'rotor diameter of the machine') 
-    hubHeight = Float(90.0, units = 'm', iotype='in', desc = 'hub height of machine')
+    rotor_diameter = Float(126.0, units = 'm', iotype='in', desc= 'rotor diameter of the machine') 
+    hub_height = Float(90.0, units = 'm', iotype='in', desc = 'hub height of machine')
 
     # ------------- Outputs -------------- 
 
-    towerMass = Float(0.0, units='kg', iotype='out', desc='mass for a turbine tower')
+    tower_mass = Float(0.0, units='kg', iotype='out', desc='mass for a turbine tower')
 
     def __init__(self):
         """
-        OpenMDAO component to wrap tower model based of the NREL Cost and Scaling Model data (csmTower.py).
+        OpenMDAO component to wrap tower model based of the NREL _cost and Scaling Model data (csmTower.py).
 
         Parameters
         ----------
-        rotorDiameter : float
+        rotor_diameter : float
           rotor diameter of the machine [m]
-        hubHeight : float
+        hub_height : float
           hub height of machine [m]
         
         Returns
         -------
-        towerMass : float
+        tower_mass : float
           mass for a turbine tower [kg]       
         """  
         super(tower_mass_csm_component, self).__init__()
@@ -164,13 +164,13 @@ class tower_mass_csm_component(Component):
 
     def execute(self):
         """
-        Executes the tower model of the NREL Cost and Scaling Model.
+        Executes the tower model of the NREL _cost and Scaling Model.
         """
         print "In {0}.execute()...".format(self.__class__)
         
-        self.tower.computeMass(self.rotorDiameter, self.hubHeight)
+        self.tower.compute_mass(self.rotor_diameter, self.hub_height)
 
-        self.towerMass = self.tower.getMass()
+        self.tower_mass = self.tower.getMass()
            
 #-----------------------------------------------------------------
 
@@ -181,43 +181,43 @@ def example():
     tower = tower_csm_component()
         
     # First test
-    tower.rotorDiameter = 126.0
-    tower.hubHeight = 90.0
+    tower.rotor_diameter = 126.0
+    tower.hub_height = 90.0
     tower.year = 2009
     tower.month = 12
     
     tower.execute()
     
     print "Tower csm component"
-    print "Tower mass: {0}".format(tower.towerMass)
-    print "Tower cost: {0}".format(tower.towerCost)
+    print "Tower mass: {0}".format(tower.tower_mass)
+    print "Tower cost: {0}".format(tower.tower_cost)
 
     # simple test of module
 
     tower = tower_cost_csm_component()
         
     # First test
-    tower.towerMass = 444384.16
+    tower.tower_mass = 444384.16
     tower.year = 2009
     tower.month = 12
     
     tower.execute()
 
     print "Tower cost csm component"
-    print "Tower cost: {0}".format(tower.towerCost)
+    print "Tower cost: {0}".format(tower.tower_cost)
 
     # simple test of module
 
     tower = tower_mass_csm_component()
         
     # First test
-    tower.rotorDiameter = 126.0
-    tower.hubHeight = 90.0
+    tower.rotor_diameter = 126.0
+    tower.hub_height = 90.0
     
     tower.execute()
     
     print "Tower mass csm component"
-    print "Tower mass: {0}".format(tower.towerMass)
+    print "Tower mass: {0}".format(tower.tower_mass)
 
 if __name__ == "__main__":
 

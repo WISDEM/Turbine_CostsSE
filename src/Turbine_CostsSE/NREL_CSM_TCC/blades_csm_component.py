@@ -10,7 +10,7 @@ import sys
 from openmdao.main.api import Component, Assembly, set_as_top, VariableTree
 from openmdao.main.datatypes.api import Int, Bool, Float, Array, VarTree
 
-from twister.models.csm.csmBlades import csmBlades
+from NREL_CSM.csmBlades import csmBlades
 
 class blades_csm_component(Component):
     """
@@ -21,8 +21,8 @@ class blades_csm_component(Component):
     
     # Turbine Configuration
     # rotor
-    rotorDiameter = Float(126.0, units = 'm', iotype='in', desc= 'rotor diameter of the machine') 
-    advancedBlade = Bool(False, iotype='in', desc = 'boolean for use of advanced blade curve')
+    rotor_diameter = Float(126.0, units = 'm', iotype='in', desc= 'rotor diameter of the machine') 
+    advanced_blade = Bool(False, iotype='in', desc = 'boolean for use of advanced blade curve')
     
     # Plant Configuration
     year = Int(2009, units = 'yr', iotype='in', desc = 'year of project start')
@@ -30,18 +30,18 @@ class blades_csm_component(Component):
 
     # ------------- Outputs -------------- 
   
-    bladeCost = Float(0.0, units='USD', iotype='out', desc='cost for a single wind turbine blade')
-    bladeMass = Float(0.0, units='kg', iotype='out', desc='mass for a single wind turbine blade')
+    blade_cost = Float(0.0, units='USD', iotype='out', desc='cost for a single wind turbine blade')
+    blade_mass = Float(0.0, units='kg', iotype='out', desc='mass for a single wind turbine blade')
 
     def __init__(self):
         """
-        OpenMDAO component to wrap blade model of the NREL Cost and Scaling Model (csmBlades.py)
+        OpenMDAO component to wrap blade model of the NREL _cost and Scaling Model (csmBlades.py)
         
         Parameters
         ----------
-        rotorDiameter : float
+        rotor_diameter : float
           rotor diameter of the machine [m]
-        advancedBlade : bool
+        advanced_blade : bool
           boolean for use of advanced blade curve
         year : int
           year of project start
@@ -50,9 +50,9 @@ class blades_csm_component(Component):
           
         Returns
         -------
-        bladeCost : float
+        blade_cost : float
           cost for a single wind turbine blade [USD}
-        bladeMass : float
+        blade_mass : float
           mass of a single rotor blade [kg]
         
         """
@@ -62,14 +62,14 @@ class blades_csm_component(Component):
 
     def execute(self):
         """
-        Executes Blade model of the NREL Cost and Scaling Model to estimate wind turbine blade cost and mass.
+        Executes Blade model of the NREL _cost and Scaling Model to estimate wind turbine blade cost and mass.
         """
         print "In {0}.execute()...".format(self.__class__)
         
-        self.blades.compute(self.rotorDiameter, self.advancedBlade, self.year, self.month)
+        self.blades.compute(self.rotor_diameter, self.advanced_blade, self.year, self.month)
 
-        self.bladeCost = self.blades.getCost()
-        self.bladeMass = self.blades.getMass()
+        self.blade_cost = self.blades.getCost()
+        self.blade_mass = self.blades.getMass()
            
 #-----------------------------------------------------------------
 
@@ -82,26 +82,26 @@ class blades_mass_csm_component(Component):
     
     # Turbine Configuration
     # rotor
-    rotorDiameter = Float(126.0, units = 'm', iotype='in', desc= 'rotor diameter of the machine') 
-    advancedBlade = Bool(False, iotype='in', desc = 'boolean for use of advanced blade curve')
+    rotor_diameter = Float(126.0, units = 'm', iotype='in', desc= 'rotor diameter of the machine') 
+    advanced_blade = Bool(False, iotype='in', desc = 'boolean for use of advanced blade curve')
 
     # ------------- Outputs -------------- 
-    bladeMass = Float(0.0, units='kg', iotype='out', desc='mass for a single wind turbine blade')
+    blade_mass = Float(0.0, units='kg', iotype='out', desc='mass for a single wind turbine blade')
 
     def __init__(self):
         """
-        OpenMDAO component to wrap blade mass model of the NREL Cost and Scaling Model (csmBlades.py)
+        OpenMDAO component to wrap blade mass model of the NREL _cost and Scaling Model (csmBlades.py)
         
         Parameters
         ----------
-        rotorDiameter : float
+        rotor_diameter : float
           rotor diameter of the machine [m]
-        advancedBlade : bool
+        advanced_blade : bool
           boolean for use of advanced blade curve
           
         Returns
         -------
-        bladeMass : float
+        blade_mass : float
           mass of a single rotor blade [kg]
         
         """
@@ -112,14 +112,14 @@ class blades_mass_csm_component(Component):
 
     def execute(self):
         """
-        Executes Blade mass model of the NREL Cost and Scaling Model to estimate wind turbine blade mass.
+        Executes Blade mass model of the NREL _cost and Scaling Model to estimate wind turbine blade mass.
         """
 
         print "In {0}.execute()...".format(self.__class__)
         
-        self.blades.computeMass(self.rotorDiameter, self.advancedBlade)
+        self.blades.compute_mass(self.rotor_diameter, self.advanced_blade)
 
-        self.bladeMass = self.blades.getMass()
+        self.blade_mass = self.blades.getMass()
            
 #-----------------------------------------------------------------
 
@@ -132,8 +132,8 @@ class blades_cost_csm_component(Component):
     
     # Turbine Configuration
     # rotor
-    rotorDiameter = Float(126.0, units = 'm', iotype='in', desc= 'rotor diameter of the machine') 
-    advancedBlade = Bool(False, iotype='in', desc = 'boolean for use of advanced blade curve')
+    rotor_diameter = Float(126.0, units = 'm', iotype='in', desc= 'rotor diameter of the machine') 
+    advanced_blade = Bool(False, iotype='in', desc = 'boolean for use of advanced blade curve')
     
     # Plant Configuration
     year = Int(2009, units = 'yr', iotype='in', desc = 'year of project start')
@@ -141,18 +141,18 @@ class blades_cost_csm_component(Component):
 
     # ------------- Outputs -------------- 
   
-    bladeCost = Float(0.0, units='USD', iotype='out', desc='cost for a single wind turbine blade')
+    blade_cost = Float(0.0, units='USD', iotype='out', desc='cost for a single wind turbine blade')
 
 
     def __init__(self):
         """
-        OpenMDAO component to wrap blade model of the NREL Cost and Scaling Model (csmBlades.py)
+        OpenMDAO component to wrap blade model of the NREL _cost and Scaling Model (csmBlades.py)
         
         Parameters
         ----------
-        rotorDiameter : float
+        rotor_diameter : float
           rotor diameter of the machine [m]
-        advancedBlade : bool
+        advanced_blade : bool
           boolean for use of advanced blade curve
         year : int
           year of project start
@@ -161,7 +161,7 @@ class blades_cost_csm_component(Component):
           
         Returns
         -------
-        bladeCost : float
+        blade_cost : float
           cost for a single wind turbine blade [USD}
         
         """
@@ -171,14 +171,14 @@ class blades_cost_csm_component(Component):
 
     def execute(self):
         """
-        Executes Blade cost model of the NREL Cost and Scaling Model to estimate wind turbine blade cost.
+        Executes Blade cost model of the NREL _cost and Scaling Model to estimate wind turbine blade cost.
         """
 
         print "In {0}.execute()...".format(self.__class__)
         
-        self.blades.computeCost(self.rotorDiameter, self.advancedBlade, self.year, self.month)
+        self.blades.compute_cost(self.rotor_diameter, self.advanced_blade, self.year, self.month)
 
-        self.bladeCost = self.blades.getCost()
+        self.blade_cost = self.blades.getCost()
            
 #-----------------------------------------------------------------
 
@@ -189,42 +189,42 @@ def example():
     blades = blades_csm_component()
         
     # First test
-    blades.rotorDiameter = 126.0
-    blades.advancedBlade = False
+    blades.rotor_diameter = 126.0
+    blades.advanced_blade = False
     blades.year = 2009
     blades.month = 12
     
     blades.execute()
     
     print "Blade csm component"
-    print "Blade mass: {0}".format(blades.bladeMass)
-    print "Blade cost: {0}".format(blades.bladeCost)
+    print "Blade mass: {0}".format(blades.blade_mass)
+    print "Blade cost: {0}".format(blades.blade_cost)
     
     # simple test of module
 
     blades = blades_mass_csm_component()
         
     # First test
-    blades.rotorDiameter = 126.0
-    blades.advancedBlade = False
+    blades.rotor_diameter = 126.0
+    blades.advanced_blade = False
     
     blades.execute()
     print "Blade mass csm component"    
-    print "Blade mass: {0}".format(blades.bladeMass)
+    print "Blade mass: {0}".format(blades.blade_mass)
     
     # simple test of module
 
     blades = blades_cost_csm_component()
         
     # First test
-    blades.rotorDiameter = 126.0
-    blades.advancedBlade = False
+    blades.rotor_diameter = 126.0
+    blades.advanced_blade = False
     blades.year = 2009
     blades.month = 12
     
     blades.execute()
     print "Blade cost csm component"    
-    print "Blade cost: {0}".format(blades.bladeCost)
+    print "Blade cost: {0}".format(blades.blade_cost)
 
 
 if __name__ == "__main__":
