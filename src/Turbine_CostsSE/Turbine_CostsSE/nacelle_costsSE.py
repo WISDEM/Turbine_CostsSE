@@ -57,17 +57,19 @@ class LowSpeedShaftCost(BaseComponentCostModel):
         self.cost = (LowSpeedShaftCost2002 * lowSpeedShaftCostEsc )
 
         # derivatives
-        d_cost_d_lowSpeedShaftMass = lowSpeedShaftCostEsc * 3.3602
+        self.d_cost_d_lowSpeedShaftMass = lowSpeedShaftCostEsc * 3.3602
+
+    def linearize(self):
         
         # Jacobian
-        self.J = np.array([[d_cost_d_lowSpeedShaftMass]])
+        self.J = np.array([[self.d_cost_d_lowSpeedShaftMass]])
 
     def provideJ(self):
 
-        input_keys = ['lowSpeedShaftMass']
-        output_keys = ['cost']
+        inputs = ['lowSpeedShaftMass']
+        outputs = ['cost']
 
-        self.derivatives.set_first_derivative(input_keys, output_keys, self.J)
+        return inputs, outputs, self.J
 
 #-------------------------------------------------------------------------------
 
@@ -119,18 +121,20 @@ class BearingsCost(BaseComponentCostModel):
         self.cost    = (( Bearings2002 ) * bearingCostEsc ) / 4   # div 4 to account for bearing cost mass differences CSM to Sunderland  
 
         # derivatives
-        d_cost_d_mainBearingMass = bearingCostEsc * brngSysCostFactor
-        d_cost_d_secondBearingMass = bearingCostEsc * brngSysCostFactor       
+        self.d_cost_d_mainBearingMass = bearingCostEsc * brngSysCostFactor / 4
+        self.d_cost_d_secondBearingMass = bearingCostEsc * brngSysCostFactor / 4
+
+    def linearize(self):
  
         # Jacobian
-        self.J = np.array([[d_cost_d_mainBearingMass, d_cost_d_secondBearingMass]])
+        self.J = np.array([[self.d_cost_d_mainBearingMass, self.d_cost_d_secondBearingMass]])
 
     def provideJ(self):
 
-        input_keys = ['mainBearingMass', 'secondBearingMass']
-        output_keys = ['cost']
+        inputs = ['mainBearingMass', 'secondBearingMass']
+        outputs = ['cost']
 
-        self.derivatives.set_first_derivative(input_keys, output_keys, self.J)             
+        return inputs, outputs, self.J             
 
 #-------------------------------------------------------------------------------
 
@@ -185,29 +189,28 @@ class GearboxCost(BaseComponentCostModel):
         if self.drivetrainDesign == 1:                                 
           Gearbox2002 = 16.9 * self.gearboxMass - 25066          # for traditional 3-stage gearbox, use mass based cost equation from NREL CSM
         else:
-          Gearbox2002 = costCoeff[iDsgn] * (self.machineRating ** costCoeff[self.drivetrainDesign])        # for other drivetrain configurations, use NREL CSM equation based on machine rating
+          Gearbox2002 = costCoeff[self.drivetrainDesign] * (self.machineRating ** costCoeff[self.drivetrainDesign])        # for other drivetrain configurations, use NREL CSM equation based on machine rating
 
-        self.cost   = Gearbox2002 * GearboxCostEsc      
+        self.cost   = Gearbox2002 * GearboxCostEsc
 
         # derivatives
         if self.drivetrainDesign == 1:                                 
-          d_cost_d_gearboxMass = GearboxCostEsc * 16.9
-          # Jacobian
-          self.J = np.array([[d_cost_d_gearboxMass]])
+          self.d_cost_d_gearboxMass = GearboxCostEsc * 16.9
+          self.d_cost_d_machineRating = 0.0
         else:
-          d_cost_d_machineRating =  GearboxCostEsc * costCoeff[iDsgn] * (costCoeff[self.drivetrainDesign] * (self.machineRating ** (costCoeff[self.drivetrainDesign]-1)))   
-          # Jacobian
-          self.J = np.array([[d_cost_d_machineRating]]) 
+          self.d_cost_d_gearboxMass = 0.0
+          self.d_cost_d_machineRating =  GearboxCostEsc * costCoeff[self.drivetrainDesign] * (costCoeff[self.drivetrainDesign] * (self.machineRating ** (costCoeff[self.drivetrainDesign]-1))) 
+
+    def linearize(self):
+    
+        self.J = np.array([[self.d_cost_d_gearboxMass, self.d_cost_d_machineRating]])
 
     def provideJ(self):
 
-        if self.drivetrainDesign == 1:
-          input_keys= ['gearboxMass']
-        else:
-          input_keys= ['machineRating']
-        output_keys = ['cost']
+        inputs= ['gearboxMass', 'machineRating']
+        outputs = ['cost']
 
-        self.derivatives.set_first_derivative(input_keys, output_keys, self.J) 
+        return inputs, outputs, self.J 
 
 #-------------------------------------------------------------------------------
               
@@ -252,17 +255,19 @@ class HighSpeedSideCost(BaseComponentCostModel):
         self.cost            = mechBrakeCostEsc * mechBrakeCost2002                                
 
         # derivatives
-        d_cost_d_highSpeedSideMass = mechBrakeCostEsc * 10      
+        self.d_cost_d_highSpeedSideMass = mechBrakeCostEsc * 10      
+
+    def linearize(self):
  
         # Jacobian
-        self.J = np.array([[d_cost_d_highSpeedSideMass]])
+        self.J = np.array([[self.d_cost_d_highSpeedSideMass]])
 
     def provideJ(self):
 
-        input_keys = ['highSpeedSideMass']
-        output_keys = ['cost']
+        inputs = ['highSpeedSideMass']
+        outputs = ['cost']
 
-        self.derivatives.set_first_derivative(input_keys, output_keys, self.J)  
+        return inputs, outputs, self.J  
 
 #-------------------------------------------------------------------------------
 
@@ -270,6 +275,7 @@ class GeneratorCost(BaseComponentCostModel):
 
     # variables
     generatorMass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    machine_rating = Float(iotype='in', units='kW', desc='machine rating')
     
     # parameters
     drivetrainDesign = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
@@ -309,21 +315,33 @@ class GeneratorCost(BaseComponentCostModel):
         generatorCostEsc     = ppi.compute('IPPI_GEN')
         costCoeff = [None, 65    , 54.73 ,  48.03 , 219.33 ] # $/kW - from 'Generators' worksheet
 
-        GeneratorCost2002 = 19.697 * self.generatorMass + 9277.3
+
+        if self.drivetrainDesign == 1:
+            GeneratorCost2002 = 19.697 * self.generatorMass + 9277.3
+        else:
+        	  GeneratorCost2002 = costCoeff[self.drivetrainDesign] * self.machine_rating
+        	  
         self.cost         = GeneratorCost2002 * generatorCostEsc 
 
         # derivatives
-        d_cost_d_generatorMass = generatorCostEsc * 19.697      
+        if self.drivetrainDesign == 1:
+            self.d_cost_d_generatorMass = generatorCostEsc * 19.697   
+            self.d_cost_d_machineRating = 0.0  
+        else:
+        	  self.d_cost_d_generatorMass = 0.0
+        	  self.d_cost_d_machineRating = costCoeff[self.drivetrainDesign] * generatorCostEsc
+
+    def linearize(self):
  
         # Jacobian
-        self.J = np.array([[d_cost_d_generatorMass]])
+        self.J = np.array([[self.d_cost_d_generatorMass, self.d_cost_d_machineRating]])
 
     def provideJ(self):
 
-        input_keys = ['generatorMass']
-        output_keys = ['cost']
+        inputs = ['generatorMass', 'machine_rating']
+        outputs = ['cost']
 
-        self.derivatives.set_first_derivative(input_keys, output_keys, self.J)                         
+        return inputs, outputs, self.J                         
 
 #-------------------------------------------------------------------------------
 
@@ -335,6 +353,7 @@ class BedplateCost(BaseComponentCostModel):
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
     curr_mon = Int(iotype='in', desc='Current Month')
+    drivetrainDesign = Int(iotype='in', desc='type of drivetrain')
     
     # returns
     cost2002 = Float(iotype='out', units='USD', desc='component cost in 2002 USD')
@@ -371,6 +390,7 @@ class BedplateCost(BaseComponentCostModel):
         #calculate component cost                                    # TODO: cost needs to be adjusted based on look-up table or a materials, mass and manufacturing equation            
         BedplateCostEsc     = ppi.compute('IPPI_MFM')
 
+        #TODO: handle different drivetrain types
         costCoeff = [None, 9.48850 , 303.96000, 17.92300 , 627.280000 ]
         costExp   = [None, 1.9525, 1.0669, 1.6716, 0.85]
 
@@ -378,18 +398,20 @@ class BedplateCost(BaseComponentCostModel):
         self.cost     = self.cost2002 * BedplateCostEsc
 
         # derivatives
-        d_cost_d_bedplateMass = BedplateCostEsc * 0.9461  
-        d_cost2002_d_bedplateMass = 0.9461    
+        self.d_cost_d_bedplateMass = BedplateCostEsc * 0.9461  
+        self.d_cost2002_d_bedplateMass = 0.9461
+
+    def linearize(self):
  
         # Jacobian
-        self.J = np.array([[d_cost_d_bedplateMass], [d_cost2002_d_bedplateMass]])
+        self.J = np.array([[self.d_cost_d_bedplateMass], [self.d_cost2002_d_bedplateMass]])
 
     def provideJ(self):
 
-        input_keys = ['bedplateMass']
-        output_keys = ['cost', 'cost2002']
+        inputs = ['bedplateMass']
+        outputs = ['cost', 'cost2002']
 
-        self.derivatives.set_first_derivative(input_keys, output_keys, self.J)       
+        return inputs, outputs, self.J       
 
 #--------------------------------------------------------------------------------- 
    
@@ -436,24 +458,26 @@ class YawSystemCost(BaseComponentCostModel):
         self.cost         = YawDrvBearing2002 * yawDrvBearingCostEsc 
 
         # derivatives
-        d_cost_d_yawSystemMass = yawDrvBearingCostEsc * 8.3221      
+        self.d_cost_d_yawSystemMass = yawDrvBearingCostEsc * 8.3221      
+
+    def linearize(self):
  
         # Jacobian
-        self.J = np.array([[d_cost_d_yawSystemMass]])
+        self.J = np.array([[self.d_cost_d_yawSystemMass]])
 
     def provideJ(self):
 
-        input_keys = ['yawSystemMass']
-        output_keys = ['cost']
+        inputs = ['yawSystemMass']
+        outputs = ['cost']
 
-        self.derivatives.set_first_derivative(input_keys, output_keys, self.J)                 
+        return inputs, outputs, self.J                 
 
 #-------------------------------------------------------------------------------
 
 class NacelleSystemCostAdder(FullNacelleCostAggregator):
 
     # variables
-    machineRating = Float(iotype='in', units='kW', desc='machine rating')   
+    machine_rating = Float(iotype='in', units='kW', desc='machine rating')   
     bedplateMass = Float(iotype='in', units='kg', desc='component mass [kg]')
     bedplate_cost = Float(iotype='in', units='USD', desc='component cost [USD]')
     bedplateCost2002 = Float(iotype='in', units='USD', desc='component cost in 2002 USD')
@@ -476,7 +500,7 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
           component cost [USD]
         gearboxCost : float
           component cost [USD]
-        highSpeedSdieCost : float
+        highSpeedSideCost : float
           component cost [USD]
         generatorCost : float
           component cost [USD]
@@ -533,13 +557,13 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
         controlsCostEsc      = ppi.compute('IPPI_CTL')
 
         # electronic systems, hydraulics and controls
-        econnectionsCost2002  = 40.0 * self.machineRating  # 2002
+        econnectionsCost2002  = 40.0 * self.machine_rating  # 2002
         self.econnectionsCost = econnectionsCost2002 * econnectionsCostEsc
                
-        VspdEtronics2002      = 79.32 * self.machineRating
+        VspdEtronics2002      = 79.32 * self.machine_rating
         self.vspdEtronicsCost = VspdEtronics2002 * VspdEtronicsCostEsc        
 
-        hydrCoolingCost2002  = 12.0 * self.machineRating # 2002
+        hydrCoolingCost2002  = 12.0 * self.machine_rating # 2002
         self.hydrCoolingCost = hydrCoolingCost2002 * hydrCoolingCostEsc  
 
         if (not self.offshore):
@@ -549,7 +573,7 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
             ControlsCost2002  = 55900.0 # initial approximation 2002
             self.controlsCost = ControlsCost2002 * controlsCostEsc   
         
-        nacelleCovCost2002  = 11.537 * self.machineRating + (3849.7)
+        nacelleCovCost2002  = 11.537 * self.machine_rating + (3849.7)
         self.nacelleCovCost = nacelleCovCost2002 * nacelleCovCostEsc
         
         # aggregation of nacelle costs
@@ -576,31 +600,33 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
 
         # derivatives
         # derivatives
-        d_cost_d_bedplateMass = BedplateCostEsc * 8.7 * 0.125
-        d_cost_d_bedplateCost2002 = BedplateCostEsc * 0.7
-        d_cost_d_bedplateCost = 1
-        d_cost_d_lowSpeedShaftCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
-        d_cost_d_bearingsCost= (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
-        d_cost_d_gearboxCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
-        d_cost_d_highSpeedSideCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
-        d_cost_d_generatorCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
-        d_cost_d_yawSystemCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
-        d_cost_d_machineRating = (1 + transportMultiplier + profitMultiplier) * ((1+overheadCostMultiplier+assemblyCostMultiplier) * \
+        self.d_cost_d_bedplateMass = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier) * BedplateCostEsc * 8.7 * 0.125
+        self.d_cost_d_bedplateCost2002 = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier) * BedplateCostEsc * 0.7
+        self.d_cost_d_bedplateCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+        self.d_cost_d_lowSpeedShaftCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+        self.d_cost_d_bearingsCost= (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+        self.d_cost_d_gearboxCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+        self.d_cost_d_highSpeedSideCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+        self.d_cost_d_generatorCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+        self.d_cost_d_yawSystemCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+        self.d_cost_d_machineRating = (1 + transportMultiplier + profitMultiplier) * ((1+overheadCostMultiplier+assemblyCostMultiplier) * \
                                  (econnectionsCostEsc * 40.0 + VspdEtronicsCostEsc * 79.32 + hydrCoolingCostEsc * 12.0 + nacelleCovCostEsc * 11.537))
+
+    def linearize(self):
  
         # Jacobian
-        self.J = np.array([[d_cost_d_bedplateMass, d_cost_d_bedplateCost, d_cost_d_bedplateCost2002, \
-                            d_cost_d_lowSpeedShaftCost, d_cost_d_bearingsCost, d_cost_d_gearboxCost, \
-                            d_cost_d_highSpeedSideCost, d_cost_d_generatorCost, \
-                            d_cost_d_yawSystemCost, d_cost_d_machineRating]])
+        self.J = np.array([[self.d_cost_d_bedplateMass, self.d_cost_d_bedplateCost2002, self.d_cost_d_bedplateCost, \
+                            self.d_cost_d_lowSpeedShaftCost, self.d_cost_d_bearingsCost, self.d_cost_d_gearboxCost, \
+                            self.d_cost_d_highSpeedSideCost, self.d_cost_d_generatorCost, \
+                            self.d_cost_d_yawSystemCost, self.d_cost_d_machineRating]])
 
     def provideJ(self):
 
-        input_keys = ['bedplateMass', 'bedplateCos2002', 'bedplate_cost', 'lss_cost', 'bearings_cost', \
-                      'gearbox_cost', 'hss_cost', 'generator_cost', 'yaw_system_cost', 'machineRating']
-        output_keys = ['cost']
+        inputs = ['bedplateMass', 'bedplateCost2002', 'bedplate_cost', 'lss_cost', 'bearings_cost', \
+                      'gearbox_cost', 'hss_cost', 'generator_cost', 'yaw_system_cost', 'machine_rating']
+        outputs = ['cost']
 
-        self.derivatives.set_first_derivative(input_keys, output_keys, self.J) 
+        return inputs, outputs, self.J 
 
 #------------------------------------------------------------------
 

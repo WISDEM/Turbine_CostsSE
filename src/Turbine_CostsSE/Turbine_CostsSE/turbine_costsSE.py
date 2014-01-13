@@ -113,6 +113,7 @@ class Turbine_CostsSE(FullTurbineCapitalCostModel):
         
         # connect inputs
         self.connect('bladeMass', 'rotorCC.bladeMass')
+        self.connect('bladeNumber', 'rotorCC.blade_number')
         self.connect('hubMass', 'rotorCC.hubMass')
         self.connect('pitchSystemMass', 'rotorCC.pitchSystemMass')
         self.connect('spinnerMass', 'rotorCC.spinnerMass')
@@ -174,27 +175,29 @@ class TurbineCostAdder(FullTCCAggregator):
         self.turbine_cost = (1 + transportMultiplier + profitMultiplier) * ((1+overheadCostMultiplier+assemblyCostMultiplier)*partsCost)
         
         # derivatives
-        d_cost_d_rotor_cost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
-        d_cost_d_nacelle_cost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
-        d_cost_d_tower_cost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+        self.d_cost_d_rotor_cost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+        self.d_cost_d_nacelle_cost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+        self.d_cost_d_tower_cost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
 
         if self.offshore:
             self.turbine_cost *= 1.1
 
             # derivatives
-            d_cost_d_rotor_cost *= 1.1
-            d_cost_d_nacelle_cost *= 1.1
-            d_cost_d_tower_cost *= 1.1
+            self.d_cost_d_rotor_cost *= 1.1
+            self.d_cost_d_nacelle_cost *= 1.1
+            self.d_cost_d_tower_cost *= 1.1
+    
+    def linearize(self):
         
         # Jacobian
-        self.J = np.array([[d_cost_d_rotor_cost, d_cost_d_nacelle_cost, d_cost_d_tower_cost]])
+        self.J = np.array([[self.d_cost_d_rotor_cost, self.d_cost_d_nacelle_cost, self.d_cost_d_tower_cost]])
 
     def provideJ(self):
 
-        input_keys = ['rotor_cost', 'nacelle_cost', 'tower_cost']
-        output_keys = ['turbine_cost']
+        inputs = ['rotor_cost', 'nacelle_cost', 'tower_cost']
+        outputs = ['turbine_cost']
 
-        self.derivatives.set_first_derivative(input_keys, output_keys, self.J)
+        return inputs, outputs, self.J
         
 #-------------------------------------------------------------------------------       
 
@@ -227,7 +230,7 @@ def example():
     turbine.drivetrainDesign = 1
     turbine.crane = True
     turbine.offshore = True
-    turbine.curr_yr = 2009
+    turbine.curr_yr = 2010
     turbine.curr_mon =  12
 
     turbine.run()
@@ -235,6 +238,7 @@ def example():
     print "Turbine cost is ${0:.2f} USD".format(turbine.turbine_cost) # $5350414.10
     print
     print "Overall rotor cost with 3 advanced blades is ${0:.2f} USD".format(turbine.rotorCC.cost)
+    print "Blade cost is ${0:.2f} USD".format(turbine.rotorCC.bladeCC.cost)
     print "Hub cost is ${0:.2f} USD".format(turbine.rotorCC.hubCC.cost)   # $175513.50
     print "Pitch cost is ${0:.2f} USD".format(turbine.rotorCC.pitchSysCC.cost)  # $535075.0
     print "Spinner cost is ${0:.2f} USD".format(turbine.rotorCC.spinnerCC.cost)  # $10509.00

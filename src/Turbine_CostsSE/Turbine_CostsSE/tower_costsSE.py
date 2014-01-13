@@ -60,17 +60,19 @@ class TowerCost(BaseComponentCostModel):
 
         
         # derivatives
-        d_cost_d_towerMass = twrCostEscalator * twrCostCoeff
+        self.d_cost_d_towerMass = twrCostEscalator * twrCostCoeff
+    
+    def linearize(self):
         
         # Jacobian
-        self.J = np.array([[d_cost_d_towerMass]])
+        self.J = np.array([[self.d_cost_d_towerMass]])
 
     def provideJ(self):
 
-        input_keys = ['towerMass']
-        output_keys = ['cost']
+        inputs = ['towerMass']
+        outputs = ['cost']
 
-        self.derivatives.set_first_derivative(input_keys, output_keys, self.J)  
+        return inputs, outputs, self.J 
 
 
 #-------------------------------------------------------------------------------
@@ -94,17 +96,19 @@ class TowerCostAdder(FullTowerCostAggregator):
         self.cost = (1 + transportMultiplier + profitMultiplier) * ((1+overheadCostMultiplier+assemblyCostMultiplier)*partsCost)
         
         # derivatives
-        d_cost_d_tower_cost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
-        
+        self.d_cost_d_tower_cost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+
+    def linearize(self):
+
         # Jacobian
-        self.J = np.array([[d_cost_d_tower_cost]])
+        self.J = np.array([[self.d_cost_d_tower_cost]])
 
     def provideJ(self):
 
-        input_keys = ['tower_cost']
-        output_keys = ['cost']
+        inputs = ['tower_cost']
+        outputs = ['cost']
 
-        self.derivatives.set_first_derivative(input_keys, output_keys, self.J)  
+        return inputs, outputs, self.J 
 
 
 class Tower_CostsSE(FullTowerCostModel):
@@ -117,19 +121,19 @@ class Tower_CostsSE(FullTowerCostModel):
     curr_mon = Int(iotype='in', desc='Current Month')
     
     def __init__(self):
-    	
-    	  super(Tower_CostsSE, self).__init__()
+      
+        super(Tower_CostsSE, self).__init__()
     
     def configure(self):
-    	  
-    	  super(Tower_CostsSE, self).configure()
-    	  
-    	  self.replace('towerCC', TowerCost())
-    	  self.replace('twrcc', TowerCostAdder())
-    	  
-    	  self.connect('towerMass', 'towerCC.towerMass')
-    	  self.connect('curr_yr', 'towerCC.curr_yr')
-    	  self.connect('curr_mon', 'towerCC.curr_mon')
+        
+        super(Tower_CostsSE, self).configure()
+        
+        self.replace('towerCC', TowerCost())
+        self.replace('twrcc', TowerCostAdder())
+        
+        self.connect('towerMass', 'towerCC.towerMass')
+        self.connect('curr_yr', 'towerCC.curr_yr')
+        self.connect('curr_mon', 'towerCC.curr_mon')
       
         
 #-------------------------------------------------------------------------------       

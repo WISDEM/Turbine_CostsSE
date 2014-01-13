@@ -73,17 +73,19 @@ class BladeCost(BaseComponentCostModel):
         self.cost = ((slope*self.bladeMass + intercept)*ppi_mat)
 
         # derivatives
-        d_cost_d_bladeMass = slope * ppi_mat
+        self.d_cost_d_bladeMass = slope * ppi_mat
+
+    def linearize(self):
         
         # Jacobian
-        self.J = np.array([[d_cost_d_bladeMass]])
+        self.J = np.array([[self.d_cost_d_bladeMass]])
 
     def provideJ(self):
 
-        input_keys = ['bladeMass']
-        output_keys = ['cost']
+        inputs = ['bladeMass']
+        outputs = ['cost']
 
-        self.derivatives.set_first_derivative(input_keys, output_keys, self.J)
+        return inputs, outputs, self.J
 
 
 # -----------------------------------------------------------------------------------------------
@@ -135,17 +137,19 @@ class HubCost(BaseComponentCostModel):
         self.cost = (hubCost2002 * hubCostEscalator )
 
         # derivatives
-        d_cost_d_hubMass = hubCostEscalator * 4.25
+        self.d_cost_d_hubMass = hubCostEscalator * 4.25
+    
+    def linearize(self):
         
         # Jacobian
-        self.J = np.array([[d_cost_d_hubMass]])
+        self.J = np.array([[self.d_cost_d_hubMass]])
 
     def provideJ(self):
 
-        input_keys = ['hubMass']
-        output_keys = ['cost']
+        inputs = ['hubMass']
+        outputs = ['cost']
 
-        self.derivatives.set_first_derivative(input_keys, output_keys, self.J)
+        return inputs, outputs, self.J
         
 #-------------------------------------------------------------------------------
 
@@ -196,17 +200,19 @@ class PitchSystemCost(BaseComponentCostModel):
         self.cost = (bearingCostEscalator * pitchSysCost2002)
 
         # derivatives
-        d_cost_d_pitchSystemMass = bearingCostEscalator * 2.28 * (0.0808 * 1.4985 * (self.pitchSystemMass ** 0.4985))
+        self.d_cost_d_pitchSystemMass = bearingCostEscalator * 2.28 * (0.0808 * 1.4985 * (self.pitchSystemMass ** 0.4985))
+
+    def linearize(self):
         
         # Jacobian
-        self.J = np.array([[d_cost_d_pitchSystemMass]])
+        self.J = np.array([[self.d_cost_d_pitchSystemMass]])
 
     def provideJ(self):
 
-        input_keys = ['pitchSystemMass']
-        output_keys = ['cost']
+        inputs = ['pitchSystemMass']
+        outputs = ['cost']
 
-        self.derivatives.set_first_derivative(input_keys, output_keys, self.J)
+        return inputs, outputs, self.J
         
 #-------------------------------------------------------------------------------
 
@@ -255,17 +261,19 @@ class SpinnerCost(BaseComponentCostModel):
         self.cost = (spinnerCostEscalator * (5.57*self.spinnerMass))
 
         # derivatives
-        d_cost_d_spinnerMass = spinnerCostEscalator * 5.57
+        self.d_cost_d_spinnerMass = spinnerCostEscalator * 5.57
+
+    def linearize(self):
         
         # Jacobian
-        self.J = np.array([[d_cost_d_spinnerMass]])
+        self.J = np.array([[self.d_cost_d_spinnerMass]])
 
     def provideJ(self):
 
-        input_keys = ['spinnerMass']
-        output_keys = ['cost']
+        inputs = ['spinnerMass']
+        outputs = ['cost']
 
-        self.derivatives.set_first_derivative(input_keys, output_keys, self.J)
+        return inputs, outputs, self.J
 
 #-------------------------------------------------------------------------------
 
@@ -305,19 +313,21 @@ class HubSystemCostAdder(FullHubSystemCostAggregator):
         self.cost = (1 + transportMultiplier + profitMultiplier) * ((1+overheadCostMultiplier+assemblyCostMultiplier)*partsCost)
         
         # derivatives
-        d_cost_d_hubCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
-        d_cost_d_pitchSystemCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
-        d_cost_d_spinnerCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+        self.d_cost_d_hubCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+        self.d_cost_d_pitchSystemCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+        self.d_cost_d_spinnerCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+
+    def linearize(self):
         
         # Jacobian
-        self.J = np.array([[d_cost_d_hubCost, d_cost_d_pitchSystemCost, d_cost_d_spinnerCost]])
+        self.J = np.array([[self.d_cost_d_hubCost, self.d_cost_d_pitchSystemCost, self.d_cost_d_spinnerCost]])
 
     def provideJ(self):
 
-        input_keys = ['hub_cost', 'pitch_system_cost', 'spinner_cost']
-        output_keys = ['cost']
+        inputs = ['hub_cost', 'pitch_system_cost', 'spinner_cost']
+        outputs = ['cost']
 
-        self.derivatives.set_first_derivative(input_keys, output_keys, self.J)   
+        return inputs, outputs, self.J
 
 #-------------------------------------------------------------------------------
 
@@ -336,7 +346,7 @@ class RotorCostAdder(FullRotorCostAggregator):
           individual blade cost [USD]
         hubSystemCost : float
           hub system cost [USD]
-        bladeNumber : float
+        bladeNumber : int
           number of rotor blades
 
         Returns
@@ -352,18 +362,20 @@ class RotorCostAdder(FullRotorCostAggregator):
         self.cost = self.blade_cost * self.blade_number + self.hub_system_cost
 
         # derivatives
-        d_cost_d_bladeCost = self.blade_number
-        d_cost_d_hubSystemCost = 1
+        self.d_cost_d_bladeCost = self.blade_number
+        self.d_cost_d_hubSystemCost = 1
+
+    def linearize(self):
         
         # Jacobian
-        self.J = np.array([[d_cost_d_bladeCost, d_cost_d_hubSystemCost]])
+        self.J = np.array([[self.d_cost_d_bladeCost, self.d_cost_d_hubSystemCost]])
 
     def provideJ(self):
 
-        input_keys = ['blade_cost', 'hub_system_cost']
-        output_keys = ['cost']
+        inputs = ['blade_cost', 'hub_system_cost']
+        outputs = ['cost']
 
-        self.derivatives.set_first_derivative(input_keys, output_keys, self.J)
+        return inputs, outputs, self.J
 
 #-------------------------------------------------------------------------------
 
