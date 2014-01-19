@@ -18,7 +18,7 @@ from fusedwind.plant_cost.fused_tcc_asym import FullTowerCostModel, FullTowerCos
 class TowerCost(BaseComponentCostModel):
 
     # variables
-    towerMass = Float(iotype='in', units='kg', desc='tower mass [kg]')
+    tower_mass = Float(iotype='in', units='kg', desc='tower mass [kg]')
     
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
@@ -30,7 +30,7 @@ class TowerCost(BaseComponentCostModel):
         
         Parameters
         ----------
-        towerMass : float
+        tower_mass : float
           mass [kg] of the wind turbine tower
         curr_yr : int
           Project start year
@@ -55,21 +55,21 @@ class TowerCost(BaseComponentCostModel):
         
         twrCostCoeff      = 1.5 # $/kg    
         
-        self.towerCost2002 = self.towerMass * twrCostCoeff               
+        self.towerCost2002 = self.tower_mass * twrCostCoeff               
         self.cost = self.towerCost2002 * twrCostEscalator
 
         
         # derivatives
-        self.d_cost_d_towerMass = twrCostEscalator * twrCostCoeff
+        self.d_cost_d_tower_mass = twrCostEscalator * twrCostCoeff
     
     def linearize(self):
         
         # Jacobian
-        self.J = np.array([[self.d_cost_d_towerMass]])
+        self.J = np.array([[self.d_cost_d_tower_mass]])
 
     def provideJ(self):
 
-        inputs = ['towerMass']
+        inputs = ['tower_mass']
         outputs = ['cost']
 
         return inputs, outputs, self.J 
@@ -114,7 +114,7 @@ class TowerCostAdder(FullTowerCostAggregator):
 class Tower_CostsSE(FullTowerCostModel):
 
     # variables
-    towerMass = Float(iotype='in', units='kg', desc='tower mass [kg]')
+    tower_mass = Float(iotype='in', units='kg', desc='tower mass [kg]')
     
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
@@ -131,7 +131,7 @@ class Tower_CostsSE(FullTowerCostModel):
         self.replace('towerCC', TowerCost())
         self.replace('twrcc', TowerCostAdder())
         
-        self.connect('towerMass', 'towerCC.towerMass')
+        self.connect('tower_mass', 'towerCC.tower_mass')
         self.connect('curr_yr', 'towerCC.curr_yr')
         self.connect('curr_mon', 'towerCC.curr_mon')
       
@@ -146,7 +146,7 @@ def example():
     ppi.ref_yr   = 2002
     ppi.ref_mon  = 9
 
-    tower.towerMass = 434559.0
+    tower.tower_mass = 434559.0
     tower.curr_yr = 2009
     tower.curr_mon =  12
     

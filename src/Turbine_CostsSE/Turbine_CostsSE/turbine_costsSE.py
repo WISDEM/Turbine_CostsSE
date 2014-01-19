@@ -25,37 +25,37 @@ class Turbine_CostsSE(FullTurbineCapitalCostModel):
 
     Parameters
     ----------
-    bladeMass : float
+    blade_mass : float
       blade mass [kg]
-    hubMass : float
+    hub_mass : float
       hub mass [kg]
-    pitchSystemMass : float
+    pitch_system_mass : float
       pitch system mass [kg]
-    spinnerMass : float
+    spinner_mass : float
       spinner mass [kg]
-    lowSpeedShaftMass : float
+    low_speed_shaft_mass : float
       Low speed shaft mass [kg]
     mainBearingsMass : float
       bearing mass [kg]
     secondBearingsMass : float
       bearing mass [kg]
-    gearboxMass : float
+    gearbox_mass : float
       Gearbox mass [kg]
-    highSpeedSideMass : float
+    high_speed_side_mass : float
       High speed side mass [kg]
-    bedplateMass : float
+    bedplate_mass : float
       Bedplate mass [kg]
-    yawSystemMass : float
+    yaw_system_mass : float
       Yaw system mass [kg]
-    towerMass : float
+    tower_mass : float
       mass [kg] of the wind turbine tower
-    machineRating : float
+    machine_rating : float
       Machine rating for turbine [kW]
-    bladeNumber : int
+    blade_number : int
       Number of blades on rotor
     advanced : bool
       boolean for advanced (using carbon) or basline (all fiberglass) blade
-    drivetrainDesign : int
+    drivetrain_design : int
       machine configuration 1 conventional, 2 medium speed, 3 multi-gen, 4 direct-drive
     offshore : bool
       boolean true if it is offshore
@@ -73,25 +73,25 @@ class Turbine_CostsSE(FullTurbineCapitalCostModel):
     '''
 
     # variables
-    bladeMass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    hubMass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    pitchSystemMass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    spinnerMass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    lowSpeedShaftMass = Float(iotype='in', units='kg', desc='component mass')
-    mainBearingMass = Float(iotype='in', units='kg', desc='component mass')
-    secondBearingMass = Float(iotype='in', units='kg', desc='component mass')
-    gearboxMass = Float(iotype='in', units='kg', desc='component mass')
-    highSpeedSideMass = Float(iotype='in', units='kg', desc='component mass')
-    generatorMass = Float(iotype='in', units='kg', desc='component mass')
-    bedplateMass = Float(iotype='in', units='kg', desc='component mass')
-    yawSystemMass = Float(iotype='in', units='kg', desc='component mass')
-    towerMass = Float(iotype='in', units='kg', desc='tower mass [kg]')
-    machineRating = Float(iotype='in', units='kW', desc='machine rating')
+    blade_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    hub_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    pitch_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    spinner_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    low_speed_shaft_mass = Float(iotype='in', units='kg', desc='component mass')
+    main_bearing_mass = Float(iotype='in', units='kg', desc='component mass')
+    second_bearing_mass = Float(iotype='in', units='kg', desc='component mass')
+    gearbox_mass = Float(iotype='in', units='kg', desc='component mass')
+    high_speed_side_mass = Float(iotype='in', units='kg', desc='component mass')
+    generator_mass = Float(iotype='in', units='kg', desc='component mass')
+    bedplate_mass = Float(iotype='in', units='kg', desc='component mass')
+    yaw_system_mass = Float(iotype='in', units='kg', desc='component mass')
+    tower_mass = Float(iotype='in', units='kg', desc='tower mass [kg]')
+    machine_rating = Float(iotype='in', units='kW', desc='machine rating')
     
     # parameters
-    bladeNumber = Int(iotype='in', desc='number of rotor blades')
+    blade_number = Int(iotype='in', desc='number of rotor blades')
     advanced = Bool(True, iotype='in', desc='advanced (True) or traditional (False) blade design') 
-    drivetrainDesign = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
+    drivetrain_design = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
     crane = Bool(iotype='in', desc='flag for presence of onboard crane')
     offshore = Bool(iotype='in', desc='flag for offshore site')
     curr_yr = Int(iotype='in', desc='Current Year')
@@ -112,25 +112,25 @@ class Turbine_CostsSE(FullTurbineCapitalCostModel):
         self.replace('tcc', TurbineCostAdder())
         
         # connect inputs
-        self.connect('bladeMass', 'rotorCC.bladeMass')
-        self.connect('bladeNumber', 'rotorCC.blade_number')
-        self.connect('hubMass', 'rotorCC.hubMass')
-        self.connect('pitchSystemMass', 'rotorCC.pitchSystemMass')
-        self.connect('spinnerMass', 'rotorCC.spinnerMass')
+        self.connect('blade_mass', 'rotorCC.blade_mass')
+        self.connect('blade_number', 'rotorCC.blade_number')
+        self.connect('hub_mass', 'rotorCC.hub_mass')
+        self.connect('pitch_system_mass', 'rotorCC.pitch_system_mass')
+        self.connect('spinner_mass', 'rotorCC.spinner_mass')
         self.connect('advanced', 'rotorCC.advanced')
-        self.connect('lowSpeedShaftMass', 'nacelleCC.lowSpeedShaftMass')
-        self.connect('mainBearingMass', 'nacelleCC.mainBearingMass')
-        self.connect('secondBearingMass', 'nacelleCC.secondBearingMass')
-        self.connect('gearboxMass', 'nacelleCC.gearboxMass')
-        self.connect('highSpeedSideMass', 'nacelleCC.highSpeedSideMass')
-        self.connect('generatorMass', 'nacelleCC.generatorMass')
-        self.connect('bedplateMass', ['nacelleCC.bedplateMass'])
-        self.connect('yawSystemMass', 'nacelleCC.yawSystemMass')
-        self.connect('machineRating', ['nacelleCC.machineRating'])
-        self.connect('drivetrainDesign', ['nacelleCC.drivetrainDesign'])
+        self.connect('low_speed_shaft_mass', 'nacelleCC.low_speed_shaft_mass')
+        self.connect('main_bearing_mass', 'nacelleCC.main_bearing_mass')
+        self.connect('second_bearing_mass', 'nacelleCC.second_bearing_mass')
+        self.connect('gearbox_mass', 'nacelleCC.gearbox_mass')
+        self.connect('high_speed_side_mass', 'nacelleCC.high_speed_side_mass')
+        self.connect('generator_mass', 'nacelleCC.generator_mass')
+        self.connect('bedplate_mass', ['nacelleCC.bedplate_mass'])
+        self.connect('yaw_system_mass', 'nacelleCC.yaw_system_mass')
+        self.connect('machine_rating', ['nacelleCC.machine_rating'])
+        self.connect('drivetrain_design', ['nacelleCC.drivetrain_design'])
         self.connect('crane', 'nacelleCC.crane')
         self.connect('offshore', ['nacelleCC.offshore', 'tcc.offshore'])
-        self.connect('towerMass', 'towerCC.towerMass')
+        self.connect('tower_mass', 'towerCC.tower_mass')
         self.connect('curr_yr', ['rotorCC.curr_yr', 'nacelleCC.curr_yr', 'towerCC.curr_yr'])
         self.connect('curr_mon', ['rotorCC.curr_mon', 'nacelleCC.curr_mon', 'towerCC.curr_mon'])
 
@@ -210,24 +210,24 @@ def example():
 
     turbine = Turbine_CostsSE()
 
-    turbine.bladeMass = 17650.67  # inline with the windpact estimates
-    turbine.hubMass = 31644.5
-    turbine.pitchSystemMass = 17004.0
-    turbine.spinnerMass = 1810.5
-    turbine.lowSpeedShaftMass = 31257.3
+    turbine.blade_mass = 17650.67  # inline with the windpact estimates
+    turbine.hub_mass = 31644.5
+    turbine.pitch_system_mass = 17004.0
+    turbine.spinner_mass = 1810.5
+    turbine.low_speed_shaft_mass = 31257.3
     #bearingsMass = 9731.41
-    turbine.mainBearingMass = 9731.41 / 2
-    turbine.secondBearingMass = 9731.41 / 2
-    turbine.gearboxMass = 30237.60
-    turbine.highSpeedSideMass = 1492.45
-    turbine.generatorMass = 16699.85
-    turbine.bedplateMass = 93090.6
-    turbine.yawSystemMass = 11878.24
-    turbine.towerMass = 434559.0
-    turbine.machineRating = 5000.0
+    turbine.main_bearing_mass = 9731.41 / 2
+    turbine.second_bearing_mass = 9731.41 / 2
+    turbine.gearbox_mass = 30237.60
+    turbine.high_speed_side_mass = 1492.45
+    turbine.generator_mass = 16699.85
+    turbine.bedplate_mass = 93090.6
+    turbine.yaw_system_mass = 11878.24
+    turbine.tower_mass = 434559.0
+    turbine.machine_rating = 5000.0
     turbine.advanced = True
-    turbine.bladeNumber = 3
-    turbine.drivetrainDesign = 1
+    turbine.blade_number = 3
+    turbine.drivetrain_design = 1
     turbine.crane = True
     turbine.offshore = True
     turbine.curr_yr = 2010

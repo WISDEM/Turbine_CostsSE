@@ -63,7 +63,7 @@ class tcc_csm_assembly(BaseTurbineCapitalCostModel):
     year = Int(2009, iotype='in', desc = 'year of project start')
     month = Int(12, iotype='in', desc = 'month of project start')
     blade_number = Int(3, iotype='in', desc = 'number of rotor blades')
-    offshore = Bool(False, iotype='in', desc = 'boolean for offshore')
+    offshore = Bool(True, iotype='in', desc = 'boolean for offshore')
 
     def __init__(self):
 
@@ -97,6 +97,7 @@ class tcc_csm_assembly(BaseTurbineCapitalCostModel):
         self.create_passthrough('nacelle.rotor_torque')
         self.create_passthrough('nacelle.crane')
         self.create_passthrough('nacelle.advanced_bedplate')
+        self.create_passthrough('nacelle.drivetrain_design')
         self.create_passthrough('tower.advanced_tower')
         
         self.create_passthrough('tcc.turbineVT')
@@ -119,7 +120,7 @@ class tcc_csm_assembly(BaseTurbineCapitalCostModel):
         self.connect('nacelle.lowSpeedShaft_mass', 'tcc.lowSpeedShaft_mass')
         self.connect('nacelle.bearings_mass', 'tcc.bearings_mass')
         self.connect('nacelle.gearbox_mass', 'tcc.gearbox_mass')
-        #self.connect('nacelle.mechanicalBrakes_mass', 'tcc.mechancialBrakes_mass')
+        self.connect('nacelle.mechanicalBrakes_mass', 'tcc.mechanicalBrakes_mass')
         self.connect('nacelle.generator_mass', 'tcc.generator_mass')
         self.connect('nacelle.VSElectronics_mass', 'tcc.VSElectronics_mass')
         self.connect('nacelle.yawSystem_mass', 'tcc.yawSystem_mass')
@@ -133,7 +134,7 @@ class tcc_csm_assembly(BaseTurbineCapitalCostModel):
         self.connect('nacelle.lowSpeedShaft_cost', 'tcc.lowSpeedShaft_cost')
         self.connect('nacelle.bearings_cost', 'tcc.bearings_cost')
         self.connect('nacelle.gearbox_cost', 'tcc.gearbox_cost')
-        #self.connect('nacelle.mechanicalBrakes_cost', 'tcc.mechancialBrakes_cost')
+        self.connect('nacelle.mechanicalBrakes_cost', 'tcc.mechanicalBrakes_cost')
         self.connect('nacelle.generator_cost', 'tcc.generator_cost')
         self.connect('nacelle.VSElectronics_cost', 'tcc.VSElectronics_cost')
         self.connect('nacelle.yawSystem_cost', 'tcc.yawSystem_cost')
@@ -320,6 +321,16 @@ class tcc_csm_component(BaseTCCAggregator):
         self.turbineVT.nacelle.nacellecover.mass = self.nacelleCover_mass
         # Tower System
         self.turbineVT.tower.mass = self.tower_mass
+
+        # Turbine dimensions - TODO: proper sizing
+        self.turbineVT.rotor.blades.length = 61.5
+        self.turbineVT.rotor.blades.width = 5.0
+        self.turbineVT.rotor.hubsystem.hub.diameter = 3.0
+        self.turbineVT.nacelle.length = 6.0
+        self.turbineVT.nacelle.height = 3.0
+        self.turbineVT.nacelle.width = 3.0
+        self.turbineVT.tower.height = 80.0
+        self.turbineVT.tower.maxDiameter = 6.0
 
         # lower level output assignment
         # Turbine outputs (_costs)

@@ -18,7 +18,7 @@ from fusedwind.plant_cost.fused_tcc_asym import FullNacelleCostModel, BaseCompon
 class LowSpeedShaftCost(BaseComponentCostModel):
 
     # variables
-    lowSpeedShaftMass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    low_speed_shaft_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
@@ -30,7 +30,7 @@ class LowSpeedShaftCost(BaseComponentCostModel):
         
         Parameters
         ----------
-        lowSpeedShaftMass : float
+        low_speed_shaft_mass : float
           lss mass [kg]
         curr_yr : int
           Project start year
@@ -52,21 +52,21 @@ class LowSpeedShaftCost(BaseComponentCostModel):
         ppi.curr_mon   = self.curr_mon
         
         # calculate component cost        
-        LowSpeedShaftCost2002 = 3.3602 * self.lowSpeedShaftMass + 13587      # equation adjusted to be based on mass rather than rotor diameter using data from CSM
+        LowSpeedShaftCost2002 = 3.3602 * self.low_speed_shaft_mass + 13587      # equation adjusted to be based on mass rather than rotor diameter using data from CSM
         lowSpeedShaftCostEsc            = ppi.compute('IPPI_LSS')
         self.cost = (LowSpeedShaftCost2002 * lowSpeedShaftCostEsc )
 
         # derivatives
-        self.d_cost_d_lowSpeedShaftMass = lowSpeedShaftCostEsc * 3.3602
+        self.d_cost_d_low_speed_shaft_mass = lowSpeedShaftCostEsc * 3.3602
 
     def linearize(self):
         
         # Jacobian
-        self.J = np.array([[self.d_cost_d_lowSpeedShaftMass]])
+        self.J = np.array([[self.d_cost_d_low_speed_shaft_mass]])
 
     def provideJ(self):
 
-        inputs = ['lowSpeedShaftMass']
+        inputs = ['low_speed_shaft_mass']
         outputs = ['cost']
 
         return inputs, outputs, self.J
@@ -76,8 +76,8 @@ class LowSpeedShaftCost(BaseComponentCostModel):
 class BearingsCost(BaseComponentCostModel):
 
     # variables
-    mainBearingMass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    secondBearingMass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    main_bearing_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    second_bearing_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
@@ -89,9 +89,9 @@ class BearingsCost(BaseComponentCostModel):
         
         Parameters
         ----------
-        mainBearingMass : float
+        main_bearing_mass : float
           bearing mass [kg]
-        secondBearingMass : float
+        second_bearing_mass : float
           bearing mass [kg]
         curr_yr : int
           Project start year
@@ -111,7 +111,7 @@ class BearingsCost(BaseComponentCostModel):
         # assign input variables
         ppi.curr_yr   = self.curr_yr
         ppi.curr_mon   = self.curr_mon
-        bearingsMass = self.mainBearingMass + self.secondBearingMass
+        bearingsMass = self.main_bearing_mass + self.second_bearing_mass
 
         # calculate component cost
         bearingCostEsc       = ppi.compute('IPPI_BRN')
@@ -121,17 +121,17 @@ class BearingsCost(BaseComponentCostModel):
         self.cost    = (( Bearings2002 ) * bearingCostEsc ) / 4   # div 4 to account for bearing cost mass differences CSM to Sunderland  
 
         # derivatives
-        self.d_cost_d_mainBearingMass = bearingCostEsc * brngSysCostFactor / 4
-        self.d_cost_d_secondBearingMass = bearingCostEsc * brngSysCostFactor / 4
+        self.d_cost_d_main_bearing_mass = bearingCostEsc * brngSysCostFactor / 4
+        self.d_cost_d_second_bearing_mass = bearingCostEsc * brngSysCostFactor / 4
 
     def linearize(self):
  
         # Jacobian
-        self.J = np.array([[self.d_cost_d_mainBearingMass, self.d_cost_d_secondBearingMass]])
+        self.J = np.array([[self.d_cost_d_main_bearing_mass, self.d_cost_d_second_bearing_mass]])
 
     def provideJ(self):
 
-        inputs = ['mainBearingMass', 'secondBearingMass']
+        inputs = ['main_bearing_mass', 'second_bearing_mass']
         outputs = ['cost']
 
         return inputs, outputs, self.J             
@@ -141,11 +141,11 @@ class BearingsCost(BaseComponentCostModel):
 class GearboxCost(BaseComponentCostModel):
 
     # variables
-    gearboxMass = Float(iotype='in', units='kg', desc='component mass')
-    machineRating = Float(iotype='in', units='kW', desc='machine rating')
+    gearbox_mass = Float(iotype='in', units='kg', desc='component mass')
+    machine_rating = Float(iotype='in', units='kW', desc='machine rating')
     
     # parameters
-    drivetrainDesign = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
+    drivetrain_design = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
     curr_yr = Int(iotype='in', desc='Current Year')
     curr_mon = Int(iotype='in', desc='Current Month')
 
@@ -155,11 +155,11 @@ class GearboxCost(BaseComponentCostModel):
         
         Parameters
         ----------
-        gearboxMass : float
+        gearbox_mass : float
           gearbox mass [kg]
-        machineRating : float
+        machine_rating : float
           machine rating [kW]
-        drivetrainDesign : int
+        drivetrain_design : int
           machine configuration 1 conventional, 2 medium speed, 3 multi-gen, 4 direct-drive
         curr_yr : int
           Project start year
@@ -186,28 +186,28 @@ class GearboxCost(BaseComponentCostModel):
         costCoeff = [None, 16.45  , 74.101     ,   15.25697015,  0 ]
         costExp   = [None,  1.2491,  1.002     ,    1.2491    ,  0 ]
 
-        if self.drivetrainDesign == 1:                                 
-          Gearbox2002 = 16.9 * self.gearboxMass - 25066          # for traditional 3-stage gearbox, use mass based cost equation from NREL CSM
+        if self.drivetrain_design == 1:                                 
+          Gearbox2002 = 16.9 * self.gearbox_mass - 25066          # for traditional 3-stage gearbox, use mass based cost equation from NREL CSM
         else:
-          Gearbox2002 = costCoeff[self.drivetrainDesign] * (self.machineRating ** costCoeff[self.drivetrainDesign])        # for other drivetrain configurations, use NREL CSM equation based on machine rating
+          Gearbox2002 = costCoeff[self.drivetrain_design] * (self.machine_rating ** costCoeff[self.drivetrain_design])        # for other drivetrain configurations, use NREL CSM equation based on machine rating
 
         self.cost   = Gearbox2002 * GearboxCostEsc
 
         # derivatives
-        if self.drivetrainDesign == 1:                                 
-          self.d_cost_d_gearboxMass = GearboxCostEsc * 16.9
-          self.d_cost_d_machineRating = 0.0
+        if self.drivetrain_design == 1:                                 
+          self.d_cost_d_gearbox_mass = GearboxCostEsc * 16.9
+          self.d_cost_d_machine_rating = 0.0
         else:
-          self.d_cost_d_gearboxMass = 0.0
-          self.d_cost_d_machineRating =  GearboxCostEsc * costCoeff[self.drivetrainDesign] * (costCoeff[self.drivetrainDesign] * (self.machineRating ** (costCoeff[self.drivetrainDesign]-1))) 
+          self.d_cost_d_gearbox_mass = 0.0
+          self.d_cost_d_machine_rating =  GearboxCostEsc * costCoeff[self.drivetrain_design] * (costCoeff[self.drivetrain_design] * (self.machine_rating ** (costCoeff[self.drivetrain_design]-1))) 
 
     def linearize(self):
     
-        self.J = np.array([[self.d_cost_d_gearboxMass, self.d_cost_d_machineRating]])
+        self.J = np.array([[self.d_cost_d_gearbox_mass, self.d_cost_d_machine_rating]])
 
     def provideJ(self):
 
-        inputs= ['gearboxMass', 'machineRating']
+        inputs= ['gearbox_mass', 'machine_rating']
         outputs = ['cost']
 
         return inputs, outputs, self.J 
@@ -217,7 +217,7 @@ class GearboxCost(BaseComponentCostModel):
 class HighSpeedSideCost(BaseComponentCostModel):
 
     # variables
-    highSpeedSideMass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    high_speed_side_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
@@ -229,7 +229,7 @@ class HighSpeedSideCost(BaseComponentCostModel):
         
         Parameters
         ----------
-        highSpeedSideMass : float
+        high_speed_side_mass : float
           mechBrake mass [kg]
         curr_yr : int
           Project start year
@@ -251,20 +251,20 @@ class HighSpeedSideCost(BaseComponentCostModel):
         ppi.curr_mon   = self.curr_mon 
         # calculate component cost
         mechBrakeCostEsc     = ppi.compute('IPPI_BRK')
-        mechBrakeCost2002    = 10 * self.highSpeedSideMass                  # mechanical brake system cost based on $10 / kg multiplier from CSM model (inverse relationship)
+        mechBrakeCost2002    = 10 * self.high_speed_side_mass                  # mechanical brake system cost based on $10 / kg multiplier from CSM model (inverse relationship)
         self.cost            = mechBrakeCostEsc * mechBrakeCost2002                                
 
         # derivatives
-        self.d_cost_d_highSpeedSideMass = mechBrakeCostEsc * 10      
+        self.d_cost_d_high_speed_side_mass = mechBrakeCostEsc * 10      
 
     def linearize(self):
  
         # Jacobian
-        self.J = np.array([[self.d_cost_d_highSpeedSideMass]])
+        self.J = np.array([[self.d_cost_d_high_speed_side_mass]])
 
     def provideJ(self):
 
-        inputs = ['highSpeedSideMass']
+        inputs = ['high_speed_side_mass']
         outputs = ['cost']
 
         return inputs, outputs, self.J  
@@ -274,11 +274,11 @@ class HighSpeedSideCost(BaseComponentCostModel):
 class GeneratorCost(BaseComponentCostModel):
 
     # variables
-    generatorMass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    generator_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     machine_rating = Float(iotype='in', units='kW', desc='machine rating')
     
     # parameters
-    drivetrainDesign = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
+    drivetrain_design = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
     curr_yr = Int(iotype='in', desc='Current Year')
     curr_mon = Int(iotype='in', desc='Current Month')
 
@@ -288,9 +288,9 @@ class GeneratorCost(BaseComponentCostModel):
         
         Parameters
         ----------
-        generatorMass : float
+        generator_mass : float
           generator mass [kg]
-        drivetrainDesign : int
+        drivetrain_design : int
           machine configuration 1 conventional, 2 medium speed, 3 multi-gen, 4 direct-drive
         curr_yr : int
           Project start year
@@ -316,29 +316,29 @@ class GeneratorCost(BaseComponentCostModel):
         costCoeff = [None, 65    , 54.73 ,  48.03 , 219.33 ] # $/kW - from 'Generators' worksheet
 
 
-        if self.drivetrainDesign == 1:
-            GeneratorCost2002 = 19.697 * self.generatorMass + 9277.3
+        if self.drivetrain_design == 1:
+            GeneratorCost2002 = 19.697 * self.generator_mass + 9277.3
         else:
-        	  GeneratorCost2002 = costCoeff[self.drivetrainDesign] * self.machine_rating
+        	  GeneratorCost2002 = costCoeff[self.drivetrain_design] * self.machine_rating
         	  
         self.cost         = GeneratorCost2002 * generatorCostEsc 
 
         # derivatives
-        if self.drivetrainDesign == 1:
-            self.d_cost_d_generatorMass = generatorCostEsc * 19.697   
-            self.d_cost_d_machineRating = 0.0  
+        if self.drivetrain_design == 1:
+            self.d_cost_d_generator_mass = generatorCostEsc * 19.697   
+            self.d_cost_d_machine_rating = 0.0  
         else:
-        	  self.d_cost_d_generatorMass = 0.0
-        	  self.d_cost_d_machineRating = costCoeff[self.drivetrainDesign] * generatorCostEsc
+        	  self.d_cost_d_generator_mass = 0.0
+        	  self.d_cost_d_machine_rating = costCoeff[self.drivetrain_design] * generatorCostEsc
 
     def linearize(self):
  
         # Jacobian
-        self.J = np.array([[self.d_cost_d_generatorMass, self.d_cost_d_machineRating]])
+        self.J = np.array([[self.d_cost_d_generator_mass, self.d_cost_d_machine_rating]])
 
     def provideJ(self):
 
-        inputs = ['generatorMass', 'machine_rating']
+        inputs = ['generator_mass', 'machine_rating']
         outputs = ['cost']
 
         return inputs, outputs, self.J                         
@@ -348,12 +348,12 @@ class GeneratorCost(BaseComponentCostModel):
 class BedplateCost(BaseComponentCostModel):
 
     # variables
-    bedplateMass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    bedplate_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
     curr_mon = Int(iotype='in', desc='Current Month')
-    drivetrainDesign = Int(iotype='in', desc='type of drivetrain')
+    drivetrain_design = Int(iotype='in', desc='type of drivetrain')
     
     # returns
     cost2002 = Float(iotype='out', units='USD', desc='component cost in 2002 USD')
@@ -364,7 +364,7 @@ class BedplateCost(BaseComponentCostModel):
         
         Parameters
         ----------
-        bedplateMass : float
+        bedplate_mass : float
           bedplate mass [kg]
         curr_yr : int
           Project start year
@@ -394,21 +394,21 @@ class BedplateCost(BaseComponentCostModel):
         costCoeff = [None, 9.48850 , 303.96000, 17.92300 , 627.280000 ]
         costExp   = [None, 1.9525, 1.0669, 1.6716, 0.85]
 
-        self.cost2002 = 0.9461 * self.bedplateMass + 17799                   # equation adjusted based on mass / cost relationships for components documented in NREL CSM
+        self.cost2002 = 0.9461 * self.bedplate_mass + 17799                   # equation adjusted based on mass / cost relationships for components documented in NREL CSM
         self.cost     = self.cost2002 * BedplateCostEsc
 
         # derivatives
-        self.d_cost_d_bedplateMass = BedplateCostEsc * 0.9461  
-        self.d_cost2002_d_bedplateMass = 0.9461
+        self.d_cost_d_bedplate_mass = BedplateCostEsc * 0.9461  
+        self.d_cost2002_d_bedplate_mass = 0.9461
 
     def linearize(self):
  
         # Jacobian
-        self.J = np.array([[self.d_cost_d_bedplateMass], [self.d_cost2002_d_bedplateMass]])
+        self.J = np.array([[self.d_cost_d_bedplate_mass], [self.d_cost2002_d_bedplate_mass]])
 
     def provideJ(self):
 
-        inputs = ['bedplateMass']
+        inputs = ['bedplate_mass']
         outputs = ['cost', 'cost2002']
 
         return inputs, outputs, self.J       
@@ -418,7 +418,7 @@ class BedplateCost(BaseComponentCostModel):
 class YawSystemCost(BaseComponentCostModel):
 
     # variables
-    yawSystemMass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    yaw_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
@@ -430,7 +430,7 @@ class YawSystemCost(BaseComponentCostModel):
         
         Parameters
         ----------
-        yawSystemMass : float
+        yaw_system_mass : float
           yawSystem mass [kg]
         curr_yr : int
           Project start year
@@ -454,20 +454,20 @@ class YawSystemCost(BaseComponentCostModel):
         # calculate component cost
         yawDrvBearingCostEsc = ppi.compute('IPPI_YAW')
 
-        YawDrvBearing2002 = 8.3221 * self.yawSystemMass + 2708.5          # cost / mass relationship derived from NREL CSM data
+        YawDrvBearing2002 = 8.3221 * self.yaw_system_mass + 2708.5          # cost / mass relationship derived from NREL CSM data
         self.cost         = YawDrvBearing2002 * yawDrvBearingCostEsc 
 
         # derivatives
-        self.d_cost_d_yawSystemMass = yawDrvBearingCostEsc * 8.3221      
+        self.d_cost_d_yaw_system_mass = yawDrvBearingCostEsc * 8.3221      
 
     def linearize(self):
  
         # Jacobian
-        self.J = np.array([[self.d_cost_d_yawSystemMass]])
+        self.J = np.array([[self.d_cost_d_yaw_system_mass]])
 
     def provideJ(self):
 
-        inputs = ['yawSystemMass']
+        inputs = ['yaw_system_mass']
         outputs = ['cost']
 
         return inputs, outputs, self.J                 
@@ -478,7 +478,7 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
 
     # variables
     machine_rating = Float(iotype='in', units='kW', desc='machine rating')   
-    bedplateMass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    bedplate_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     bedplate_cost = Float(iotype='in', units='USD', desc='component cost [USD]')
     bedplateCost2002 = Float(iotype='in', units='USD', desc='component cost in 2002 USD')
     
@@ -508,7 +508,7 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
           component cost [USD]
         yawSystemCost : float
           component cost [USD]
-        machineRating : float
+        machine_rating : float
           machine rating [kW]
         curr_yr : int
           Project start year
@@ -534,7 +534,7 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
         BedplateCostEsc      = ppi.compute('IPPI_MFM')
 
         # mainframe system including bedplate, platforms, crane and miscellaneous hardware
-        nacellePlatformsMass = 0.125 * self.bedplateMass
+        nacellePlatformsMass = 0.125 * self.bedplate_mass
         NacellePlatforms2002 = 8.7 * nacellePlatformsMass
 
         if (self.crane):
@@ -600,7 +600,7 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
 
         # derivatives
         # derivatives
-        self.d_cost_d_bedplateMass = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier) * BedplateCostEsc * 8.7 * 0.125
+        self.d_cost_d_bedplate_mass = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier) * BedplateCostEsc * 8.7 * 0.125
         self.d_cost_d_bedplateCost2002 = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier) * BedplateCostEsc * 0.7
         self.d_cost_d_bedplateCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
         self.d_cost_d_lowSpeedShaftCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
@@ -609,20 +609,20 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
         self.d_cost_d_highSpeedSideCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
         self.d_cost_d_generatorCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
         self.d_cost_d_yawSystemCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
-        self.d_cost_d_machineRating = (1 + transportMultiplier + profitMultiplier) * ((1+overheadCostMultiplier+assemblyCostMultiplier) * \
+        self.d_cost_d_machine_rating = (1 + transportMultiplier + profitMultiplier) * ((1+overheadCostMultiplier+assemblyCostMultiplier) * \
                                  (econnectionsCostEsc * 40.0 + VspdEtronicsCostEsc * 79.32 + hydrCoolingCostEsc * 12.0 + nacelleCovCostEsc * 11.537))
 
     def linearize(self):
  
         # Jacobian
-        self.J = np.array([[self.d_cost_d_bedplateMass, self.d_cost_d_bedplateCost2002, self.d_cost_d_bedplateCost, \
+        self.J = np.array([[self.d_cost_d_bedplate_mass, self.d_cost_d_bedplateCost2002, self.d_cost_d_bedplateCost, \
                             self.d_cost_d_lowSpeedShaftCost, self.d_cost_d_bearingsCost, self.d_cost_d_gearboxCost, \
                             self.d_cost_d_highSpeedSideCost, self.d_cost_d_generatorCost, \
-                            self.d_cost_d_yawSystemCost, self.d_cost_d_machineRating]])
+                            self.d_cost_d_yawSystemCost, self.d_cost_d_machine_rating]])
 
     def provideJ(self):
 
-        inputs = ['bedplateMass', 'bedplateCost2002', 'bedplate_cost', 'lss_cost', 'bearings_cost', \
+        inputs = ['bedplate_mass', 'bedplateCost2002', 'bedplate_cost', 'lss_cost', 'bearings_cost', \
                       'gearbox_cost', 'hss_cost', 'generator_cost', 'yaw_system_cost', 'machine_rating']
         outputs = ['cost']
 
@@ -638,18 +638,18 @@ class Nacelle_CostsSE(FullNacelleCostModel):
     '''
 
     # variables
-    lowSpeedShaftMass = Float(iotype='in', units='kg', desc='component mass')
-    mainBearingMass = Float(iotype='in', units='kg', desc='component mass')
-    secondBearingMass = Float(iotype='in', units='kg', desc='component mass')
-    gearboxMass = Float(iotype='in', units='kg', desc='component mass')
-    highSpeedSideMass = Float(iotype='in', units='kg', desc='component mass')
-    generatorMass = Float(iotype='in', units='kg', desc='component mass')
-    bedplateMass = Float(iotype='in', units='kg', desc='component mass')
-    yawSystemMass = Float(iotype='in', units='kg', desc='component mass')
-    machineRating = Float(iotype='in', units='kW', desc='machine rating')
+    low_speed_shaft_mass = Float(iotype='in', units='kg', desc='component mass')
+    main_bearing_mass = Float(iotype='in', units='kg', desc='component mass')
+    second_bearing_mass = Float(iotype='in', units='kg', desc='component mass')
+    gearbox_mass = Float(iotype='in', units='kg', desc='component mass')
+    high_speed_side_mass = Float(iotype='in', units='kg', desc='component mass')
+    generator_mass = Float(iotype='in', units='kg', desc='component mass')
+    bedplate_mass = Float(iotype='in', units='kg', desc='component mass')
+    yaw_system_mass = Float(iotype='in', units='kg', desc='component mass')
+    machine_rating = Float(iotype='in', units='kW', desc='machine rating')
     
     # parameters
-    drivetrainDesign = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
+    drivetrain_design = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
     crane = Bool(iotype='in', desc='flag for presence of onboard crane')
     offshore = Bool(iotype='in', desc='flat for offshore site')
     curr_yr = Int(iotype='in', desc='Current Year')
@@ -674,16 +674,16 @@ class Nacelle_CostsSE(FullNacelleCostModel):
         self.replace('ncc', NacelleSystemCostAdder())
         
         # connect inputs
-        self.connect('lowSpeedShaftMass', 'lssCC.lowSpeedShaftMass')
-        self.connect('mainBearingMass', 'bearingsCC.mainBearingMass')
-        self.connect('secondBearingMass', 'bearingsCC.secondBearingMass')
-        self.connect('gearboxMass', 'gearboxCC.gearboxMass')
-        self.connect('highSpeedSideMass', 'hssCC.highSpeedSideMass')
-        self.connect('generatorMass', 'generatorCC.generatorMass')
-        self.connect('bedplateMass', ['bedplateCC.bedplateMass', 'ncc.bedplateMass'])
-        self.connect('yawSystemMass', 'yawSysCC.yawSystemMass')
-        self.connect('machineRating', ['gearboxCC.machineRating', 'ncc.machineRating'])
-        self.connect('drivetrainDesign', ['gearboxCC.drivetrainDesign', 'generatorCC.drivetrainDesign'])
+        self.connect('low_speed_shaft_mass', 'lssCC.low_speed_shaft_mass')
+        self.connect('main_bearing_mass', 'bearingsCC.main_bearing_mass')
+        self.connect('second_bearing_mass', 'bearingsCC.second_bearing_mass')
+        self.connect('gearbox_mass', 'gearboxCC.gearbox_mass')
+        self.connect('high_speed_side_mass', 'hssCC.high_speed_side_mass')
+        self.connect('generator_mass', 'generatorCC.generator_mass')
+        self.connect('bedplate_mass', ['bedplateCC.bedplate_mass', 'ncc.bedplate_mass'])
+        self.connect('yaw_system_mass', 'yawSysCC.yaw_system_mass')
+        self.connect('machine_rating', ['gearboxCC.machine_rating', 'ncc.machine_rating'])
+        self.connect('drivetrain_design', ['gearboxCC.drivetrain_design', 'generatorCC.drivetrain_design'])
         self.connect('crane', 'ncc.crane')
         self.connect('offshore', 'ncc.offshore')
         self.connect('curr_yr', ['lssCC.curr_yr', 'bearingsCC.curr_yr', 'gearboxCC.curr_yr', 'hssCC.curr_yr', 'generatorCC.curr_yr', 'bedplateCC.curr_yr', 'yawSysCC.curr_yr', 'ncc.curr_yr'])
@@ -701,17 +701,17 @@ def example():
     ppi.ref_yr   = 2002
     ppi.ref_mon  = 9
 
-    nacelle.lowSpeedShaftMass = 31257.3
+    nacelle.low_speed_shaft_mass = 31257.3
     #nacelle.bearingsMass = 9731.41
-    nacelle.mainBearingMass = 9731.41 / 2.0
-    nacelle.secondBearingMass = 9731.41 / 2.0
-    nacelle.gearboxMass = 30237.60
-    nacelle.highSpeedSideMass = 1492.45
-    nacelle.generatorMass = 16699.85
-    nacelle.bedplateMass = 93090.6
-    nacelle.yawSystemMass = 11878.24
-    nacelle.machineRating = 5000.0
-    nacelle.drivetrainDesign = 1
+    nacelle.main_bearing_mass = 9731.41 / 2.0
+    nacelle.second_bearing_mass = 9731.41 / 2.0
+    nacelle.gearbox_mass = 30237.60
+    nacelle.high_speed_side_mass = 1492.45
+    nacelle.generator_mass = 16699.85
+    nacelle.bedplate_mass = 93090.6
+    nacelle.yaw_system_mass = 11878.24
+    nacelle.machine_rating = 5000.0
+    nacelle.drivetrain_design = 1
     nacelle.crane = True
     nacelle.offshore = True
     nacelle.curr_yr = 2009

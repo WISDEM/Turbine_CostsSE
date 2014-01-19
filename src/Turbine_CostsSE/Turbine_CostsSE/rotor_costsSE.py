@@ -18,7 +18,7 @@ from fusedwind.plant_cost.fused_tcc_asym import FullRotorCostModel, FullRotorCos
 class BladeCost(BaseComponentCostModel):
 
     # variables
-    bladeMass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    blade_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
@@ -31,7 +31,7 @@ class BladeCost(BaseComponentCostModel):
         
         Parameters
         ----------
-        bladeMass : float
+        blade_mass : float
           blade mass [kg]
         advanced : bool
           boolean for advanced (using carbon) or basline (all fiberglass) blade 
@@ -70,19 +70,19 @@ class BladeCost(BaseComponentCostModel):
         laborCoeff    = 2.7445         # todo: ignoring labor impacts for now
         laborExp      = 2.5025
         
-        self.cost = ((slope*self.bladeMass + intercept)*ppi_mat)
+        self.cost = ((slope*self.blade_mass + intercept)*ppi_mat)
 
         # derivatives
-        self.d_cost_d_bladeMass = slope * ppi_mat
+        self.d_cost_d_blade_mass = slope * ppi_mat
 
     def linearize(self):
         
         # Jacobian
-        self.J = np.array([[self.d_cost_d_bladeMass]])
+        self.J = np.array([[self.d_cost_d_blade_mass]])
 
     def provideJ(self):
 
-        inputs = ['bladeMass']
+        inputs = ['blade_mass']
         outputs = ['cost']
 
         return inputs, outputs, self.J
@@ -93,7 +93,7 @@ class BladeCost(BaseComponentCostModel):
 class HubCost(BaseComponentCostModel):
 
     # variables
-    hubMass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    hub_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
@@ -105,7 +105,7 @@ class HubCost(BaseComponentCostModel):
         
         Parameters
         ----------
-        hubMass : float
+        hub_mass : float
           hub mass [kg]
         curr_yr : int
           Project start year
@@ -132,21 +132,21 @@ class HubCost(BaseComponentCostModel):
         laborCoeff    = 2.7445
         laborExp      = 2.5025    
 
-        hubCost2002      = (self.hubMass * 4.25) # $/kg
+        hubCost2002      = (self.hub_mass * 4.25) # $/kg
         hubCostEscalator = ppi.compute('IPPI_HUB')
         self.cost = (hubCost2002 * hubCostEscalator )
 
         # derivatives
-        self.d_cost_d_hubMass = hubCostEscalator * 4.25
+        self.d_cost_d_hub_mass = hubCostEscalator * 4.25
     
     def linearize(self):
         
         # Jacobian
-        self.J = np.array([[self.d_cost_d_hubMass]])
+        self.J = np.array([[self.d_cost_d_hub_mass]])
 
     def provideJ(self):
 
-        inputs = ['hubMass']
+        inputs = ['hub_mass']
         outputs = ['cost']
 
         return inputs, outputs, self.J
@@ -156,7 +156,7 @@ class HubCost(BaseComponentCostModel):
 class PitchSystemCost(BaseComponentCostModel):
 
     # variables
-    pitchSystemMass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    pitch_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
@@ -168,7 +168,7 @@ class PitchSystemCost(BaseComponentCostModel):
         
         Parameters
         ----------
-        pitchSystemMass : float
+        pitch_system_mass : float
           pitch system mass [kg]
         curr_yr : int
           Project start year
@@ -195,21 +195,21 @@ class PitchSystemCost(BaseComponentCostModel):
         laborCoeff    = 2.7445
         laborExp      = 2.5025    
 
-        pitchSysCost2002     = 2.28 * (0.0808 * (self.pitchSystemMass ** 1.4985))            # new cost based on mass - x1.328 for housing proportion
+        pitchSysCost2002     = 2.28 * (0.0808 * (self.pitch_system_mass ** 1.4985))            # new cost based on mass - x1.328 for housing proportion
         bearingCostEscalator = ppi.compute('IPPI_PMB')
         self.cost = (bearingCostEscalator * pitchSysCost2002)
 
         # derivatives
-        self.d_cost_d_pitchSystemMass = bearingCostEscalator * 2.28 * (0.0808 * 1.4985 * (self.pitchSystemMass ** 0.4985))
+        self.d_cost_d_pitch_system_mass = bearingCostEscalator * 2.28 * (0.0808 * 1.4985 * (self.pitch_system_mass ** 0.4985))
 
     def linearize(self):
         
         # Jacobian
-        self.J = np.array([[self.d_cost_d_pitchSystemMass]])
+        self.J = np.array([[self.d_cost_d_pitch_system_mass]])
 
     def provideJ(self):
 
-        inputs = ['pitchSystemMass']
+        inputs = ['pitch_system_mass']
         outputs = ['cost']
 
         return inputs, outputs, self.J
@@ -219,7 +219,7 @@ class PitchSystemCost(BaseComponentCostModel):
 class SpinnerCost(BaseComponentCostModel):
 
     # variables
-    spinnerMass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    spinner_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
@@ -231,7 +231,7 @@ class SpinnerCost(BaseComponentCostModel):
         
         Parameters
         ----------
-        spinnerMass : float
+        spinner_mass : float
           spinner mass [kg]
         curr_yr : int
           Project start year
@@ -258,19 +258,19 @@ class SpinnerCost(BaseComponentCostModel):
         laborExp      = 2.5025    
 
         spinnerCostEscalator = ppi.compute('IPPI_NAC')
-        self.cost = (spinnerCostEscalator * (5.57*self.spinnerMass))
+        self.cost = (spinnerCostEscalator * (5.57*self.spinner_mass))
 
         # derivatives
-        self.d_cost_d_spinnerMass = spinnerCostEscalator * 5.57
+        self.d_cost_d_spinner_mass = spinnerCostEscalator * 5.57
 
     def linearize(self):
         
         # Jacobian
-        self.J = np.array([[self.d_cost_d_spinnerMass]])
+        self.J = np.array([[self.d_cost_d_spinner_mass]])
 
     def provideJ(self):
 
-        inputs = ['spinnerMass']
+        inputs = ['spinner_mass']
         outputs = ['cost']
 
         return inputs, outputs, self.J
@@ -346,7 +346,7 @@ class RotorCostAdder(FullRotorCostAggregator):
           individual blade cost [USD]
         hubSystemCost : float
           hub system cost [USD]
-        bladeNumber : int
+        blade_number : int
           number of rotor blades
 
         Returns
@@ -387,10 +387,10 @@ class Rotor_CostsSE(FullRotorCostModel):
     '''
 
     # variables
-    bladeMass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    hubMass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    pitchSystemMass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    spinnerMass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    blade_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    hub_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    pitch_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    spinner_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     
     # parameters
     curr_yr = Int(iotype='in', desc='Current Year')
@@ -414,10 +414,10 @@ class Rotor_CostsSE(FullRotorCostModel):
         self.replace('rcc', RotorCostAdder())
         
         # connect inputs
-        self.connect('bladeMass', 'bladeCC.bladeMass')
-        self.connect('hubMass', 'hubCC.hubMass')
-        self.connect('pitchSystemMass', 'pitchSysCC.pitchSystemMass')
-        self.connect('spinnerMass', 'spinnerCC.spinnerMass')
+        self.connect('blade_mass', 'bladeCC.blade_mass')
+        self.connect('hub_mass', 'hubCC.hub_mass')
+        self.connect('pitch_system_mass', 'pitchSysCC.pitch_system_mass')
+        self.connect('spinner_mass', 'spinnerCC.spinner_mass')
         self.connect('curr_yr', ['hubCC.curr_yr', 'pitchSysCC.curr_yr', 'spinnerCC.curr_yr', 'bladeCC.curr_yr'])
         self.connect('curr_mon', ['hubCC.curr_mon', 'pitchSysCC.curr_mon', 'spinnerCC.curr_mon', 'bladeCC.curr_mon'])
         self.connect('advanced', 'bladeCC.advanced')      
@@ -437,10 +437,10 @@ def example():
     # Blade Test 1
     rotor.blade_number = 3
     rotor.advanced = True
-    rotor.bladeMass = 17650.67  # inline with the windpact estimates
-    rotor.hubMass = 31644.5
-    rotor.pitchSystemMass = 17004.0
-    rotor.spinnerMass = 1810.5
+    rotor.blade_mass = 17650.67  # inline with the windpact estimates
+    rotor.hub_mass = 31644.5
+    rotor.pitch_system_mass = 17004.0
+    rotor.spinner_mass = 1810.5
     rotor.curr_yr = 2009
     rotor.curr_mon = 12
     

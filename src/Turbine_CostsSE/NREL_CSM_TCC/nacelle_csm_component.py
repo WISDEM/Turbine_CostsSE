@@ -29,7 +29,7 @@ class nacelle_csm_component(Component):
     advanced_bedplate = Int(0, iotype='in', desc= 'indicator for drivetrain bedplate design 0 - conventional')   
     year = Int(2009, iotype='in', desc = 'year of project start')
     month = Int(12, iotype='in', desc = 'month of project start')
-    offshore = Bool(False, iotype='in', desc = 'boolean for land or offshore wind project')
+    offshore = Bool(True, iotype='in', desc = 'boolean for land or offshore wind project')
 
     # Outputs
     nacelle_mass = Float(0.0, units='kg', iotype='out', desc='nacelle mass')
