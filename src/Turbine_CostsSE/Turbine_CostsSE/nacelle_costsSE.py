@@ -5,7 +5,7 @@ Created by Katherine Dykes 2012.
 Copyright (c) NREL. All rights reserved.
 """
 
-from config import *
+from commonse.config import *
 from openmdao.main.api import Component, Assembly
 from openmdao.main.datatypes.api import Array, Float, Bool, Int
 from math import pi
@@ -44,6 +44,9 @@ class LowSpeedShaftCost(BaseComponentCostModel):
         '''
         
         super(LowSpeedShaftCost, self).__init__()
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
     
     def execute(self):
 
@@ -59,17 +62,19 @@ class LowSpeedShaftCost(BaseComponentCostModel):
         # derivatives
         self.d_cost_d_low_speed_shaft_mass = lowSpeedShaftCostEsc * 3.3602
 
-    def linearize(self):
+    def list_deriv_vars(self):
+
+        inputs = ('low_speed_shaft_mass')
+        outputs = ('cost')
         
-        # Jacobian
-        self.J = np.array([[self.d_cost_d_low_speed_shaft_mass]])
+        return inputs, outputs
 
     def provideJ(self):
 
-        inputs = ['low_speed_shaft_mass']
-        outputs = ['cost']
+        # Jacobian
+        self.J = np.array([[self.d_cost_d_low_speed_shaft_mass]])
 
-        return inputs, outputs, self.J
+        return self.J
 
 #-------------------------------------------------------------------------------
 
@@ -106,6 +111,9 @@ class BearingsCost(BaseComponentCostModel):
         
         super(BearingsCost, self).__init__()
 
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
+
     def execute(self):
 
         # assign input variables
@@ -124,17 +132,19 @@ class BearingsCost(BaseComponentCostModel):
         self.d_cost_d_main_bearing_mass = bearingCostEsc * brngSysCostFactor / 4
         self.d_cost_d_second_bearing_mass = bearingCostEsc * brngSysCostFactor / 4
 
-    def linearize(self):
- 
-        # Jacobian
-        self.J = np.array([[self.d_cost_d_main_bearing_mass, self.d_cost_d_second_bearing_mass]])
+    def list_deriv_vars(self):
+
+        inputs = ('main_bearing_mass', 'second_bearing_mass')
+        outputs = ('cost')
+        
+        return inputs, outputs
 
     def provideJ(self):
 
-        inputs = ['main_bearing_mass', 'second_bearing_mass']
-        outputs = ['cost']
+        # Jacobian
+        self.J = np.array([[self.d_cost_d_main_bearing_mass, self.d_cost_d_second_bearing_mass]])
 
-        return inputs, outputs, self.J             
+        return self.J             
 
 #-------------------------------------------------------------------------------
 
@@ -173,6 +183,9 @@ class GearboxCost(BaseComponentCostModel):
         '''
         
         super(GearboxCost, self).__init__()
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
      
     def execute(self):
 
@@ -201,16 +214,18 @@ class GearboxCost(BaseComponentCostModel):
           self.d_cost_d_gearbox_mass = 0.0
           self.d_cost_d_machine_rating =  GearboxCostEsc * costCoeff[self.drivetrain_design] * (costCoeff[self.drivetrain_design] * (self.machine_rating ** (costCoeff[self.drivetrain_design]-1))) 
 
-    def linearize(self):
-    
-        self.J = np.array([[self.d_cost_d_gearbox_mass, self.d_cost_d_machine_rating]])
+    def list_deriv_vars(self):
 
+        inputs= ('gearbox_mass', 'machine_rating')
+        outputs = ('cost')
+        
+        return inputs, outputs
+    
     def provideJ(self):
 
-        inputs= ['gearbox_mass', 'machine_rating']
-        outputs = ['cost']
+        self.J = np.array([[self.d_cost_d_gearbox_mass, self.d_cost_d_machine_rating]])
 
-        return inputs, outputs, self.J 
+        return self.J 
 
 #-------------------------------------------------------------------------------
               
@@ -243,6 +258,9 @@ class HighSpeedSideCost(BaseComponentCostModel):
         '''
         
         super(HighSpeedSideCost, self).__init__()
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
      
     def execute(self):
 
@@ -257,17 +275,19 @@ class HighSpeedSideCost(BaseComponentCostModel):
         # derivatives
         self.d_cost_d_high_speed_side_mass = mechBrakeCostEsc * 10      
 
-    def linearize(self):
- 
-        # Jacobian
-        self.J = np.array([[self.d_cost_d_high_speed_side_mass]])
+    def list_deriv_vars(self):
+
+        inputs = ('high_speed_side_mass')
+        outputs = ('cost')
+        
+        return inputs, outputs
 
     def provideJ(self):
 
-        inputs = ['high_speed_side_mass']
-        outputs = ['cost']
+        # Jacobian
+        self.J = np.array([[self.d_cost_d_high_speed_side_mass]])
 
-        return inputs, outputs, self.J  
+        return self.J  
 
 #-------------------------------------------------------------------------------
 
@@ -304,6 +324,9 @@ class GeneratorCost(BaseComponentCostModel):
         '''
         
         super(GeneratorCost, self).__init__()
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
     
     def execute(self):
 
@@ -319,8 +342,8 @@ class GeneratorCost(BaseComponentCostModel):
         if self.drivetrain_design == 1:
             GeneratorCost2002 = 19.697 * self.generator_mass + 9277.3
         else:
-        	  GeneratorCost2002 = costCoeff[self.drivetrain_design] * self.machine_rating
-        	  
+            GeneratorCost2002 = costCoeff[self.drivetrain_design] * self.machine_rating
+            
         self.cost         = GeneratorCost2002 * generatorCostEsc 
 
         # derivatives
@@ -328,20 +351,22 @@ class GeneratorCost(BaseComponentCostModel):
             self.d_cost_d_generator_mass = generatorCostEsc * 19.697   
             self.d_cost_d_machine_rating = 0.0  
         else:
-        	  self.d_cost_d_generator_mass = 0.0
-        	  self.d_cost_d_machine_rating = costCoeff[self.drivetrain_design] * generatorCostEsc
+            self.d_cost_d_generator_mass = 0.0
+            self.d_cost_d_machine_rating = costCoeff[self.drivetrain_design] * generatorCostEsc
 
-    def linearize(self):
+    def list_deriv_vars(self):
+
+        inputs = ('generator_mass', 'machine_rating')
+        outputs = ('cost')
+        
+        return inputs, outputs
  
+    def provideJ(self):
+
         # Jacobian
         self.J = np.array([[self.d_cost_d_generator_mass, self.d_cost_d_machine_rating]])
 
-    def provideJ(self):
-
-        inputs = ['generator_mass', 'machine_rating']
-        outputs = ['cost']
-
-        return inputs, outputs, self.J                         
+        return self.J                         
 
 #-------------------------------------------------------------------------------
 
@@ -380,6 +405,9 @@ class BedplateCost(BaseComponentCostModel):
         '''
         
         super(BedplateCost, self).__init__()
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
     
     def execute(self):
 
@@ -401,17 +429,19 @@ class BedplateCost(BaseComponentCostModel):
         self.d_cost_d_bedplate_mass = BedplateCostEsc * 0.9461  
         self.d_cost2002_d_bedplate_mass = 0.9461
 
-    def linearize(self):
- 
-        # Jacobian
-        self.J = np.array([[self.d_cost_d_bedplate_mass], [self.d_cost2002_d_bedplate_mass]])
+    def list_deriv_vars(self):
+
+        inputs = ('bedplate_mass')
+        outputs = ('cost', 'cost2002')
+        
+        return inputs, outputs
 
     def provideJ(self):
 
-        inputs = ['bedplate_mass']
-        outputs = ['cost', 'cost2002']
+        # Jacobian
+        self.J = np.array([[self.d_cost_d_bedplate_mass], [self.d_cost2002_d_bedplate_mass]])
 
-        return inputs, outputs, self.J       
+        return self.J       
 
 #--------------------------------------------------------------------------------- 
    
@@ -444,6 +474,9 @@ class YawSystemCost(BaseComponentCostModel):
         '''
         
         super(YawSystemCost, self).__init__()
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
     
     def execute(self):
 
@@ -460,17 +493,19 @@ class YawSystemCost(BaseComponentCostModel):
         # derivatives
         self.d_cost_d_yaw_system_mass = yawDrvBearingCostEsc * 8.3221      
 
-    def linearize(self):
- 
-        # Jacobian
-        self.J = np.array([[self.d_cost_d_yaw_system_mass]])
+    def list_deriv_vars(self):
+
+        inputs = ('yaw_system_mass')
+        outputs = ('cost')
+        
+        return inputs, outputs
 
     def provideJ(self):
 
-        inputs = ['yaw_system_mass']
-        outputs = ['cost']
+        # Jacobian
+        self.J = np.array([[self.d_cost_d_yaw_system_mass]])
 
-        return inputs, outputs, self.J                 
+        return self.J                 
 
 #-------------------------------------------------------------------------------
 
@@ -524,6 +559,9 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
         '''
 
         super(NacelleSystemCostAdder, self).__init__()    
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
     
     def execute(self):
 
@@ -612,21 +650,23 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
         self.d_cost_d_machine_rating = (1 + transportMultiplier + profitMultiplier) * ((1+overheadCostMultiplier+assemblyCostMultiplier) * \
                                  (econnectionsCostEsc * 40.0 + VspdEtronicsCostEsc * 79.32 + hydrCoolingCostEsc * 12.0 + nacelleCovCostEsc * 11.537))
 
-    def linearize(self):
- 
+    def list_deriv_vars(self):
+
+        inputs = ('bedplate_mass', 'bedplateCost2002', 'bedplate_cost', 'lss_cost', 'bearings_cost', \
+                      'gearbox_cost', 'hss_cost', 'generator_cost', 'yaw_system_cost', 'machine_rating')
+        outputs = ('cost')
+        
+        return inputs, outputs
+
+    def provideJ(self):
+
         # Jacobian
         self.J = np.array([[self.d_cost_d_bedplate_mass, self.d_cost_d_bedplateCost2002, self.d_cost_d_bedplateCost, \
                             self.d_cost_d_lowSpeedShaftCost, self.d_cost_d_bearingsCost, self.d_cost_d_gearboxCost, \
                             self.d_cost_d_highSpeedSideCost, self.d_cost_d_generatorCost, \
                             self.d_cost_d_yawSystemCost, self.d_cost_d_machine_rating]])
 
-    def provideJ(self):
-
-        inputs = ['bedplate_mass', 'bedplateCost2002', 'bedplate_cost', 'lss_cost', 'bearings_cost', \
-                      'gearbox_cost', 'hss_cost', 'generator_cost', 'yaw_system_cost', 'machine_rating']
-        outputs = ['cost']
-
-        return inputs, outputs, self.J 
+        return self.J 
 
 #------------------------------------------------------------------
 

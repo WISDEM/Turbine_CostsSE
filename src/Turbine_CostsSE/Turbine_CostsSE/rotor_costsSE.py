@@ -5,7 +5,7 @@ Created by Katherine Dykes 2012.
 Copyright (c) NREL. All rights reserved.
 """
 
-from config import *
+from commonse.config import *
 from openmdao.main.api import Component, Assembly
 from openmdao.main.datatypes.api import Array, Float, Bool, Int
 from math import pi
@@ -48,6 +48,9 @@ class BladeCost(BaseComponentCostModel):
 
         super(BladeCost, self).__init__()
 
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
+
     def execute(self):
 
         # assign input variables
@@ -75,17 +78,19 @@ class BladeCost(BaseComponentCostModel):
         # derivatives
         self.d_cost_d_blade_mass = slope * ppi_mat
 
-    def linearize(self):
+    def list_deriv_vars(self):
+
+        inputs = ('blade_mass')
+        outputs = ('cost')
+        
+        return inputs, outputs
+
+    def provideJ(self):
         
         # Jacobian
         self.J = np.array([[self.d_cost_d_blade_mass]])
 
-    def provideJ(self):
-
-        inputs = ['blade_mass']
-        outputs = ['cost']
-
-        return inputs, outputs, self.J
+        return self.J
 
 
 # -----------------------------------------------------------------------------------------------
@@ -119,6 +124,9 @@ class HubCost(BaseComponentCostModel):
         '''
 
         super(HubCost, self).__init__()
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
     
     def execute(self):
 
@@ -139,17 +147,19 @@ class HubCost(BaseComponentCostModel):
         # derivatives
         self.d_cost_d_hub_mass = hubCostEscalator * 4.25
     
-    def linearize(self):
+    def list_deriv_vars(self):
+
+        inputs = ('hub_mass')
+        outputs = ('cost')
+        
+        return inputs, outputs
+
+    def provideJ(self):
         
         # Jacobian
         self.J = np.array([[self.d_cost_d_hub_mass]])
 
-    def provideJ(self):
-
-        inputs = ['hub_mass']
-        outputs = ['cost']
-
-        return inputs, outputs, self.J
+        return self.J
         
 #-------------------------------------------------------------------------------
 
@@ -182,6 +192,9 @@ class PitchSystemCost(BaseComponentCostModel):
         '''
         
         super(PitchSystemCost, self).__init__()
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
         
     def execute(self):
 
@@ -202,17 +215,19 @@ class PitchSystemCost(BaseComponentCostModel):
         # derivatives
         self.d_cost_d_pitch_system_mass = bearingCostEscalator * 2.28 * (0.0808 * 1.4985 * (self.pitch_system_mass ** 0.4985))
 
-    def linearize(self):
+    def list_deriv_vars(self):
+
+        inputs = ('pitch_system_mass')
+        outputs = ('cost')
+        
+        return inputs, outputs
+
+    def provideJ(self):
         
         # Jacobian
         self.J = np.array([[self.d_cost_d_pitch_system_mass]])
 
-    def provideJ(self):
-
-        inputs = ['pitch_system_mass']
-        outputs = ['cost']
-
-        return inputs, outputs, self.J
+        return self.J
         
 #-------------------------------------------------------------------------------
 
@@ -244,6 +259,9 @@ class SpinnerCost(BaseComponentCostModel):
         '''
         
         super(SpinnerCost, self).__init__()
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
     
     def execute(self):
 
@@ -263,17 +281,19 @@ class SpinnerCost(BaseComponentCostModel):
         # derivatives
         self.d_cost_d_spinner_mass = spinnerCostEscalator * 5.57
 
-    def linearize(self):
+    def list_deriv_vars(self):
+
+        inputs = ('spinner_mass')
+        outputs = ('cost')
+        
+        return inputs, outputs
+
+    def provideJ(self):
         
         # Jacobian
         self.J = np.array([[self.d_cost_d_spinner_mass]])
 
-    def provideJ(self):
-
-        inputs = ['spinner_mass']
-        outputs = ['cost']
-
-        return inputs, outputs, self.J
+        return self.J
 
 #-------------------------------------------------------------------------------
 
@@ -300,6 +320,9 @@ class HubSystemCostAdder(FullHubSystemCostAggregator):
         
         super(HubSystemCostAdder,self).__init__()
 
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
+
     def execute(self):
     
         partsCost = self.hub_cost + self.pitch_system_cost + self.spinner_cost
@@ -317,17 +340,19 @@ class HubSystemCostAdder(FullHubSystemCostAggregator):
         self.d_cost_d_pitchSystemCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
         self.d_cost_d_spinnerCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
 
-    def linearize(self):
+    def list_deriv_vars(self):
+
+        inputs = ('hub_cost', 'pitch_system_cost', 'spinner_cost')
+        outputs = ('cost')
         
-        # Jacobian
-        self.J = np.array([[self.d_cost_d_hubCost, self.d_cost_d_pitchSystemCost, self.d_cost_d_spinnerCost]])
+        return inputs, outputs
 
     def provideJ(self):
 
-        inputs = ['hub_cost', 'pitch_system_cost', 'spinner_cost']
-        outputs = ['cost']
+        # Jacobian
+        self.J = np.array([[self.d_cost_d_hubCost, self.d_cost_d_pitchSystemCost, self.d_cost_d_spinnerCost]])
 
-        return inputs, outputs, self.J
+        return self.J
 
 #-------------------------------------------------------------------------------
 
@@ -356,6 +381,9 @@ class RotorCostAdder(FullRotorCostAggregator):
         '''            
 
         super(RotorCostAdder, self).__init__()
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
     
     def execute(self):
 
@@ -365,17 +393,19 @@ class RotorCostAdder(FullRotorCostAggregator):
         self.d_cost_d_bladeCost = self.blade_number
         self.d_cost_d_hubSystemCost = 1
 
-    def linearize(self):
+    def list_deriv_vars(self):
+
+        inputs = ('blade_cost', 'hub_system_cost')
+        outputs = ('cost')
+        
+        return inputs, outputs
+
+    def provideJ(self):
         
         # Jacobian
         self.J = np.array([[self.d_cost_d_bladeCost, self.d_cost_d_hubSystemCost]])
 
-    def provideJ(self):
-
-        inputs = ['blade_cost', 'hub_system_cost']
-        outputs = ['cost']
-
-        return inputs, outputs, self.J
+        return self.J
 
 #-------------------------------------------------------------------------------
 

@@ -149,6 +149,9 @@ class nacelle_csm_component(Component):
 
         super(nacelle_csm_component, self).__init__()
 
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
+
     def execute(self):
         """
         Execute nacelle model of the NREL _cost and Scaling Model.
@@ -470,8 +473,18 @@ class nacelle_csm_component(Component):
         self.d_nacelle_cost_d_rating = self.d_gearbox_cost_d_rating + self.d_generator_cost_d_rating + self.d_brakes_cost_d_rating + self.d_hvac_cost_d_rating + \
                                        self.d_cover_cost_d_rating + self.d_electronics_cost_d_rating + self.d_vselectronics_cost_d_rating
 
-    def linearize(self):
-       
+    def list_deriv_vars(self):
+
+        inputs = ('rotor_diameter', 'rotor_mass', 'rotor_thrust', 'rotor_torque', 'machine_rating')
+        outputs = ('nacelle_mass', 'lowSpeedShaft_mass', 'bearings_mass', 'gearbox_mass', 'generator_mass', 'mechanicalBrakes_mass', 'yawSystem_mass', \
+                   'electronicCabling_mass', 'HVAC_mass', 'VSElectronics_mass', 'mainframeTotal_mass', 'nacelleCover_mass', 'controls_mass',\
+                   'nacelle_cost', 'lowSpeedShaft_cost', 'bearings_cost', 'gearbox_cost', 'generator_cost', 'mechanicalBrakes_cost', 'yawSystem_cost', \
+                   'electronicCabling_cost', 'HVAC_cost', 'VSElectronics_cost', 'mainframeTotal_cost', 'nacelleCover_cost', 'controls_cost')
+
+        return inputs, outputs
+    
+    def provideJ(self):
+      
         self.J = np.array([[self.d_nacelle_mass_d_r_diameter, self.d_nacelle_mass_d_r_mass, self.d_nacelle_mass_d_r_thrust, self.d_nacelle_mass_d_r_torque, self.d_nacelle_mass_d_rating],\
                            [self.d_lss_mass_d_r_diameter, self.d_lss_mass_d_r_mass, 0.0, self.d_lss_mass_d_r_torque, 0.0],\
                            [self.d_bearings_mass_d_r_diameter, 0.0, 0.0, 0.0, 0.0],\
@@ -499,15 +512,7 @@ class nacelle_csm_component(Component):
                            [0.0, 0.0, 0.0, 0.0, self.d_cover_cost_d_rating],\
                            [0.0, 0.0, 0.0, 0.0, 0.0]])
     
-    def provideJ(self):
-      
-        inputs = ['rotor_diameter', 'rotor_mass', 'rotor_thrust', 'rotor_torque', 'machine_rating']
-        outputs = ['nacelle_mass', 'lowSpeedShaft_mass', 'bearings_mass', 'gearbox_mass', 'generator_mass', 'mechanicalBrakes_mass', 'yawSystem_mass', \
-                   'electronicCabling_mass', 'HVAC_mass', 'VSElectronics_mass', 'mainframeTotal_mass', 'nacelleCover_mass', 'controls_mass',\
-                   'nacelle_cost', 'lowSpeedShaft_cost', 'bearings_cost', 'gearbox_cost', 'generator_cost', 'mechanicalBrakes_cost', 'yawSystem_cost', \
-                   'electronicCabling_cost', 'HVAC_cost', 'VSElectronics_cost', 'mainframeTotal_cost', 'nacelleCover_cost', 'controls_cost']
-    
-        return inputs, outputs, self.J
+        return self.J
        
 #-----------------------------------------------------------------
 

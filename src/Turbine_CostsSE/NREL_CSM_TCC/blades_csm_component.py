@@ -53,6 +53,9 @@ class blades_csm_component(Component):
         """
         super(blades_csm_component, self).__init__()
 
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
+
     def execute(self):
         """
         Executes Blade model of the NREL _cost and Scaling Model to estimate wind turbine blade cost and mass.
@@ -97,16 +100,18 @@ class blades_csm_component(Component):
         self.d_cost_d_diameter = (3.0*(slopeR3*(self.rotor_diameter/2.0)**2.0 )*ppi_mat * (1/2.) + \
                                  (laborExp * laborCoeff*(self.rotor_diameter/2.0)**(laborExp-1))*ppi_labor * (1/2.)) / (1.0-0.28)
  
-    def linearize(self):
+    def list_deriv_vars(self):
+
+    	  inputs = ('rotor_diameter')
+    	  outputs = ('blade_mass', 'blade_cost')
     	  
-    	  self.J = np.array([[self.d_mass_d_diameter],[self.d_cost_d_diameter]])
+    	  return inputs, outputs
     
     def provideJ(self):
-    	
-    	  inputs = ['rotor_diameter']
-    	  outputs = ['blade_mass', 'blade_cost']
     	  
-    	  return inputs, outputs, self.J
+    	  self.J = np.array([[self.d_mass_d_diameter],[self.d_cost_d_diameter]])    	
+    	  
+    	  return self.J
          
 #-----------------------------------------------------------------
 

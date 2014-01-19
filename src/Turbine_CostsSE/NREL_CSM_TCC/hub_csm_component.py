@@ -74,6 +74,9 @@ class hub_csm_component(Component):
 
         super(hub_csm_component, self).__init__()
 
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
+
     def execute(self):
         """
         Executes hub model of the NREL _cost and Scaling model to compute hub system component masses and costs.
@@ -134,7 +137,15 @@ class hub_csm_component(Component):
         self.d_spinner_cost_d_blade_mass = 0.0
         self.d_system_cost_d_blade_mass = self.d_hub_cost_d_blade_mass + self.d_pitch_cost_d_blade_mass + self.d_spinner_cost_d_blade_mass
         
-    def linearize(self):
+    def list_deriv_vars(self):
+
+        inputs = ('rotor_diameter', 'blade_mass')
+        outputs = ('hub_mass', 'pitch_system_mass', 'spinner_mass', 'hub_system_mass', \
+                   'hub_cost', 'pitch_system_cost', 'spinner_cost', 'hub_system_cost')
+        
+        return inputs, outputs
+    
+    def provideJ(self):
         
         self.J = np.array([[self.d_hub_mass_d_diameter, self.d_hub_mass_d_blade_mass],\
                            [self.d_pitch_mass_d_diameter, self.d_pitch_mass_d_blade_mass],\
@@ -144,14 +155,8 @@ class hub_csm_component(Component):
                            [self.d_pitch_cost_d_diameter, self.d_pitch_cost_d_blade_mass],\
                            [self.d_spinner_cost_d_diameter, self.d_spinner_cost_d_blade_mass],\
                            [self.d_system_cost_d_diameter, self.d_system_cost_d_blade_mass]])
-    
-    def provideJ(self):
         
-        inputs = ['rotor_diameter', 'blade_mass']
-        outputs = ['hub_mass', 'pitch_system_mass', 'spinner_mass', 'hub_system_mass', \
-                   'hub_cost', 'pitch_system_cost', 'spinner_cost', 'hub_system_cost']
-        
-        return inputs, outputs, self.J
+        return self.J
         
 #-----------------------------------------------------------------
 

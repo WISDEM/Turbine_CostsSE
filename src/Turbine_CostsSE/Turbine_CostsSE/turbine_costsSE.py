@@ -5,7 +5,6 @@ Created by Katherine Dykes 2012.
 Copyright (c) NREL. All rights reserved.
 """
 
-from config import *
 from openmdao.main.api import Component, Assembly
 from openmdao.main.datatypes.api import Array, Float, Bool, Int
 import numpy as np
@@ -161,6 +160,9 @@ class TurbineCostAdder(FullTCCAggregator):
         '''   
         
         super(TurbineCostAdder, self).__init__()
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
     
     def execute(self):
       
@@ -187,26 +189,25 @@ class TurbineCostAdder(FullTCCAggregator):
             self.d_cost_d_nacelle_cost *= 1.1
             self.d_cost_d_tower_cost *= 1.1
     
-    def linearize(self):
+    def list_deriv_vars(self):
+
+        inputs = ('rotor_cost', 'nacelle_cost', 'tower_cost')
+        outputs = ('turbine_cost')
         
+        return inputs, outputs
+        
+    def provideJ(self):
+
         # Jacobian
         self.J = np.array([[self.d_cost_d_rotor_cost, self.d_cost_d_nacelle_cost, self.d_cost_d_tower_cost]])
 
-    def provideJ(self):
-
-        inputs = ['rotor_cost', 'nacelle_cost', 'tower_cost']
-        outputs = ['turbine_cost']
-
-        return inputs, outputs, self.J
+        return self.J
         
 #-------------------------------------------------------------------------------       
 
 def example():
 
     # simple test of module
-    
-    ppi.ref_yr   = 2002
-    ppi.ref_mon  = 9
 
     turbine = Turbine_CostsSE()
 

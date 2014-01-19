@@ -58,6 +58,9 @@ class tower_csm_component(Component):
 
         super(tower_csm_component, self).__init__()
 
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
+
     def execute(self):
         """
         Executes the tower model of the NREL _cost and Scaling Model.
@@ -89,16 +92,18 @@ class tower_csm_component(Component):
         self.d_cost_d_diameter = twrCostCoeff * twrCostEscalator * self.d_mass_d_diameter
         self.d_cost_d_hheight = twrCostCoeff * twrCostEscalator * self.d_mass_d_hheight
     
-    def linearize(self):
+    def list_deriv_vars(self):
+
+        inputs = ('rotor_diameter', 'hub_height')    
+        outputs = ('tower_mass', 'tower_cost')
         
-        self.J = np.array([[self.d_mass_d_diameter, self.d_mass_d_hheight], [self.d_cost_d_diameter, self.d_cost_d_hheight]])
+        return inputs, outputs
     
     def provideJ(self):
 
-        inputs = ['rotor_diameter', 'hub_height']       
-        outputs = ['tower_mass', 'tower_cost']
+        self.J = np.array([[self.d_mass_d_diameter, self.d_mass_d_hheight], [self.d_cost_d_diameter, self.d_cost_d_hheight]])
         
-        return inputs, outputs, self.J        
+        return self.J        
           
 #-----------------------------------------------------------------
 

@@ -6,7 +6,7 @@ Modified by Katherine Dykes 2012.
 Copyright (c) NREL. All rights reserved.
 """
 
-from config import *
+from commonse.config import *
 from openmdao.main.api import Component, Assembly
 from openmdao.main.datatypes.api import Array, Float, Bool, Int
 import numpy as np
@@ -44,6 +44,9 @@ class TowerCost(BaseComponentCostModel):
         '''
         
         super(TowerCost, self).__init__()
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
      
     def execute(self):
 
@@ -62,17 +65,19 @@ class TowerCost(BaseComponentCostModel):
         # derivatives
         self.d_cost_d_tower_mass = twrCostEscalator * twrCostCoeff
     
-    def linearize(self):
+    def list_deriv_vars(self):
+
+        inputs = ('tower_mass')
+        outputs = ('cost')
+        
+        return inputs, outputs
+
+    def provideJ(self):
         
         # Jacobian
         self.J = np.array([[self.d_cost_d_tower_mass]])
 
-    def provideJ(self):
-
-        inputs = ['tower_mass']
-        outputs = ['cost']
-
-        return inputs, outputs, self.J 
+        return self.J 
 
 
 #-------------------------------------------------------------------------------
@@ -82,6 +87,9 @@ class TowerCostAdder(FullTowerCostAggregator):
     def __init__(self):
         
         super(TowerCostAdder,self).__init__()
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
 
     def execute(self):
     
@@ -98,17 +106,19 @@ class TowerCostAdder(FullTowerCostAggregator):
         # derivatives
         self.d_cost_d_tower_cost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
 
-    def linearize(self):
+    def list_deriv_vars(self):
+
+        inputs = ('tower_cost')
+        outputs = ('cost')
+        
+        return inputs, outputs
+
+    def provideJ(self):
 
         # Jacobian
         self.J = np.array([[self.d_cost_d_tower_cost]])
 
-    def provideJ(self):
-
-        inputs = ['tower_cost']
-        outputs = ['cost']
-
-        return inputs, outputs, self.J 
+        return self.J 
 
 
 class Tower_CostsSE(FullTowerCostModel):

@@ -32,23 +32,32 @@ class rotor_mass_adder(Component):
     # Outputs
     rotor_mass = Float(units='kg', iotype='out', desc= 'overall rotor mass')
 
+    def __init__(self):
+      
+        super(rotor_mass_adder,self).__init__()
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
+
     def execute(self):
-    	 
-    	  self.rotor_mass = self.blade_mass * self.blade_number + self.hub_system_mass
-    	   
-    	  self.d_mass_d_blade_mass = self.blade_number
-    	  self.d_mass_d_hub_mass = 1.0
-    	   
-    def linearize(self):
-    	
-        self.J = np.array([[self.d_mass_d_blade_mass, self.d_mass_d_hub_mass]])
+       
+        self.rotor_mass = self.blade_mass * self.blade_number + self.hub_system_mass
+         
+        self.d_mass_d_blade_mass = self.blade_number
+        self.d_mass_d_hub_mass = 1.0
+         
+    def list_deriv_vars(self):
+
+        inputs = ('blade_mass', 'hub_system_mass')
+        outputs = ('rotor_mass')
+        
+        return inputs, outputs
     
     def provideJ(self):
-    	  
-    	  inputs = ['blade_mass', 'hub_system_mass']
-    	  outputs = ['rotor_mass']
-    	  
-    	  return inputs, outputs, self.J
+      
+        self.J = np.array([[self.d_mass_d_blade_mass, self.d_mass_d_hub_mass]])        
+        
+        return self.J
 
 # --------------------------------------------------------------------
 
@@ -263,6 +272,9 @@ class tcc_csm_component(BaseTCCAggregator):
 
         super(tcc_csm_component, self).__init__()
 
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
+
     def execute(self):
         """
         Execute Turbine Capital _costs Model of the NREL _cost and Scaling Model.
@@ -274,7 +286,7 @@ class tcc_csm_component(BaseTCCAggregator):
         self.turbine_cost = self.blade_cost * self.blade_number + self.hub_system_cost + self.nacelle_cost + self.tower_cost
 
         if self.offshore:
-        	  self.turbine_cost *= 1.1
+            self.turbine_cost *= 1.1
    
         # derivatives     
         self.d_mass_d_blade_mass = self.blade_number
@@ -283,15 +295,15 @@ class tcc_csm_component(BaseTCCAggregator):
         self.d_mass_d_tower_mass = 1.0
         
         if self.offshore:
-		        self.d_cost_d_blade_cost = 1.1 * self.blade_number
-		        self.d_cost_d_hub_cost = 1.1
-		        self.d_cost_d_nacelle_cost = 1.1
-		        self.d_cost_d_tower_cost = 1.1
+            self.d_cost_d_blade_cost = 1.1 * self.blade_number
+            self.d_cost_d_hub_cost = 1.1
+            self.d_cost_d_nacelle_cost = 1.1
+            self.d_cost_d_tower_cost = 1.1
         else:
-		        self.d_cost_d_blade_cost = self.blade_number
-		        self.d_cost_d_hub_cost = 1.0
-		        self.d_cost_d_nacelle_cost = 1.0
-		        self.d_cost_d_tower_cost = 1.0
+            self.d_cost_d_blade_cost = self.blade_number
+            self.d_cost_d_hub_cost = 1.0
+            self.d_cost_d_nacelle_cost = 1.0
+            self.d_cost_d_tower_cost = 1.0
         
         
         # lower level output assignment
@@ -360,19 +372,21 @@ class tcc_csm_component(BaseTCCAggregator):
         # Tower System
         self.turbineVT.tower.cost = self.tower_cost
 
-    def linearize(self):
-    	  
-    	  self.J = np.array([[self.d_mass_d_blade_mass, self.d_mass_d_hub_mass, self.d_mass_d_nacelle_mass, self.d_mass_d_tower_mass, 0.0, 0.0, 0.0, 0.0],\
-                           [0.0, 0.0, 0.0, 0.0, self.d_cost_d_blade_cost, self.d_cost_d_hub_cost, self.d_cost_d_nacelle_cost, self.d_cost_d_tower_cost]])
+    def list_deriv_vars(self):
 
+        inputs=('blade_mass', 'hub_system_mass', 'nacelle_mass', 'tower_mass', \
+                'blade_cost', 'hub_system_cost', 'nacelle_cost', 'tower_cost')
+        
+        outputs = ('turbine_mass', 'turbine_cost')
+        
+        return inputs, outputs
+        
     def provideJ(self):
-    	  
-    	  inputs=['blade_mass', 'hub_system_mass', 'nacelle_mass', 'tower_mass', \
-    	          'blade_cost', 'hub_system_cost', 'nacelle_cost', 'tower_cost']
-    	  
-    	  outputs = ['turbine_mass', 'turbine_cost']
-    	  
-    	  return inputs, outputs, self.J
+        
+        self.J = np.array([[self.d_mass_d_blade_mass, self.d_mass_d_hub_mass, self.d_mass_d_nacelle_mass, self.d_mass_d_tower_mass, 0.0, 0.0, 0.0, 0.0],\
+                           [0.0, 0.0, 0.0, 0.0, self.d_cost_d_blade_cost, self.d_cost_d_hub_cost, self.d_cost_d_nacelle_cost, self.d_cost_d_tower_cost]])
+        
+        return self.J
   
 #-----------------------------------------------------------------
 
