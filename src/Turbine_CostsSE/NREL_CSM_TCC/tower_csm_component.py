@@ -94,8 +94,8 @@ class tower_csm_component(Component):
     
     def list_deriv_vars(self):
 
-        inputs = ('rotor_diameter', 'hub_height')    
-        outputs = ('tower_mass', 'tower_cost')
+        inputs = ['rotor_diameter', 'hub_height']
+        outputs = ['tower_mass', 'tower_cost']
         
         return inputs, outputs
     

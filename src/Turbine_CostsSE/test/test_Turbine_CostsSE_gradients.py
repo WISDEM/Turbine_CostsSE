@@ -35,7 +35,7 @@ class TestTowerCost(unittest.TestCase):
 
         tower = TowerCost()
     
-        tower.towerMass = 434559.0
+        tower.tower_mass = 434559.0
         tower.curr_yr = 2009
         tower.curr_mon =  12
 
@@ -58,7 +58,7 @@ class TestBladeCost(unittest.TestCase):
 
         blade = BladeCost()
     
-        blade.bladeMass = 17650.67
+        blade.blade_mass = 17650.67
         blade.curr_yr = 2009
         blade.curr_mon = 12
 
@@ -70,7 +70,7 @@ class TestHubCost(unittest.TestCase):
 
         hub = HubCost()
     
-        hub.hubMass = 31644.5
+        hub.hub_mass = 31644.5
         hub.curr_yr = 2009
         hub.curr_mon = 12
 
@@ -82,7 +82,7 @@ class TestPitchSystemCost(unittest.TestCase):
 
         pitch = PitchSystemCost()
     
-        pitch.pitchSystemMass = 17004.0
+        pitch.pitch_system_mass = 17004.0
         pitch.curr_yr = 2009
         pitch.curr_mon = 12
 
@@ -94,7 +94,7 @@ class TestSpinnerCost(unittest.TestCase):
 
         spinner = SpinnerCost()
     
-        spinner.spinnerMass = 1810.5
+        spinner.spinner_mass = 1810.5
         spinner.curr_yr = 2009
         spinner.curr_mon = 12
 
@@ -133,7 +133,7 @@ class TestLowSpeedShaftCost(unittest.TestCase):
 
         lss = LowSpeedShaftCost()
     
-        lss.lowSpeedShaftMass = 31257.3
+        lss.low_speed_shaft_mass = 31257.3
         lss.curr_yr = 2009
         lss.curr_mon = 12
 
@@ -145,8 +145,8 @@ class TestBearingsCost(unittest.TestCase):
 
         bearings = BearingsCost()
     
-        bearings.mainBearingMass = 9731.41 / 2.0
-        bearings.secondBearingMass = 9731.41 / 2.0
+        bearings.main_bearing_mass = 9731.41 / 2.0
+        bearings.second_bearing_mass = 9731.41 / 2.0
         bearings.curr_yr = 2009
         bearings.curr_mon = 12
 
@@ -158,10 +158,10 @@ class TestGearboxCost(unittest.TestCase):
 
         gearbox = GearboxCost()
     
-        gearbox.gearboxMass = 30237.60
+        gearbox.gearbox_mass = 30237.60
         gearbox.curr_yr = 2009
         gearbox.curr_mon = 12
-        gearbox.drivetrainDesign = 1
+        gearbox.drivetrain_design = 1
 
         check_gradient_unit_test(self, gearbox)
 
@@ -171,7 +171,7 @@ class TestHighSpeedSideCost(unittest.TestCase):
 
         hss = HighSpeedSideCost()
     
-        hss.highSpeedSideMass = 1492.45
+        hss.high_speed_side_mass = 1492.45
         hss.curr_yr = 2009
         hss.curr_mon = 12
 
@@ -183,10 +183,10 @@ class TestGeneratorCost(unittest.TestCase):
 
         generator = GeneratorCost()
     
-        generator.generatorMass = 16699.85
+        generator.generator_mass = 16699.85
         generator.curr_yr = 2009
         generator.curr_mon = 12
-        generator.drivetrainDesign = 1
+        generator.drivetrain_design = 1
         generator.machine_rating = 5000.0
 
         check_gradient_unit_test(self, generator)
@@ -197,7 +197,7 @@ class TestBedplateCost(unittest.TestCase):
 
         bedplate = BedplateCost()
     
-        bedplate.bedplateMass = 93090.6
+        bedplate.bedplate_mass = 93090.6
         bedplate.curr_yr = 2009
         bedplate.curr_mon = 12
 
@@ -209,7 +209,7 @@ class TestYawSystemCost(unittest.TestCase):
 
         yaw = YawSystemCost()
     
-        yaw.yawSystemMass = 11878.24
+        yaw.yaw_system_mass = 11878.24
         yaw.curr_yr = 2009
         yaw.curr_mon = 12
 
@@ -221,7 +221,7 @@ class TestNacelleSystemCostAdder(unittest.TestCase):
 
         nacelle = NacelleSystemCostAdder()
 
-        nacelle.bedplateMass = 93090.6    
+        nacelle.bedplate_mass = 93090.6    
         nacelle.machine_rating = 5000.0
         nacelle.drivetrainDesign = 1
         nacelle.crane = True

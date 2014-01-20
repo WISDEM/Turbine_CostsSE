@@ -475,11 +475,11 @@ class nacelle_csm_component(Component):
 
     def list_deriv_vars(self):
 
-        inputs = ('rotor_diameter', 'rotor_mass', 'rotor_thrust', 'rotor_torque', 'machine_rating')
-        outputs = ('nacelle_mass', 'lowSpeedShaft_mass', 'bearings_mass', 'gearbox_mass', 'generator_mass', 'mechanicalBrakes_mass', 'yawSystem_mass', \
+        inputs = ['rotor_diameter', 'rotor_mass', 'rotor_thrust', 'rotor_torque', 'machine_rating']
+        outputs = ['nacelle_mass', 'lowSpeedShaft_mass', 'bearings_mass', 'gearbox_mass', 'generator_mass', 'mechanicalBrakes_mass', 'yawSystem_mass', \
                    'electronicCabling_mass', 'HVAC_mass', 'VSElectronics_mass', 'mainframeTotal_mass', 'nacelleCover_mass', 'controls_mass',\
                    'nacelle_cost', 'lowSpeedShaft_cost', 'bearings_cost', 'gearbox_cost', 'generator_cost', 'mechanicalBrakes_cost', 'yawSystem_cost', \
-                   'electronicCabling_cost', 'HVAC_cost', 'VSElectronics_cost', 'mainframeTotal_cost', 'nacelleCover_cost', 'controls_cost')
+                   'electronicCabling_cost', 'HVAC_cost', 'VSElectronics_cost', 'mainframeTotal_cost', 'nacelleCover_cost', 'controls_cost']
 
         return inputs, outputs
     

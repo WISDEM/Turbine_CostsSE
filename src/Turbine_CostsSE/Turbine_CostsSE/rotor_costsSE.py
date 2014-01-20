@@ -80,8 +80,8 @@ class BladeCost(BaseComponentCostModel):
 
     def list_deriv_vars(self):
 
-        inputs = ('blade_mass')
-        outputs = ('cost')
+        inputs = ['blade_mass']
+        outputs = ['cost']
         
         return inputs, outputs
 
@@ -149,8 +149,8 @@ class HubCost(BaseComponentCostModel):
     
     def list_deriv_vars(self):
 
-        inputs = ('hub_mass')
-        outputs = ('cost')
+        inputs = ['hub_mass']
+        outputs = ['cost']
         
         return inputs, outputs
 
@@ -217,8 +217,8 @@ class PitchSystemCost(BaseComponentCostModel):
 
     def list_deriv_vars(self):
 
-        inputs = ('pitch_system_mass')
-        outputs = ('cost')
+        inputs = ['pitch_system_mass']
+        outputs = ['cost']
         
         return inputs, outputs
 
@@ -283,8 +283,8 @@ class SpinnerCost(BaseComponentCostModel):
 
     def list_deriv_vars(self):
 
-        inputs = ('spinner_mass')
-        outputs = ('cost')
+        inputs = ['spinner_mass']
+        outputs = ['cost']
         
         return inputs, outputs
 
@@ -342,8 +342,8 @@ class HubSystemCostAdder(FullHubSystemCostAggregator):
 
     def list_deriv_vars(self):
 
-        inputs = ('hub_cost', 'pitch_system_cost', 'spinner_cost')
-        outputs = ('cost')
+        inputs = ['hub_cost', 'pitch_system_cost', 'spinner_cost']
+        outputs = ['cost']
         
         return inputs, outputs
 
@@ -395,8 +395,8 @@ class RotorCostAdder(FullRotorCostAggregator):
 
     def list_deriv_vars(self):
 
-        inputs = ('blade_cost', 'hub_system_cost')
-        outputs = ('cost')
+        inputs = ['blade_cost', 'hub_system_cost']
+        outputs = ['cost']
         
         return inputs, outputs
 

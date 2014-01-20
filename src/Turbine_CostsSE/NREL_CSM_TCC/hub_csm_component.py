@@ -139,9 +139,9 @@ class hub_csm_component(Component):
         
     def list_deriv_vars(self):
 
-        inputs = ('rotor_diameter', 'blade_mass')
-        outputs = ('hub_mass', 'pitch_system_mass', 'spinner_mass', 'hub_system_mass', \
-                   'hub_cost', 'pitch_system_cost', 'spinner_cost', 'hub_system_cost')
+        inputs = ['rotor_diameter', 'blade_mass']
+        outputs = ['hub_mass', 'pitch_system_mass', 'spinner_mass', 'hub_system_mass', \
+                   'hub_cost', 'pitch_system_cost', 'spinner_cost', 'hub_system_cost']
         
         return inputs, outputs
     

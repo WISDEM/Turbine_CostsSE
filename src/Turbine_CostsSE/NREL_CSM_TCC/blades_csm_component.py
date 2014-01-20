@@ -102,8 +102,8 @@ class blades_csm_component(Component):
  
     def list_deriv_vars(self):
 
-    	  inputs = ('rotor_diameter')
-    	  outputs = ('blade_mass', 'blade_cost')
+    	  inputs = ['rotor_diameter']
+    	  outputs = ['blade_mass', 'blade_cost']
     	  
     	  return inputs, outputs
     

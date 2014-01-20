@@ -191,8 +191,8 @@ class TurbineCostAdder(FullTCCAggregator):
     
     def list_deriv_vars(self):
 
-        inputs = ('rotor_cost', 'nacelle_cost', 'tower_cost')
-        outputs = ('turbine_cost')
+        inputs = ['rotor_cost', 'nacelle_cost', 'tower_cost']
+        outputs = ['turbine_cost']
         
         return inputs, outputs
         

@@ -48,8 +48,8 @@ class rotor_mass_adder(Component):
          
     def list_deriv_vars(self):
 
-        inputs = ('blade_mass', 'hub_system_mass')
-        outputs = ('rotor_mass')
+        inputs = ['blade_mass', 'hub_system_mass']
+        outputs = ['rotor_mass']
         
         return inputs, outputs
     
@@ -374,10 +374,10 @@ class tcc_csm_component(BaseTCCAggregator):
 
     def list_deriv_vars(self):
 
-        inputs=('blade_mass', 'hub_system_mass', 'nacelle_mass', 'tower_mass', \
-                'blade_cost', 'hub_system_cost', 'nacelle_cost', 'tower_cost')
+        inputs=['blade_mass', 'hub_system_mass', 'nacelle_mass', 'tower_mass', \
+                'blade_cost', 'hub_system_cost', 'nacelle_cost', 'tower_cost']
         
-        outputs = ('turbine_mass', 'turbine_cost')
+        outputs = ['turbine_mass', 'turbine_cost']
         
         return inputs, outputs
         

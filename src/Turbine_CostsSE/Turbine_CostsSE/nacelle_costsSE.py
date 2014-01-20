@@ -64,8 +64,8 @@ class LowSpeedShaftCost(BaseComponentCostModel):
 
     def list_deriv_vars(self):
 
-        inputs = ('low_speed_shaft_mass')
-        outputs = ('cost')
+        inputs = ['low_speed_shaft_mass']
+        outputs = ['cost']
         
         return inputs, outputs
 
@@ -134,8 +134,8 @@ class BearingsCost(BaseComponentCostModel):
 
     def list_deriv_vars(self):
 
-        inputs = ('main_bearing_mass', 'second_bearing_mass')
-        outputs = ('cost')
+        inputs = ['main_bearing_mass', 'second_bearing_mass']
+        outputs = ['cost']
         
         return inputs, outputs
 
@@ -216,8 +216,8 @@ class GearboxCost(BaseComponentCostModel):
 
     def list_deriv_vars(self):
 
-        inputs= ('gearbox_mass', 'machine_rating')
-        outputs = ('cost')
+        inputs= ['gearbox_mass', 'machine_rating']
+        outputs = ['cost']
         
         return inputs, outputs
     
@@ -277,8 +277,8 @@ class HighSpeedSideCost(BaseComponentCostModel):
 
     def list_deriv_vars(self):
 
-        inputs = ('high_speed_side_mass')
-        outputs = ('cost')
+        inputs = ['high_speed_side_mass']
+        outputs = ['cost']
         
         return inputs, outputs
 
@@ -356,8 +356,8 @@ class GeneratorCost(BaseComponentCostModel):
 
     def list_deriv_vars(self):
 
-        inputs = ('generator_mass', 'machine_rating')
-        outputs = ('cost')
+        inputs = ['generator_mass', 'machine_rating']
+        outputs = ['cost']
         
         return inputs, outputs
  
@@ -431,8 +431,8 @@ class BedplateCost(BaseComponentCostModel):
 
     def list_deriv_vars(self):
 
-        inputs = ('bedplate_mass')
-        outputs = ('cost', 'cost2002')
+        inputs = ['bedplate_mass']
+        outputs = ['cost', 'cost2002']
         
         return inputs, outputs
 
@@ -495,8 +495,8 @@ class YawSystemCost(BaseComponentCostModel):
 
     def list_deriv_vars(self):
 
-        inputs = ('yaw_system_mass')
-        outputs = ('cost')
+        inputs = ['yaw_system_mass']
+        outputs = ['cost']
         
         return inputs, outputs
 
@@ -652,9 +652,9 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
 
     def list_deriv_vars(self):
 
-        inputs = ('bedplate_mass', 'bedplateCost2002', 'bedplate_cost', 'lss_cost', 'bearings_cost', \
-                      'gearbox_cost', 'hss_cost', 'generator_cost', 'yaw_system_cost', 'machine_rating')
-        outputs = ('cost')
+        inputs = ['bedplate_mass', 'bedplateCost2002', 'bedplate_cost', 'lss_cost', 'bearings_cost', \
+                      'gearbox_cost', 'hss_cost', 'generator_cost', 'yaw_system_cost', 'machine_rating']
+        outputs = ['cost']
         
         return inputs, outputs
 

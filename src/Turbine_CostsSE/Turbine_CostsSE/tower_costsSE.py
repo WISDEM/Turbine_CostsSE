@@ -67,8 +67,8 @@ class TowerCost(BaseComponentCostModel):
     
     def list_deriv_vars(self):
 
-        inputs = ('tower_mass')
-        outputs = ('cost')
+        inputs = ['tower_mass']
+        outputs = ['cost']
         
         return inputs, outputs
 
@@ -108,8 +108,8 @@ class TowerCostAdder(FullTowerCostAggregator):
 
     def list_deriv_vars(self):
 
-        inputs = ('tower_cost')
-        outputs = ('cost')
+        inputs = ['tower_cost']
+        outputs = ['cost']
         
         return inputs, outputs
 
