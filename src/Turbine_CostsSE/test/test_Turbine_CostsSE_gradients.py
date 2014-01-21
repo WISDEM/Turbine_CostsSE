@@ -36,8 +36,8 @@ class TestTowerCost(unittest.TestCase):
         tower = TowerCost()
     
         tower.tower_mass = 434559.0
-        tower.curr_yr = 2009
-        tower.curr_mon =  12
+        tower.year = 2009
+        tower.month =  12
 
         check_gradient_unit_test(self, tower)
 
@@ -59,8 +59,8 @@ class TestBladeCost(unittest.TestCase):
         blade = BladeCost()
     
         blade.blade_mass = 17650.67
-        blade.curr_yr = 2009
-        blade.curr_mon = 12
+        blade.year = 2009
+        blade.month = 12
 
         check_gradient_unit_test(self, blade)
 
@@ -71,8 +71,8 @@ class TestHubCost(unittest.TestCase):
         hub = HubCost()
     
         hub.hub_mass = 31644.5
-        hub.curr_yr = 2009
-        hub.curr_mon = 12
+        hub.year = 2009
+        hub.month = 12
 
         check_gradient_unit_test(self, hub)
 
@@ -83,8 +83,8 @@ class TestPitchSystemCost(unittest.TestCase):
         pitch = PitchSystemCost()
     
         pitch.pitch_system_mass = 17004.0
-        pitch.curr_yr = 2009
-        pitch.curr_mon = 12
+        pitch.year = 2009
+        pitch.month = 12
 
         check_gradient_unit_test(self, pitch)
 
@@ -95,8 +95,8 @@ class TestSpinnerCost(unittest.TestCase):
         spinner = SpinnerCost()
     
         spinner.spinner_mass = 1810.5
-        spinner.curr_yr = 2009
-        spinner.curr_mon = 12
+        spinner.year = 2009
+        spinner.month = 12
 
         check_gradient_unit_test(self, spinner)
 
@@ -134,8 +134,8 @@ class TestLowSpeedShaftCost(unittest.TestCase):
         lss = LowSpeedShaftCost()
     
         lss.low_speed_shaft_mass = 31257.3
-        lss.curr_yr = 2009
-        lss.curr_mon = 12
+        lss.year = 2009
+        lss.month = 12
 
         check_gradient_unit_test(self, lss)
 
@@ -147,8 +147,8 @@ class TestBearingsCost(unittest.TestCase):
     
         bearings.main_bearing_mass = 9731.41 / 2.0
         bearings.second_bearing_mass = 9731.41 / 2.0
-        bearings.curr_yr = 2009
-        bearings.curr_mon = 12
+        bearings.year = 2009
+        bearings.month = 12
 
         check_gradient_unit_test(self, bearings)
 
@@ -159,8 +159,8 @@ class TestGearboxCost(unittest.TestCase):
         gearbox = GearboxCost()
     
         gearbox.gearbox_mass = 30237.60
-        gearbox.curr_yr = 2009
-        gearbox.curr_mon = 12
+        gearbox.year = 2009
+        gearbox.month = 12
         gearbox.drivetrain_design = 1
 
         check_gradient_unit_test(self, gearbox)
@@ -172,8 +172,8 @@ class TestHighSpeedSideCost(unittest.TestCase):
         hss = HighSpeedSideCost()
     
         hss.high_speed_side_mass = 1492.45
-        hss.curr_yr = 2009
-        hss.curr_mon = 12
+        hss.year = 2009
+        hss.month = 12
 
         check_gradient_unit_test(self, hss)
 
@@ -184,8 +184,8 @@ class TestGeneratorCost(unittest.TestCase):
         generator = GeneratorCost()
     
         generator.generator_mass = 16699.85
-        generator.curr_yr = 2009
-        generator.curr_mon = 12
+        generator.year = 2009
+        generator.month = 12
         generator.drivetrain_design = 1
         generator.machine_rating = 5000.0
 
@@ -198,8 +198,8 @@ class TestBedplateCost(unittest.TestCase):
         bedplate = BedplateCost()
     
         bedplate.bedplate_mass = 93090.6
-        bedplate.curr_yr = 2009
-        bedplate.curr_mon = 12
+        bedplate.year = 2009
+        bedplate.month = 12
 
         check_gradient_unit_test(self, bedplate)
 
@@ -210,8 +210,8 @@ class TestYawSystemCost(unittest.TestCase):
         yaw = YawSystemCost()
     
         yaw.yaw_system_mass = 11878.24
-        yaw.curr_yr = 2009
-        yaw.curr_mon = 12
+        yaw.year = 2009
+        yaw.month = 12
 
         check_gradient_unit_test(self, yaw)
 
@@ -226,8 +226,8 @@ class TestNacelleSystemCostAdder(unittest.TestCase):
         nacelle.drivetrainDesign = 1
         nacelle.crane = True
         nacelle.offshore = True
-        nacelle.curr_yr = 2009
-        nacelle.curr_mon = 12
+        nacelle.year = 2009
+        nacelle.month = 12
         nacelle.lss_cost = 10000.0
         nacelle.bearings_cost = 10000.0
         nacelle.gearbox_cost = 10000.0

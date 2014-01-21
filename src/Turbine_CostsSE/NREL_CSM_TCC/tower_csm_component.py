@@ -15,10 +15,8 @@ class tower_csm_component(Component):
     """
        Component to wrap python code for NREL cost and scaling model for a wind turbine tower
     """
-
-    # ---- Design Variables -------------- 
     
-    # Varaiables
+    # Variables
     rotor_diameter = Float(126.0, units = 'm', iotype='in', desc= 'rotor diameter of the machine') 
     hub_height = Float(90.0, units = 'm', iotype='in', desc = 'hub height of machine')
     

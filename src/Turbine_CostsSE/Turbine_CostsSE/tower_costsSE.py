@@ -21,8 +21,8 @@ class TowerCost(BaseComponentCostModel):
     tower_mass = Float(iotype='in', units='kg', desc='tower mass [kg]')
     
     # parameters
-    curr_yr = Int(iotype='in', desc='Current Year')
-    curr_mon = Int(iotype='in', desc='Current Month')
+    year = Int(iotype='in', desc='Current Year')
+    month = Int(iotype='in', desc='Current Month')
 
     def __init__(self):
         '''
@@ -51,8 +51,8 @@ class TowerCost(BaseComponentCostModel):
     def execute(self):
 
         # assign input variables
-        ppi.curr_yr   = self.curr_yr
-        ppi.curr_mon   = self.curr_mon
+        ppi.curr_yr   = self.year
+        ppi.curr_mon   = self.month
 
         twrCostEscalator  = ppi.compute('IPPI_TWR')
         
@@ -127,8 +127,8 @@ class Tower_CostsSE(FullTowerCostModel):
     tower_mass = Float(iotype='in', units='kg', desc='tower mass [kg]')
     
     # parameters
-    curr_yr = Int(iotype='in', desc='Current Year')
-    curr_mon = Int(iotype='in', desc='Current Month')
+    year = Int(iotype='in', desc='Current Year')
+    month = Int(iotype='in', desc='Current Month')
     
     def __init__(self):
       
@@ -142,8 +142,8 @@ class Tower_CostsSE(FullTowerCostModel):
         self.replace('twrcc', TowerCostAdder())
         
         self.connect('tower_mass', 'towerCC.tower_mass')
-        self.connect('curr_yr', 'towerCC.curr_yr')
-        self.connect('curr_mon', 'towerCC.curr_mon')
+        self.connect('year', 'towerCC.year')
+        self.connect('month', 'towerCC.month')
       
         
 #-------------------------------------------------------------------------------       
@@ -157,8 +157,8 @@ def example():
     ppi.ref_mon  = 9
 
     tower.tower_mass = 434559.0
-    tower.curr_yr = 2009
-    tower.curr_mon =  12
+    tower.year = 2009
+    tower.month =  12
     
     tower.run()
     

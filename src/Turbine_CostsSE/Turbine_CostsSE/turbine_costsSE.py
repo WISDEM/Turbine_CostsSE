@@ -93,8 +93,8 @@ class Turbine_CostsSE(FullTurbineCapitalCostModel):
     drivetrain_design = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
     crane = Bool(iotype='in', desc='flag for presence of onboard crane')
     offshore = Bool(iotype='in', desc='flag for offshore site')
-    curr_yr = Int(iotype='in', desc='Current Year')
-    curr_mon = Int(iotype='in', desc='Current Month')
+    year = Int(iotype='in', desc='Current Year')
+    month = Int(iotype='in', desc='Current Month')
 
     def __init__(self):
 
@@ -130,8 +130,8 @@ class Turbine_CostsSE(FullTurbineCapitalCostModel):
         self.connect('crane', 'nacelleCC.crane')
         self.connect('offshore', ['nacelleCC.offshore', 'tcc.offshore'])
         self.connect('tower_mass', 'towerCC.tower_mass')
-        self.connect('curr_yr', ['rotorCC.curr_yr', 'nacelleCC.curr_yr', 'towerCC.curr_yr'])
-        self.connect('curr_mon', ['rotorCC.curr_mon', 'nacelleCC.curr_mon', 'towerCC.curr_mon'])
+        self.connect('year', ['rotorCC.year', 'nacelleCC.year', 'towerCC.year'])
+        self.connect('month', ['rotorCC.month', 'nacelleCC.month', 'towerCC.month'])
 
 
 #-------------------------------------------------------------------------------
@@ -231,8 +231,8 @@ def example():
     turbine.drivetrain_design = 1
     turbine.crane = True
     turbine.offshore = True
-    turbine.curr_yr = 2010
-    turbine.curr_mon =  12
+    turbine.year = 2010
+    turbine.month =  12
 
     turbine.run()
     

@@ -21,8 +21,8 @@ class BladeCost(BaseComponentCostModel):
     blade_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     
     # parameters
-    curr_yr = Int(iotype='in', desc='Current Year')
-    curr_mon = Int(iotype='in', desc='Current Month')
+    year = Int(iotype='in', desc='Current Year')
+    month = Int(iotype='in', desc='Current Month')
     advanced = Bool(True, iotype='in', desc='advanced (True) or traditional (False) blade design')
 
     def __init__(self):
@@ -54,8 +54,8 @@ class BladeCost(BaseComponentCostModel):
     def execute(self):
 
         # assign input variables
-        ppi.curr_yr   = self.curr_yr
-        ppi.curr_mon   = self.curr_mon
+        ppi.curr_yr   = self.year
+        ppi.curr_mon   = self.month
          
         ppi_labor  = ppi.compute('IPPI_BLL')
 
@@ -101,8 +101,8 @@ class HubCost(BaseComponentCostModel):
     hub_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     
     # parameters
-    curr_yr = Int(iotype='in', desc='Current Year')
-    curr_mon = Int(iotype='in', desc='Current Month')
+    year = Int(iotype='in', desc='Current Year')
+    month = Int(iotype='in', desc='Current Month')
 
     def __init__(self):
         '''
@@ -131,8 +131,8 @@ class HubCost(BaseComponentCostModel):
     def execute(self):
 
         # assign input variables
-        ppi.curr_yr   = self.curr_yr
-        ppi.curr_mon   = self.curr_mon
+        ppi.curr_yr   = self.year
+        ppi.curr_mon   = self.month
 
         #calculate system costs
         ppi_labor  = ppi.compute('IPPI_BLL')
@@ -169,8 +169,8 @@ class PitchSystemCost(BaseComponentCostModel):
     pitch_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     
     # parameters
-    curr_yr = Int(iotype='in', desc='Current Year')
-    curr_mon = Int(iotype='in', desc='Current Month')
+    year = Int(iotype='in', desc='Current Year')
+    month = Int(iotype='in', desc='Current Month')
 
     def __init__(self):
         '''
@@ -199,8 +199,8 @@ class PitchSystemCost(BaseComponentCostModel):
     def execute(self):
 
         # assign input variables
-        ppi.curr_yr   = self.curr_yr
-        ppi.curr_mon   = self.curr_mon
+        ppi.curr_yr   = self.year
+        ppi.curr_mon   = self.month
 
         #calculate system costs
         ppi_labor  = ppi.compute('IPPI_BLL')
@@ -237,8 +237,8 @@ class SpinnerCost(BaseComponentCostModel):
     spinner_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     
     # parameters
-    curr_yr = Int(iotype='in', desc='Current Year')
-    curr_mon = Int(iotype='in', desc='Current Month')
+    year = Int(iotype='in', desc='Current Year')
+    month = Int(iotype='in', desc='Current Month')
 
     def __init__(self):
         '''
@@ -266,8 +266,8 @@ class SpinnerCost(BaseComponentCostModel):
     def execute(self):
 
         # assign input variables
-        ppi.curr_yr   = self.curr_yr
-        ppi.curr_mon   = self.curr_mon
+        ppi.curr_yr   = self.year
+        ppi.curr_mon   = self.month
 
         #calculate system costs
         ppi_labor  = ppi.compute('IPPI_BLL')
@@ -423,8 +423,8 @@ class Rotor_CostsSE(FullRotorCostModel):
     spinner_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     
     # parameters
-    curr_yr = Int(iotype='in', desc='Current Year')
-    curr_mon = Int(iotype='in', desc='Current Month')
+    year = Int(iotype='in', desc='Current Year')
+    month = Int(iotype='in', desc='Current Month')
     advanced = Bool(True, iotype='in', desc='advanced (True) or traditional (False) blade design') 
 
     def __init__(self):
@@ -448,8 +448,8 @@ class Rotor_CostsSE(FullRotorCostModel):
         self.connect('hub_mass', 'hubCC.hub_mass')
         self.connect('pitch_system_mass', 'pitchSysCC.pitch_system_mass')
         self.connect('spinner_mass', 'spinnerCC.spinner_mass')
-        self.connect('curr_yr', ['hubCC.curr_yr', 'pitchSysCC.curr_yr', 'spinnerCC.curr_yr', 'bladeCC.curr_yr'])
-        self.connect('curr_mon', ['hubCC.curr_mon', 'pitchSysCC.curr_mon', 'spinnerCC.curr_mon', 'bladeCC.curr_mon'])
+        self.connect('year', ['hubCC.year', 'pitchSysCC.year', 'spinnerCC.year', 'bladeCC.year'])
+        self.connect('month', ['hubCC.month', 'pitchSysCC.month', 'spinnerCC.month', 'bladeCC.month'])
         self.connect('advanced', 'bladeCC.advanced')      
 
 #-------------------------------------------------------------------------------     
@@ -471,8 +471,8 @@ def example():
     rotor.hub_mass = 31644.5
     rotor.pitch_system_mass = 17004.0
     rotor.spinner_mass = 1810.5
-    rotor.curr_yr = 2009
-    rotor.curr_mon = 12
+    rotor.year = 2009
+    rotor.month = 12
     
     rotor.execute()
     

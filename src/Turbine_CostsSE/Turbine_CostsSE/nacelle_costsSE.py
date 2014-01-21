@@ -21,8 +21,8 @@ class LowSpeedShaftCost(BaseComponentCostModel):
     low_speed_shaft_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     
     # parameters
-    curr_yr = Int(iotype='in', desc='Current Year')
-    curr_mon = Int(iotype='in', desc='Current Month')
+    year = Int(iotype='in', desc='Current Year')
+    month = Int(iotype='in', desc='Current Month')
 
     def __init__(self):
         '''
@@ -51,8 +51,8 @@ class LowSpeedShaftCost(BaseComponentCostModel):
     def execute(self):
 
         # assign input variables
-        ppi.curr_yr   = self.curr_yr
-        ppi.curr_mon   = self.curr_mon
+        ppi.curr_yr   = self.year
+        ppi.curr_mon   = self.month
         
         # calculate component cost        
         LowSpeedShaftCost2002 = 3.3602 * self.low_speed_shaft_mass + 13587      # equation adjusted to be based on mass rather than rotor diameter using data from CSM
@@ -85,8 +85,8 @@ class BearingsCost(BaseComponentCostModel):
     second_bearing_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     
     # parameters
-    curr_yr = Int(iotype='in', desc='Current Year')
-    curr_mon = Int(iotype='in', desc='Current Month')
+    year = Int(iotype='in', desc='Current Year')
+    month = Int(iotype='in', desc='Current Month')
 
     def __init__(self):
         '''
@@ -117,8 +117,8 @@ class BearingsCost(BaseComponentCostModel):
     def execute(self):
 
         # assign input variables
-        ppi.curr_yr   = self.curr_yr
-        ppi.curr_mon   = self.curr_mon
+        ppi.curr_yr   = self.year
+        ppi.curr_mon   = self.month
         bearingsMass = self.main_bearing_mass + self.second_bearing_mass
 
         # calculate component cost
@@ -156,8 +156,8 @@ class GearboxCost(BaseComponentCostModel):
     
     # parameters
     drivetrain_design = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
-    curr_yr = Int(iotype='in', desc='Current Year')
-    curr_mon = Int(iotype='in', desc='Current Month')
+    year = Int(iotype='in', desc='Current Year')
+    month = Int(iotype='in', desc='Current Month')
 
     def __init__(self):
         '''
@@ -190,8 +190,8 @@ class GearboxCost(BaseComponentCostModel):
     def execute(self):
 
         # assign input variables
-        ppi.curr_yr   = self.curr_yr
-        ppi.curr_mon   = self.curr_mon
+        ppi.curr_yr   = self.year
+        ppi.curr_mon   = self.month
 
         # calculate component cost                                              
         GearboxCostEsc     = ppi.compute('IPPI_GRB')
@@ -235,8 +235,8 @@ class HighSpeedSideCost(BaseComponentCostModel):
     high_speed_side_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     
     # parameters
-    curr_yr = Int(iotype='in', desc='Current Year')
-    curr_mon = Int(iotype='in', desc='Current Month')
+    year = Int(iotype='in', desc='Current Year')
+    month = Int(iotype='in', desc='Current Month')
 
     def __init__(self):
         '''
@@ -265,8 +265,8 @@ class HighSpeedSideCost(BaseComponentCostModel):
     def execute(self):
 
         # assign input variables
-        ppi.curr_yr   = self.curr_yr
-        ppi.curr_mon   = self.curr_mon 
+        ppi.curr_yr   = self.year
+        ppi.curr_mon   = self.month
         # calculate component cost
         mechBrakeCostEsc     = ppi.compute('IPPI_BRK')
         mechBrakeCost2002    = 10 * self.high_speed_side_mass                  # mechanical brake system cost based on $10 / kg multiplier from CSM model (inverse relationship)
@@ -299,8 +299,8 @@ class GeneratorCost(BaseComponentCostModel):
     
     # parameters
     drivetrain_design = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
-    curr_yr = Int(iotype='in', desc='Current Year')
-    curr_mon = Int(iotype='in', desc='Current Month')
+    year = Int(iotype='in', desc='Current Year')
+    month = Int(iotype='in', desc='Current Month')
 
     def __init__(self):
         '''
@@ -331,8 +331,8 @@ class GeneratorCost(BaseComponentCostModel):
     def execute(self):
 
         # assign input variables
-        ppi.curr_yr   = self.curr_yr
-        ppi.curr_mon   = self.curr_mon
+        ppi.curr_yr   = self.year
+        ppi.curr_mon   = self.month
                                                         
         # calculate component cost                                      #TODO: only handles traditional drivetrain configuration at present
         generatorCostEsc     = ppi.compute('IPPI_GEN')
@@ -376,8 +376,8 @@ class BedplateCost(BaseComponentCostModel):
     bedplate_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     
     # parameters
-    curr_yr = Int(iotype='in', desc='Current Year')
-    curr_mon = Int(iotype='in', desc='Current Month')
+    year = Int(iotype='in', desc='Current Year')
+    month = Int(iotype='in', desc='Current Month')
     drivetrain_design = Int(iotype='in', desc='type of drivetrain')
     
     # returns
@@ -412,8 +412,8 @@ class BedplateCost(BaseComponentCostModel):
     def execute(self):
 
         # assign input variables
-        ppi.curr_yr   = self.curr_yr
-        ppi.curr_mon   = self.curr_mon
+        ppi.curr_yr   = self.year
+        ppi.curr_mon   = self.month
 
         #calculate component cost                                    # TODO: cost needs to be adjusted based on look-up table or a materials, mass and manufacturing equation            
         BedplateCostEsc     = ppi.compute('IPPI_MFM')
@@ -451,8 +451,8 @@ class YawSystemCost(BaseComponentCostModel):
     yaw_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     
     # parameters
-    curr_yr = Int(iotype='in', desc='Current Year')
-    curr_mon = Int(iotype='in', desc='Current Month')
+    year = Int(iotype='in', desc='Current Year')
+    month = Int(iotype='in', desc='Current Month')
 
     def __init__(self):
         '''
@@ -481,8 +481,8 @@ class YawSystemCost(BaseComponentCostModel):
     def execute(self):
 
         # assign input variables
-        ppi.curr_yr   = self.curr_yr
-        ppi.curr_mon   = self.curr_mon
+        ppi.curr_yr   = self.year
+        ppi.curr_mon   = self.month
 
         # calculate component cost
         yawDrvBearingCostEsc = ppi.compute('IPPI_YAW')
@@ -520,8 +520,8 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
     # parameters
     crane = Bool(iotype='in', desc='flag for presence of onboard crane')
     offshore = Bool(iotype='in', desc='flag for offshore project')
-    curr_yr = Int(iotype='in', desc='Current Year')
-    curr_mon = Int(iotype='in', desc='Current Month')
+    year = Int(iotype='in', desc='Current Year')
+    month = Int(iotype='in', desc='Current Month')
 
     def __init__(self):
         '''
@@ -566,8 +566,8 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
     def execute(self):
 
         # assign input variables
-        ppi.curr_yr   = self.curr_yr
-        ppi.curr_mon   = self.curr_mon
+        ppi.curr_yr   = self.year
+        ppi.curr_mon   = self.month
 
         BedplateCostEsc      = ppi.compute('IPPI_MFM')
 
@@ -692,8 +692,8 @@ class Nacelle_CostsSE(FullNacelleCostModel):
     drivetrain_design = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
     crane = Bool(iotype='in', desc='flag for presence of onboard crane')
     offshore = Bool(iotype='in', desc='flat for offshore site')
-    curr_yr = Int(iotype='in', desc='Current Year')
-    curr_mon = Int(iotype='in', desc='Current Month')
+    year = Int(iotype='in', desc='Current Year')
+    month = Int(iotype='in', desc='Current Month')
 
     def __init__(self):
 
@@ -726,8 +726,8 @@ class Nacelle_CostsSE(FullNacelleCostModel):
         self.connect('drivetrain_design', ['gearboxCC.drivetrain_design', 'generatorCC.drivetrain_design'])
         self.connect('crane', 'ncc.crane')
         self.connect('offshore', 'ncc.offshore')
-        self.connect('curr_yr', ['lssCC.curr_yr', 'bearingsCC.curr_yr', 'gearboxCC.curr_yr', 'hssCC.curr_yr', 'generatorCC.curr_yr', 'bedplateCC.curr_yr', 'yawSysCC.curr_yr', 'ncc.curr_yr'])
-        self.connect('curr_mon', ['lssCC.curr_mon', 'bearingsCC.curr_mon', 'gearboxCC.curr_mon', 'hssCC.curr_mon', 'generatorCC.curr_mon', 'bedplateCC.curr_mon', 'yawSysCC.curr_mon', 'ncc.curr_mon'])
+        self.connect('year', ['lssCC.year', 'bearingsCC.year', 'gearboxCC.year', 'hssCC.year', 'generatorCC.year', 'bedplateCC.year', 'yawSysCC.year', 'ncc.year'])
+        self.connect('month', ['lssCC.month', 'bearingsCC.month', 'gearboxCC.month', 'hssCC.month', 'generatorCC.month', 'bedplateCC.month', 'yawSysCC.month', 'ncc.month'])
 
 
 #==================================================================
@@ -754,8 +754,8 @@ def example():
     nacelle.drivetrain_design = 1
     nacelle.crane = True
     nacelle.offshore = True
-    nacelle.curr_yr = 2009
-    nacelle.curr_mon = 12
+    nacelle.year = 2009
+    nacelle.month = 12
     
     nacelle.run()
 
