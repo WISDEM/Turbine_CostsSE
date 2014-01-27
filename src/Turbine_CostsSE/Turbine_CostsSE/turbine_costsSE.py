@@ -89,7 +89,7 @@ class Turbine_CostsSE(FullTurbineCapitalCostModel):
     
     # parameters
     blade_number = Int(iotype='in', desc='number of rotor blades')
-    advanced = Bool(True, iotype='in', desc='advanced (True) or traditional (False) blade design') 
+    advanced_blade = Bool(True, iotype='in', desc='advanced (True) or traditional (False) blade design') 
     drivetrain_design = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
     crane = Bool(iotype='in', desc='flag for presence of onboard crane')
     offshore = Bool(iotype='in', desc='flag for offshore site')
@@ -116,7 +116,7 @@ class Turbine_CostsSE(FullTurbineCapitalCostModel):
         self.connect('hub_mass', 'rotorCC.hub_mass')
         self.connect('pitch_system_mass', 'rotorCC.pitch_system_mass')
         self.connect('spinner_mass', 'rotorCC.spinner_mass')
-        self.connect('advanced', 'rotorCC.advanced')
+        self.connect('advanced_blade', 'rotorCC.advanced')
         self.connect('low_speed_shaft_mass', 'nacelleCC.low_speed_shaft_mass')
         self.connect('main_bearing_mass', 'nacelleCC.main_bearing_mass')
         self.connect('second_bearing_mass', 'nacelleCC.second_bearing_mass')
