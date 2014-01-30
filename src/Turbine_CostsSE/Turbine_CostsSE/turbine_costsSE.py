@@ -11,11 +11,11 @@ import numpy as np
 
 from fusedwind.plant_cost.fused_tcc_asym import FullTurbineCapitalCostModel, FullTCCAggregator
 
-from Rotor_CostsSE import Rotor_CostsSE
-from Nacelle_CostsSE import Nacelle_CostsSE
-from Tower_CostsSE import Tower_CostsSE
+from rotor_costsSE import Rotor_CostsSE
+from nacelle_costsSE import Nacelle_CostsSE
+from tower_costsSE import Tower_CostsSE
 
-#-------------------------------------------------------------------------------        
+#-------------------------------------------------------------------------------
 
 class Turbine_CostsSE(FullTurbineCapitalCostModel):
 
@@ -64,11 +64,11 @@ class Turbine_CostsSE(FullTurbineCapitalCostModel):
       Project start year
     curr_mon : int
       Project start month
-      
+
     Returns
     -------
     cost : float
-      overall turbine cost [USD]        
+      overall turbine cost [USD]
     '''
 
     # variables
@@ -86,10 +86,10 @@ class Turbine_CostsSE(FullTurbineCapitalCostModel):
     yaw_system_mass = Float(iotype='in', units='kg', desc='component mass')
     tower_mass = Float(iotype='in', units='kg', desc='tower mass [kg]')
     machine_rating = Float(iotype='in', units='kW', desc='machine rating')
-    
+
     # parameters
     blade_number = Int(iotype='in', desc='number of rotor blades')
-    advanced_blade = Bool(True, iotype='in', desc='advanced (True) or traditional (False) blade design') 
+    advanced_blade = Bool(True, iotype='in', desc='advanced (True) or traditional (False) blade design')
     drivetrain_design = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
     crane = Bool(iotype='in', desc='flag for presence of onboard crane')
     offshore = Bool(iotype='in', desc='flag for offshore site')
@@ -109,7 +109,7 @@ class Turbine_CostsSE(FullTurbineCapitalCostModel):
         self.replace('nacelleCC', Nacelle_CostsSE())
         self.replace('towerCC', Tower_CostsSE())
         self.replace('tcc', TurbineCostAdder())
-        
+
         # connect inputs
         self.connect('blade_mass', 'rotorCC.blade_mass')
         self.connect('blade_number', 'rotorCC.blade_number')
@@ -137,15 +137,15 @@ class Turbine_CostsSE(FullTurbineCapitalCostModel):
 #-------------------------------------------------------------------------------
 
 class TurbineCostAdder(FullTCCAggregator):
-    
+
     # parameters
     offshore = Bool(iotype='in', desc='flag for offshore site')
 
     def __init__(self):
-      
+
         '''
         Turbine cost adder
-        
+
         rotor_cost : float
           rotor cost [USD]
         nacelle_cost : float
@@ -156,26 +156,26 @@ class TurbineCostAdder(FullTCCAggregator):
         Returns
         -------
         cost : float
-          overall rotor cost [USD]   
-        '''   
-        
+          overall rotor cost [USD]
+        '''
+
         super(TurbineCostAdder, self).__init__()
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
-    
+
     def execute(self):
-      
+
         partsCost = self.rotor_cost + self.nacelle_cost + self.tower_cost
 
         # updated calculations below to account for assembly, transport, overhead and profits
-        assemblyCostMultiplier = 0.0 # (4/72)       
-        overheadCostMultiplier = 0.0 # (24/72)       
-        profitMultiplier = 0.0       
+        assemblyCostMultiplier = 0.0 # (4/72)
+        overheadCostMultiplier = 0.0 # (24/72)
+        profitMultiplier = 0.0
         transportMultiplier = 0.0
-        
+
         self.turbine_cost = (1 + transportMultiplier + profitMultiplier) * ((1+overheadCostMultiplier+assemblyCostMultiplier)*partsCost)
-        
+
         # derivatives
         self.d_cost_d_rotor_cost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
         self.d_cost_d_nacelle_cost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
@@ -188,22 +188,22 @@ class TurbineCostAdder(FullTCCAggregator):
             self.d_cost_d_rotor_cost *= 1.1
             self.d_cost_d_nacelle_cost *= 1.1
             self.d_cost_d_tower_cost *= 1.1
-    
+
     def list_deriv_vars(self):
 
         inputs = ['rotor_cost', 'nacelle_cost', 'tower_cost']
         outputs = ['turbine_cost']
-        
+
         return inputs, outputs
-        
+
     def provideJ(self):
 
         # Jacobian
         self.J = np.array([[self.d_cost_d_rotor_cost, self.d_cost_d_nacelle_cost, self.d_cost_d_tower_cost]])
 
         return self.J
-        
-#-------------------------------------------------------------------------------       
+
+#-------------------------------------------------------------------------------
 
 def example():
 
@@ -235,7 +235,7 @@ def example():
     turbine.month =  12
 
     turbine.run()
-    
+
     print "Turbine cost is ${0:.2f} USD".format(turbine.turbine_cost) # $5350414.10
     print
     print "Overall rotor cost with 3 advanced blades is ${0:.2f} USD".format(turbine.rotorCC.cost)
@@ -253,8 +253,8 @@ def example():
     print "Bedplate cost is ${0:.2f} USD".format(turbine.nacelleCC.bedplateCC.cost)
     print "Yaw system cost is ${0:.2f} USD".format(turbine.nacelleCC.yawSysCC.cost) # $137609.38
     print
-    print "Tower cost is ${0:.2f} USD".format(turbine.towerCC.cost) # $987180.30 
+    print "Tower cost is ${0:.2f} USD".format(turbine.towerCC.cost) # $987180.30
 
-if __name__ == "__main__":  
+if __name__ == "__main__":
 
     example()
