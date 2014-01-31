@@ -140,6 +140,10 @@ class TurbineCostAdder(FullTCCAggregator):
 
     # parameters
     offshore = Bool(iotype='in', desc='flag for offshore site')
+    assemblyCostMultiplier = Float(0.0, iotype='in', desc='multiplier for assembly cost in manufacturing')
+    overheadCostMultiplier = Float(0.0, iotype='in', desc='multiplier for overhead')
+    profitMultiplier = Float(0.0, iotype='in', desc='multiplier for profit markup')
+    transportMultiplier = Float(0.0, iotype='in', desc='multiplier for transport costs')
 
     def __init__(self):
 
@@ -168,18 +172,12 @@ class TurbineCostAdder(FullTCCAggregator):
 
         partsCost = self.rotor_cost + self.nacelle_cost + self.tower_cost
 
-        # updated calculations below to account for assembly, transport, overhead and profits
-        assemblyCostMultiplier = 0.0 # (4/72)
-        overheadCostMultiplier = 0.0 # (24/72)
-        profitMultiplier = 0.0
-        transportMultiplier = 0.0
-
-        self.turbine_cost = (1 + transportMultiplier + profitMultiplier) * ((1+overheadCostMultiplier+assemblyCostMultiplier)*partsCost)
+        self.turbine_cost = (1 + self.transportMultiplier + self.profitMultiplier) * ((1+self.overheadCostMultiplier+self.assemblyCostMultiplier)*partsCost)
 
         # derivatives
-        self.d_cost_d_rotor_cost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
-        self.d_cost_d_nacelle_cost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
-        self.d_cost_d_tower_cost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+        self.d_cost_d_rotor_cost = (1 + self.transportMultiplier + self.profitMultiplier) * (1+self.overheadCostMultiplier+self.assemblyCostMultiplier)
+        self.d_cost_d_nacelle_cost = (1 + self.transportMultiplier + self.profitMultiplier) * (1+self.overheadCostMultiplier+self.assemblyCostMultiplier)
+        self.d_cost_d_tower_cost = (1 + self.transportMultiplier + self.profitMultiplier) * (1+self.overheadCostMultiplier+self.assemblyCostMultiplier)
 
         if self.offshore:
             self.turbine_cost *= 1.1
