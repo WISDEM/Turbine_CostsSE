@@ -19,15 +19,15 @@ class LowSpeedShaftCost(BaseComponentCostModel):
 
     # variables
     low_speed_shaft_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    
+
     # parameters
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
 
     def __init__(self):
         '''
-        Initial computation of the costs for the wind turbine low speed shaft component.       
-        
+        Initial computation of the costs for the wind turbine low speed shaft component.
+
         Parameters
         ----------
         low_speed_shaft_mass : float
@@ -36,25 +36,25 @@ class LowSpeedShaftCost(BaseComponentCostModel):
           Project start year
         curr_mon : int
           Project start month
-          
+
         Returns
         -------
         cost : float
-          component cost [USD]       
+          component cost [USD]
         '''
-        
+
         super(LowSpeedShaftCost, self).__init__()
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
-    
+
     def execute(self):
 
         # assign input variables
         ppi.curr_yr   = self.year
         ppi.curr_mon   = self.month
-        
-        # calculate component cost        
+
+        # calculate component cost
         LowSpeedShaftCost2002 = 3.3602 * self.low_speed_shaft_mass + 13587      # equation adjusted to be based on mass rather than rotor diameter using data from CSM
         lowSpeedShaftCostEsc            = ppi.compute('IPPI_LSS')
         self.cost = (LowSpeedShaftCost2002 * lowSpeedShaftCostEsc )
@@ -66,7 +66,7 @@ class LowSpeedShaftCost(BaseComponentCostModel):
 
         inputs = ['low_speed_shaft_mass']
         outputs = ['cost']
-        
+
         return inputs, outputs
 
     def provideJ(self):
@@ -83,15 +83,15 @@ class BearingsCost(BaseComponentCostModel):
     # variables
     main_bearing_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     second_bearing_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    
+
     # parameters
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
 
     def __init__(self):
         '''
-        Initial computation of the costs for the wind turbine maing bearings.       
-        
+        Initial computation of the costs for the wind turbine maing bearings.
+
         Parameters
         ----------
         main_bearing_mass : float
@@ -102,13 +102,13 @@ class BearingsCost(BaseComponentCostModel):
           Project start year
         curr_mon : int
           Project start month
-          
+
         Returns
         -------
         cost : float
-          component cost [USD]       
+          component cost [USD]
         '''
-        
+
         super(BearingsCost, self).__init__()
 
         #controls what happens if derivatives are missing
@@ -126,7 +126,7 @@ class BearingsCost(BaseComponentCostModel):
 
         brngSysCostFactor = 17.6 # $/kg                  # cost / unit mass from CSM
         Bearings2002 = (bearingsMass) * brngSysCostFactor
-        self.cost    = (( Bearings2002 ) * bearingCostEsc ) / 4   # div 4 to account for bearing cost mass differences CSM to Sunderland  
+        self.cost    = (( Bearings2002 ) * bearingCostEsc ) / 4   # div 4 to account for bearing cost mass differences CSM to Sunderland
 
         # derivatives
         self.d_cost_d_main_bearing_mass = bearingCostEsc * brngSysCostFactor / 4
@@ -136,7 +136,7 @@ class BearingsCost(BaseComponentCostModel):
 
         inputs = ['main_bearing_mass', 'second_bearing_mass']
         outputs = ['cost']
-        
+
         return inputs, outputs
 
     def provideJ(self):
@@ -144,7 +144,7 @@ class BearingsCost(BaseComponentCostModel):
         # Jacobian
         self.J = np.array([[self.d_cost_d_main_bearing_mass, self.d_cost_d_second_bearing_mass]])
 
-        return self.J             
+        return self.J
 
 #-------------------------------------------------------------------------------
 
@@ -153,7 +153,7 @@ class GearboxCost(BaseComponentCostModel):
     # variables
     gearbox_mass = Float(iotype='in', units='kg', desc='component mass')
     machine_rating = Float(iotype='in', units='kW', desc='machine rating')
-    
+
     # parameters
     drivetrain_design = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
     year = Int(iotype='in', desc='Current Year')
@@ -161,8 +161,8 @@ class GearboxCost(BaseComponentCostModel):
 
     def __init__(self):
         '''
-        Initial computation of the costs for the wind turbine gearbox component.       
-        
+        Initial computation of the costs for the wind turbine gearbox component.
+
         Parameters
         ----------
         gearbox_mass : float
@@ -175,31 +175,31 @@ class GearboxCost(BaseComponentCostModel):
           Project start year
         curr_mon : int
           Project start month
-          
+
         Returns
         -------
         cost : float
-          component cost [USD]           
+          component cost [USD]
         '''
-        
+
         super(GearboxCost, self).__init__()
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
-     
+
     def execute(self):
 
         # assign input variables
         ppi.curr_yr   = self.year
         ppi.curr_mon   = self.month
 
-        # calculate component cost                                              
+        # calculate component cost
         GearboxCostEsc     = ppi.compute('IPPI_GRB')
 
         costCoeff = [None, 16.45  , 74.101     ,   15.25697015,  0 ]
         costExp   = [None,  1.2491,  1.002     ,    1.2491    ,  0 ]
 
-        if self.drivetrain_design == 1:                                 
+        if self.drivetrain_design == 1:
           Gearbox2002 = 16.9 * self.gearbox_mass - 25066          # for traditional 3-stage gearbox, use mass based cost equation from NREL CSM
         else:
           Gearbox2002 = costCoeff[self.drivetrain_design] * (self.machine_rating ** costCoeff[self.drivetrain_design])        # for other drivetrain configurations, use NREL CSM equation based on machine rating
@@ -207,41 +207,41 @@ class GearboxCost(BaseComponentCostModel):
         self.cost   = Gearbox2002 * GearboxCostEsc
 
         # derivatives
-        if self.drivetrain_design == 1:                                 
+        if self.drivetrain_design == 1:
           self.d_cost_d_gearbox_mass = GearboxCostEsc * 16.9
           self.d_cost_d_machine_rating = 0.0
         else:
           self.d_cost_d_gearbox_mass = 0.0
-          self.d_cost_d_machine_rating =  GearboxCostEsc * costCoeff[self.drivetrain_design] * (costCoeff[self.drivetrain_design] * (self.machine_rating ** (costCoeff[self.drivetrain_design]-1))) 
+          self.d_cost_d_machine_rating =  GearboxCostEsc * costCoeff[self.drivetrain_design] * (costCoeff[self.drivetrain_design] * (self.machine_rating ** (costCoeff[self.drivetrain_design]-1)))
 
     def list_deriv_vars(self):
 
         inputs= ['gearbox_mass', 'machine_rating']
         outputs = ['cost']
-        
+
         return inputs, outputs
-    
+
     def provideJ(self):
 
         self.J = np.array([[self.d_cost_d_gearbox_mass, self.d_cost_d_machine_rating]])
 
-        return self.J 
+        return self.J
 
 #-------------------------------------------------------------------------------
-              
+
 class HighSpeedSideCost(BaseComponentCostModel):
 
     # variables
     high_speed_side_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    
+
     # parameters
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
 
     def __init__(self):
         '''
-        Initial computation of the costs for the wind turbine mechanical brake and HSS component.       
-        
+        Initial computation of the costs for the wind turbine mechanical brake and HSS component.
+
         Parameters
         ----------
         high_speed_side_mass : float
@@ -250,18 +250,18 @@ class HighSpeedSideCost(BaseComponentCostModel):
           Project start year
         curr_mon : int
           Project start month
-          
+
         Returns
         -------
         cost : float
-          component cost [USD]       
+          component cost [USD]
         '''
-        
+
         super(HighSpeedSideCost, self).__init__()
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
-     
+
     def execute(self):
 
         # assign input variables
@@ -270,16 +270,16 @@ class HighSpeedSideCost(BaseComponentCostModel):
         # calculate component cost
         mechBrakeCostEsc     = ppi.compute('IPPI_BRK')
         mechBrakeCost2002    = 10 * self.high_speed_side_mass                  # mechanical brake system cost based on $10 / kg multiplier from CSM model (inverse relationship)
-        self.cost            = mechBrakeCostEsc * mechBrakeCost2002                                
+        self.cost            = mechBrakeCostEsc * mechBrakeCost2002
 
         # derivatives
-        self.d_cost_d_high_speed_side_mass = mechBrakeCostEsc * 10      
+        self.d_cost_d_high_speed_side_mass = mechBrakeCostEsc * 10
 
     def list_deriv_vars(self):
 
         inputs = ['high_speed_side_mass']
         outputs = ['cost']
-        
+
         return inputs, outputs
 
     def provideJ(self):
@@ -287,7 +287,7 @@ class HighSpeedSideCost(BaseComponentCostModel):
         # Jacobian
         self.J = np.array([[self.d_cost_d_high_speed_side_mass]])
 
-        return self.J  
+        return self.J
 
 #-------------------------------------------------------------------------------
 
@@ -296,7 +296,7 @@ class GeneratorCost(BaseComponentCostModel):
     # variables
     generator_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     machine_rating = Float(iotype='in', units='kW', desc='machine rating')
-    
+
     # parameters
     drivetrain_design = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
     year = Int(iotype='in', desc='Current Year')
@@ -304,8 +304,8 @@ class GeneratorCost(BaseComponentCostModel):
 
     def __init__(self):
         '''
-        Initial computation of the costs for the wind turbine generator component.       
-        
+        Initial computation of the costs for the wind turbine generator component.
+
         Parameters
         ----------
         generator_mass : float
@@ -316,24 +316,24 @@ class GeneratorCost(BaseComponentCostModel):
           Project start year
         curr_mon : int
           Project start month
-          
+
         Returns
         -------
         cost : float
-          component cost [USD]       
+          component cost [USD]
         '''
-        
+
         super(GeneratorCost, self).__init__()
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
-    
+
     def execute(self):
 
         # assign input variables
         ppi.curr_yr   = self.year
         ppi.curr_mon   = self.month
-                                                        
+
         # calculate component cost                                      #TODO: only handles traditional drivetrain configuration at present
         generatorCostEsc     = ppi.compute('IPPI_GEN')
         costCoeff = [None, 65    , 54.73 ,  48.03 , 219.33 ] # $/kW - from 'Generators' worksheet
@@ -343,13 +343,13 @@ class GeneratorCost(BaseComponentCostModel):
             GeneratorCost2002 = 19.697 * self.generator_mass + 9277.3
         else:
             GeneratorCost2002 = costCoeff[self.drivetrain_design] * self.machine_rating
-            
-        self.cost         = GeneratorCost2002 * generatorCostEsc 
+
+        self.cost         = GeneratorCost2002 * generatorCostEsc
 
         # derivatives
         if self.drivetrain_design == 1:
-            self.d_cost_d_generator_mass = generatorCostEsc * 19.697   
-            self.d_cost_d_machine_rating = 0.0  
+            self.d_cost_d_generator_mass = generatorCostEsc * 19.697
+            self.d_cost_d_machine_rating = 0.0
         else:
             self.d_cost_d_generator_mass = 0.0
             self.d_cost_d_machine_rating = costCoeff[self.drivetrain_design] * generatorCostEsc
@@ -358,15 +358,15 @@ class GeneratorCost(BaseComponentCostModel):
 
         inputs = ['generator_mass', 'machine_rating']
         outputs = ['cost']
-        
+
         return inputs, outputs
- 
+
     def provideJ(self):
 
         # Jacobian
         self.J = np.array([[self.d_cost_d_generator_mass, self.d_cost_d_machine_rating]])
 
-        return self.J                         
+        return self.J
 
 #-------------------------------------------------------------------------------
 
@@ -374,19 +374,19 @@ class BedplateCost(BaseComponentCostModel):
 
     # variables
     bedplate_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    
+
     # parameters
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
     drivetrain_design = Int(iotype='in', desc='type of drivetrain')
-    
+
     # returns
     cost2002 = Float(iotype='out', units='USD', desc='component cost in 2002 USD')
 
     def __init__(self):
         '''
-        Initial computation of the costs for the wind turbine bedplate component.       
-        
+        Initial computation of the costs for the wind turbine bedplate component.
+
         Parameters
         ----------
         bedplate_mass : float
@@ -395,27 +395,27 @@ class BedplateCost(BaseComponentCostModel):
           Project start year
         curr_mon : int
           Project start month
-          
+
         Returns
         -------
         cost : float
-          component cost [USD] 
+          component cost [USD]
         cost2002 : float
-          componet 2002 cost [USD]      
+          componet 2002 cost [USD]
         '''
-        
+
         super(BedplateCost, self).__init__()
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
-    
+
     def execute(self):
 
         # assign input variables
         ppi.curr_yr   = self.year
         ppi.curr_mon   = self.month
 
-        #calculate component cost                                    # TODO: cost needs to be adjusted based on look-up table or a materials, mass and manufacturing equation            
+        #calculate component cost                                    # TODO: cost needs to be adjusted based on look-up table or a materials, mass and manufacturing equation
         BedplateCostEsc     = ppi.compute('IPPI_MFM')
 
         #TODO: handle different drivetrain types
@@ -426,14 +426,14 @@ class BedplateCost(BaseComponentCostModel):
         self.cost     = self.cost2002 * BedplateCostEsc
 
         # derivatives
-        self.d_cost_d_bedplate_mass = BedplateCostEsc * 0.9461  
+        self.d_cost_d_bedplate_mass = BedplateCostEsc * 0.9461
         self.d_cost2002_d_bedplate_mass = 0.9461
 
     def list_deriv_vars(self):
 
         inputs = ['bedplate_mass']
         outputs = ['cost', 'cost2002']
-        
+
         return inputs, outputs
 
     def provideJ(self):
@@ -441,23 +441,23 @@ class BedplateCost(BaseComponentCostModel):
         # Jacobian
         self.J = np.array([[self.d_cost_d_bedplate_mass], [self.d_cost2002_d_bedplate_mass]])
 
-        return self.J       
+        return self.J
 
-#--------------------------------------------------------------------------------- 
-   
+#---------------------------------------------------------------------------------
+
 class YawSystemCost(BaseComponentCostModel):
 
     # variables
     yaw_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    
+
     # parameters
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
 
     def __init__(self):
         '''
-        Initial computation of the costs for the wind turbine yaw system.       
-        
+        Initial computation of the costs for the wind turbine yaw system.
+
         Parameters
         ----------
         yaw_system_mass : float
@@ -466,18 +466,18 @@ class YawSystemCost(BaseComponentCostModel):
           Project start year
         curr_mon : int
           Project start month
-          
+
         Returns
         -------
         cost : float
-          component cost [USD]       
+          component cost [USD]
         '''
-        
+
         super(YawSystemCost, self).__init__()
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
-    
+
     def execute(self):
 
         # assign input variables
@@ -488,16 +488,16 @@ class YawSystemCost(BaseComponentCostModel):
         yawDrvBearingCostEsc = ppi.compute('IPPI_YAW')
 
         YawDrvBearing2002 = 8.3221 * self.yaw_system_mass + 2708.5          # cost / mass relationship derived from NREL CSM data
-        self.cost         = YawDrvBearing2002 * yawDrvBearingCostEsc 
+        self.cost         = YawDrvBearing2002 * yawDrvBearingCostEsc
 
         # derivatives
-        self.d_cost_d_yaw_system_mass = yawDrvBearingCostEsc * 8.3221      
+        self.d_cost_d_yaw_system_mass = yawDrvBearingCostEsc * 8.3221
 
     def list_deriv_vars(self):
 
         inputs = ['yaw_system_mass']
         outputs = ['cost']
-        
+
         return inputs, outputs
 
     def provideJ(self):
@@ -505,18 +505,18 @@ class YawSystemCost(BaseComponentCostModel):
         # Jacobian
         self.J = np.array([[self.d_cost_d_yaw_system_mass]])
 
-        return self.J                 
+        return self.J
 
 #-------------------------------------------------------------------------------
 
 class NacelleSystemCostAdder(FullNacelleCostAggregator):
 
     # variables
-    machine_rating = Float(iotype='in', units='kW', desc='machine rating')   
+    machine_rating = Float(iotype='in', units='kW', desc='machine rating')
     bedplate_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     bedplate_cost = Float(iotype='in', units='USD', desc='component cost [USD]')
     bedplateCost2002 = Float(iotype='in', units='USD', desc='component cost in 2002 USD')
-    
+
     # parameters
     crane = Bool(iotype='in', desc='flag for presence of onboard crane')
     offshore = Bool(iotype='in', desc='flag for offshore project')
@@ -525,8 +525,8 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
 
     def __init__(self):
         '''
-        Initial computation of the costs for the wind turbine gearbox component.       
-        
+        Initial computation of the costs for the wind turbine gearbox component.
+
         Parameters
         ----------
         lowSpeedShaftCost : float
@@ -555,14 +555,14 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
         Returns
         -------
         cost : float
-          component cost [USD]       
+          component cost [USD]
         '''
 
-        super(NacelleSystemCostAdder, self).__init__()    
+        super(NacelleSystemCostAdder, self).__init__()
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
-    
+
     def execute(self):
 
         # assign input variables
@@ -597,23 +597,23 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
         # electronic systems, hydraulics and controls
         econnectionsCost2002  = 40.0 * self.machine_rating  # 2002
         self.econnectionsCost = econnectionsCost2002 * econnectionsCostEsc
-               
+
         VspdEtronics2002      = 79.32 * self.machine_rating
-        self.vspdEtronicsCost = VspdEtronics2002 * VspdEtronicsCostEsc        
+        self.vspdEtronicsCost = VspdEtronics2002 * VspdEtronicsCostEsc
 
         hydrCoolingCost2002  = 12.0 * self.machine_rating # 2002
-        self.hydrCoolingCost = hydrCoolingCost2002 * hydrCoolingCostEsc  
+        self.hydrCoolingCost = hydrCoolingCost2002 * hydrCoolingCostEsc
 
         if (not self.offshore):
             ControlsCost2002  = 35000.0 # initial approximation 2002
-            self.controlsCost = ControlsCost2002 * controlsCostEsc 
+            self.controlsCost = ControlsCost2002 * controlsCostEsc
         else:
             ControlsCost2002  = 55900.0 # initial approximation 2002
-            self.controlsCost = ControlsCost2002 * controlsCostEsc   
-        
+            self.controlsCost = ControlsCost2002 * controlsCostEsc
+
         nacelleCovCost2002  = 11.537 * self.machine_rating + (3849.7)
         self.nacelleCovCost = nacelleCovCost2002 * nacelleCovCostEsc
-        
+
         # aggregation of nacelle costs
         partsCost = self.lss_cost + \
                     self.bearings_cost + \
@@ -629,11 +629,11 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
                     self.nacelleCovCost
 
         # updated calculations below to account for assembly, transport, overhead and profits
-        assemblyCostMultiplier = 0.0 # (4/72)       
-        overheadCostMultiplier = 0.0 # (24/72)       
-        profitMultiplier = 0.0       
+        assemblyCostMultiplier = 0.0 # (4/72)
+        overheadCostMultiplier = 0.0 # (24/72)
+        profitMultiplier = 0.0
         transportMultiplier = 0.0
-        
+
         self.cost = (1 + transportMultiplier + profitMultiplier) * ((1+overheadCostMultiplier+assemblyCostMultiplier)*partsCost)
 
         # derivatives
@@ -655,7 +655,7 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
         inputs = ['bedplate_mass', 'bedplateCost2002', 'bedplate_cost', 'lss_cost', 'bearings_cost', \
                       'gearbox_cost', 'hss_cost', 'generator_cost', 'yaw_system_cost', 'machine_rating']
         outputs = ['cost']
-        
+
         return inputs, outputs
 
     def provideJ(self):
@@ -666,15 +666,15 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
                             self.d_cost_d_highSpeedSideCost, self.d_cost_d_generatorCost, \
                             self.d_cost_d_yawSystemCost, self.d_cost_d_machine_rating]])
 
-        return self.J 
+        return self.J
 
 #------------------------------------------------------------------
 
 class Nacelle_CostsSE(FullNacelleCostModel):
 
-    ''' 
+    '''
        Nacelle_CostsSE class
-          The Rotor_costsSE class is used to represent the rotor costs of a wind turbine.             
+          The Rotor_costsSE class is used to represent the rotor costs of a wind turbine.
     '''
 
     # variables
@@ -687,7 +687,7 @@ class Nacelle_CostsSE(FullNacelleCostModel):
     bedplate_mass = Float(iotype='in', units='kg', desc='component mass')
     yaw_system_mass = Float(iotype='in', units='kg', desc='component mass')
     machine_rating = Float(iotype='in', units='kW', desc='machine rating')
-    
+
     # parameters
     drivetrain_design = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
     crane = Bool(iotype='in', desc='flag for presence of onboard crane')
@@ -712,7 +712,7 @@ class Nacelle_CostsSE(FullNacelleCostModel):
         self.replace('bedplateCC', BedplateCost())
         self.replace('yawSysCC', YawSystemCost())
         self.replace('ncc', NacelleSystemCostAdder())
-        
+
         # connect inputs
         self.connect('low_speed_shaft_mass', 'lssCC.low_speed_shaft_mass')
         self.connect('main_bearing_mass', 'bearingsCC.main_bearing_mass')
@@ -737,7 +737,7 @@ def example():
     # test of module for turbine data set
 
     nacelle = Nacelle_CostsSE()
-    
+
     ppi.ref_yr   = 2002
     ppi.ref_mon  = 9
 
@@ -756,7 +756,7 @@ def example():
     nacelle.offshore = True
     nacelle.year = 2009
     nacelle.month = 12
-    
+
     nacelle.run()
 
     print "LSS cost is ${0:.2f} USD".format(nacelle.lssCC.cost) # $183363.52
@@ -766,7 +766,7 @@ def example():
     print "Generator cost is ${0:.2f} USD".format(nacelle.generatorCC.cost) # $435157.75
     print "Bedplate cost is ${0:.2f} USD".format(nacelle.bedplateCC.cost)
     print "Yaw system cost is ${0:.2f} USD".format(nacelle.yawSysCC.cost) # $137609.38
-    
+
     print "Overall nacelle cost is ${0:.2f} USD".format(nacelle.cost) # $2884227.08
 
 if __name__ == '__main__':
