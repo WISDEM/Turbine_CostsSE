@@ -132,6 +132,11 @@ class Turbine_CostsSE(FullTurbineCapitalCostModel):
         self.connect('tower_mass', 'towerCC.tower_mass')
         self.connect('year', ['rotorCC.year', 'nacelleCC.year', 'towerCC.year'])
         self.connect('month', ['rotorCC.month', 'nacelleCC.month', 'towerCC.month'])
+        
+        self.create_passthrough('tcc.assemblyCostMultiplier')
+        self.create_passthrough('tcc.overheadCostMultiplier')
+        self.create_passthrough('tcc.profitMultiplier')
+        self.create_passthrough('tcc.transportMultiplier')
 
 
 #-------------------------------------------------------------------------------
