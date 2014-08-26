@@ -16,7 +16,7 @@ The following inputs and outputs are defined for Turbine_CostsSE:
 
 Referenced Sub-System Modules (Rotor)
 =====================================
-.. module:: turbine_costsse.turbine_costsse.rotor_costsSE
+.. module:: Turbine_CostsSE.Turbine_CostsSE.rotor_costsSE
 .. class:: BladeCost
 .. class:: HubCost
 .. class:: PitchSystemCost
@@ -27,7 +27,7 @@ Referenced Sub-System Modules (Rotor)
 
 Referenced Sub-System Modules (Nacelle)
 =======================================
-.. module:: turbine_costsse.turbine_costsse.nacelle_costsSE
+.. module:: Turbine_CostsSE.Turbine_CostsSE.nacelle_costsSE
 .. class:: LowSpeedShaftCost
 .. class:: BearingsCost
 .. class:: GearboxCost
@@ -39,13 +39,13 @@ Referenced Sub-System Modules (Nacelle)
 
 Referenced Sub-System Modules (Tower)
 =====================================
-.. module:: turbine_costsse.turbine_costsse.tower_costsSE
+.. module:: Turbine_CostsSE.Turbine_CostsSE.tower_costsSE
 .. class:: TowerCost
 .. class:: TowerCostAdder
 .. class:: Tower_CostsSE
 
 Referenced Turbine Cost Modules
 ===============================
-.. module:: turbine_costsse.turbine_costsse.turbine_costsSE
+.. module:: Turbine_CostsSE.Turbine_CostsSE.turbine_costsSE
 .. class:: Turbine_CostsSE
 .. class:: TurbineCostAdder
