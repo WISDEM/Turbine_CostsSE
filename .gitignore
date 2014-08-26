@@ -7,6 +7,9 @@ openmdao_log.txt
 _build
 generated
 
+# Docs
+Turbine_CostsSEDocs
+
 # XCode
 *.xcodeproj
 
