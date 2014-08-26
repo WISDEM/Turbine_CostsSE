@@ -19,58 +19,6 @@ from tower_costsSE import Tower_CostsSE
 
 class Turbine_CostsSE(FullTurbineCapitalCostModel):
 
-    '''
-    Initial computation of the costs for the wind turbine.
-
-    Parameters
-    ----------
-    blade_mass : float
-      blade mass [kg]
-    hub_mass : float
-      hub mass [kg]
-    pitch_system_mass : float
-      pitch system mass [kg]
-    spinner_mass : float
-      spinner mass [kg]
-    low_speed_shaft_mass : float
-      Low speed shaft mass [kg]
-    mainBearingsMass : float
-      bearing mass [kg]
-    secondBearingsMass : float
-      bearing mass [kg]
-    gearbox_mass : float
-      Gearbox mass [kg]
-    high_speed_side_mass : float
-      High speed side mass [kg]
-    bedplate_mass : float
-      Bedplate mass [kg]
-    yaw_system_mass : float
-      Yaw system mass [kg]
-    tower_mass : float
-      mass [kg] of the wind turbine tower
-    machine_rating : float
-      Machine rating for turbine [kW]
-    blade_number : int
-      Number of blades on rotor
-    advanced : bool
-      boolean for advanced (using carbon) or basline (all fiberglass) blade
-    drivetrain_design : int
-      machine configuration 1 conventional, 2 medium speed, 3 multi-gen, 4 direct-drive
-    offshore : bool
-      boolean true if it is offshore
-    crane : bool
-        boolean for crane present on-board
-    curr_yr : int
-      Project start year
-    curr_mon : int
-      Project start month
-
-    Returns
-    -------
-    cost : float
-      overall turbine cost [USD]
-    '''
-
     # variables
     blade_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     hub_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -151,22 +99,6 @@ class TurbineCostAdder(FullTCCAggregator):
     transportMultiplier = Float(0.0, iotype='in', desc='multiplier for transport costs')
 
     def __init__(self):
-
-        '''
-        Turbine cost adder
-
-        rotor_cost : float
-          rotor cost [USD]
-        nacelle_cost : float
-          nacelle cost [USD]
-        towerCost : float
-          tower cost [USD]
-
-        Returns
-        -------
-        cost : float
-          overall rotor cost [USD]
-        '''
 
         super(TurbineCostAdder, self).__init__()
 

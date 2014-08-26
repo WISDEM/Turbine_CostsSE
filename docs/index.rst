@@ -1,13 +1,23 @@
-=============================
-Turbine_CostsSE Documentation
-=============================
+Turbine_CostsSE
+===============
 
-Contents:
+.. only:: html
+
+    Simple mass-to-cost models for major wind turbine components.
+
+    Author: `Katherine Dykes <mailto:katherine.dykes@nrel.gov>`_
+
+    .. rubric:: Table of Contents
+
 
 .. toctree::
-   :maxdepth: 2
-    
-   usage
-   srcdocs
-   pkgdocs
+    :numbered:
+    :maxdepth: 2
+
+    intro
+    installation
+    tutorial
+    documentation
+    theory
+
 

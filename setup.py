@@ -8,22 +8,16 @@ from setuptools import setup, find_packages
 
 kwargs = {'author': 'Katherine Dykes',
  'author_email': 'systems.engineering@nrel.gov',
- 'classifiers': ['Intended Audience :: Science/Research',
-                 'Topic :: Scientific/Engineering'],
  'description': 'NREL WISDEM turbine cost models',
- 'download_url': '',
  'include_package_data': True,
  'install_requires': ['openmdao.main'],
  'keywords': ['openmdao'],
  'license': 'Apache v 2.0',
- #'maintainer': '',
- #'maintainer_email': '',
  'name': 'Turbine_CostsSE',
  'package_data': {'Turbine_CostsSE': [], 'Turbine_CostsSE.Turbine_CostsSE': ['*.txt'], 'Turbine_CostsSE.Turbine_CostsSE.static': ['*.txt'], 'Turbine_CostsSE.Turbine_CostsSE': ['static/*.txt']},
  'package_dir': {'': 'src'},
  'packages': ['Turbine_CostsSE', 'Turbine_CostsSE.NREL_CSM_TCC', 'Turbine_CostsSE.Turbine_CostsSE'],
- 'url': '',
- 'version': '0.1',
+ 'license' : 'Apache License, Version 2.0'
  'zip_safe': False}
 
 

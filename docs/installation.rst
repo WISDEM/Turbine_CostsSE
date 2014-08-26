@@ -1,0 +1,40 @@
+Installation
+------------
+
+.. admonition:: prerequisites
+   :class: warning
+
+   NumPy, SciPy, FUSED-Wind, OpenMDAO
+
+Clone the repository at `<https://github.com/WISDEM/Turbine_CostsSE>`_
+or download the releases and uncompress/unpack (Turbine_CostsSE.py-|release|.tar.gz or Turbine_CostsSE.py-|release|.zip)
+
+Install Turbine_CostsSE, first activate the OpenMDAO environment and then install with the following command.
+
+.. code-block:: bash
+
+   $ plugin install
+
+To check if installation was successful try to import the module
+
+.. code-block:: bash
+
+    $ python
+
+.. code-block:: python
+
+    > import turbine_costsse.turbine_costsse.turbine_costsse
+    > import turbine_costsse.nrel_csm_tcc.nrel_csm_tcc
+
+or run the unit tests for the gradient checks
+
+.. code-block:: bash
+
+   $ python src/Turbine_CostsSE/test/test_Turbine_CostsSE_gradients.py
+
+An "OK" signifies that all the tests passed.
+
+.. only:: latex
+
+    An HTML version of this documentation that contains further details and links to the source code is available at `<http://wisdem.github.io/Turbine_CostsSE>`_
+

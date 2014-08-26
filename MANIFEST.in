@@ -3,4 +3,9 @@ recursive-include src/Turbine_CostsSE/test *.py
 include *.txt
 include src/Turbine_CostsSE/Turbine_CostsSE/static/*
 recursive-include docs *.txt
+include README.md
+include CHANGELOG.md
+include LICENSE.txt
+graft src/Turbine_CostsSE/test
+global-exclude openmdao_log.txt
 
