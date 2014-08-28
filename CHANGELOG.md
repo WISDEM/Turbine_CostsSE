@@ -4,4 +4,4 @@
 
 [Katherine Dykes] (mailto: katherine.dykes@nrel.gov)
 
-- initial relase
+- initial release

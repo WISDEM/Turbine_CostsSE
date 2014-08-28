@@ -3,7 +3,7 @@ Turbine_CostsSE
 
 .. only:: html
 
-    Simple mass-to-cost models for major wind turbine components.
+    Wind turbine capital cost models.
 
     Author: `Katherine Dykes <mailto:katherine.dykes@nrel.gov>`_
 

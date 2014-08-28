@@ -112,3 +112,7 @@ The result is
 >>> Turbine cost: 5949405.79
 
 It is also possible to output individual component masses and cost as in the Turbine_CostsSE model.
+
+.. bibliography:: references.bib
+    :style: unsrt
+
