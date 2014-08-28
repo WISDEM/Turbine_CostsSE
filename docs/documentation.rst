@@ -1,13 +1,16 @@
 .. _documentation-label:
 
-.. currentmodule:: turbine_costsse.turbine_costsse.turbine_costsse
+.. currentmodule:: turbine_costsse.turbine_costsse
 
 Documentation
 -------------
 
+Documentation for Turbine_CostsSE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 The following inputs and outputs are defined for Turbine_CostsSE:
 
-.. literalinclude:: ../src/turbine_costsse/turbine_costsse/turbine_costsse.py
+.. literalinclude:: ../src/turbine_costsse/turbine_costsse.py
     :language: python
     :start-after: Turbine_CostsSE(FullTurbineCapitalCostModel)
     :end-before: def __init__(self)
@@ -16,7 +19,7 @@ The following inputs and outputs are defined for Turbine_CostsSE:
 
 Referenced Sub-System Modules (Rotor)
 =====================================
-.. module:: Turbine_CostsSE.Turbine_CostsSE.rotor_costsSE
+.. module:: turbine_costsse.rotor_costsse
 .. class:: BladeCost
 .. class:: HubCost
 .. class:: PitchSystemCost
@@ -27,7 +30,7 @@ Referenced Sub-System Modules (Rotor)
 
 Referenced Sub-System Modules (Nacelle)
 =======================================
-.. module:: Turbine_CostsSE.Turbine_CostsSE.nacelle_costsSE
+.. module:: turbine_costsse.nacelle_costsse
 .. class:: LowSpeedShaftCost
 .. class:: BearingsCost
 .. class:: GearboxCost
@@ -39,13 +42,56 @@ Referenced Sub-System Modules (Nacelle)
 
 Referenced Sub-System Modules (Tower)
 =====================================
-.. module:: Turbine_CostsSE.Turbine_CostsSE.tower_costsSE
+.. module:: turbine_costsse.tower_costsse
 .. class:: TowerCost
 .. class:: TowerCostAdder
 .. class:: Tower_CostsSE
 
 Referenced Turbine Cost Modules
 ===============================
-.. module:: Turbine_CostsSE.Turbine_CostsSE.turbine_costsSE
+.. module:: turbine_costsse.turbine_costsse
 .. class:: Turbine_CostsSE
 .. class:: TurbineCostAdder
+
+.. currentmodule:: turbine_costsse.turbine_costsse
+
+
+Documentation for NREL_CSM_TCC
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The following inputs and outputs are defined for NREL_CSM_TCC:
+
+.. literalinclude:: ../src/nrel_csm_tcc/nrel_csm_tcc.py
+    :language: python
+    :start-after: tcc_csm_assembly(BaseTurbineCapitalCostModel)
+    :end-before: def __init__(self)
+    :prepend: class tcc_csm_assembly(Assembly):
+
+Referenced Sub-System Modules (Blades)
+======================================
+.. module:: nrel_csm_tcc.blades_csm_component
+.. class:: blades_csm_component
+
+Referenced Sub-System Modules (Hub)
+===================================
+.. module:: nrel_csm_tcc.hub_csm_component
+.. class:: hub_csm_component
+
+
+Referenced Sub-System Modules (Nacelle)
+=======================================
+.. module:: nrel_csm_tcc.nacelle_csm_component
+.. class:: nacelle_csm_component
+
+Referenced Sub-System Modules (Tower)
+=====================================
+.. module:: nrel_csm_tcc.tower_csm_component
+.. class:: tower_csm_component
+
+Referenced Turbine Cost Modules
+===============================
+.. module:: nrel_csm_tcc.nrel_csm_tcc
+.. class:: tcc_csm_assembly
+.. class:: tcc_csm_component
+.. class:: rotor_mass_adder
+

@@ -21,12 +21,12 @@ It is not recommended to install the software outside of OpenMDAO.
 To check if installation was successful try to import the module
 
 	$ python
-	> import turbine_costsse.turbine_costsse.turbine_costsse
-	> import turbine_costsse.nrel_csm_tcc.nrel_csm_tcc
+	> import turbine_costsse.turbine_costsse
+	> import nrel_csm_tcc.nrel_csm_tcc
 
 You may also run the unit tests.
 
-	$ python src/turbine_costsse/test/test_Turbine_CostsSE_gradients.py
+	$ python src/test/test_Turbine_CostsSE_gradients.py
 
 ## Detailed Documentation
 

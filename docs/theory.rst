@@ -22,9 +22,9 @@ While the NREL Cost and Scaling Model improved the overall cost estimation for l
 
     NREL Cost and Scaling Model Key Input-Output Relationships.
 
-The resulting NREL Cost and Scaling Model allows for a variety of interesting analyses including scaling of conventional technology from under a MW to 5 MW+, assessing impact of trends in input factors for materials and labor on wind plant cost of energy, etc.  However, it does not preserve the underlying engineering relationships of the original Sunderland model and thus loses some fidelity of assessing how design changes may impact system costs.  
+The resulting NREL Cost and Scaling Model (as provided in NREL_CSM_TCC) allows for a variety of interesting analyses including scaling of conventional technology from under a MW to 5 MW+, assessing impact of trends in input factors for materials and labor on wind plant cost of energy, etc.  However, it does not preserve the underlying engineering relationships of the original Sunderland model and thus loses some fidelity of assessing how design changes may impact system costs.  
 
-The goal of the development of the following set of models for the hub and nacelle are to return to the mass-based component cost calculations of the original Sunderland Model.  A mass-cost model is developed for each of the major hub and drivetrain component.  These use the NREL Cost and Scaling Model data to estimate relationships that can then be scaled based on economic multipliers as done in :cite:`Fingersh2006`.  Details of the models are described next.
+The goal of the development of the second model, Turbine_CostsSE, then is to provide a set of mass-based component cost calculations.  A mass-cost model is developed for each of the major turbine components.  These use the data underlying the NREL Cost and Scaling Model to estimate relationships that can then be scaled based on economic multipliers as done in :cite:`Fingersh2006`.  Details of the models are described next.
 
 Turbine Component Mass-Cost Models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

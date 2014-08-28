@@ -23,14 +23,14 @@ To check if installation was successful try to import the module
 
 .. code-block:: python
 
-    > import turbine_costsse.turbine_costsse.turbine_costsse
-    > import turbine_costsse.nrel_csm_tcc.nrel_csm_tcc
+    > import turbine_costsse.turbine_costsse
+    > import nrel_csm_tcc.nrel_csm_tcc
 
 or run the unit tests for the gradient checks
 
 .. code-block:: bash
 
-   $ python src/Turbine_CostsSE/test/test_Turbine_CostsSE_gradients.py
+   $ python src/test/test_Turbine_CostsSE_gradients.py
 
 An "OK" signifies that all the tests passed.
 
