@@ -9,7 +9,7 @@ Installation
 Clone the repository at `<https://github.com/WISDEM/Turbine_CostsSE>`_
 or download the releases and uncompress/unpack (Turbine_CostsSE.py-|release|.tar.gz or Turbine_CostsSE.py-|release|.zip)
 
-Install Turbine_CostsSE, first activate the OpenMDAO environment and then install with the following command.
+To install Turbine_CostsSE, first activate the OpenMDAO environment and then install with the following command.
 
 .. code-block:: bash
 
