@@ -2,7 +2,7 @@
 
 A set of two models for assessing the costs of a wind turbine.  The first model is based on the NREL Cost and Scaling Model which uses component mass information as well as key turbine parameters such as rotor diameter, rated power and hub height to cost out the whole turbine.  The second model is a new mass-to-cost model which takes the individual component masses as inputs to estimate each component costs with additional cost factors for assembly, overhead, and profits.
 
-Author: [K. Dykes] (mailto:katherine.dykes@nrel.gov)
+Author: [K. Dykes](mailto:katherine.dykes@nrel.gov)
 
 ## Prerequisites
 
