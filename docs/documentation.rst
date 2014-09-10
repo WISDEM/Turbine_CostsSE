@@ -12,8 +12,8 @@ The following inputs and outputs are defined for Turbine_CostsSE:
 
 .. literalinclude:: ../src/turbine_costsse/turbine_costsse.py
     :language: python
-    :start-after: Turbine_CostsSE(FullTurbineCapitalCostModel)
-    :end-before: def __init__(self)
+    :start-after: Turbine_CostsSE(Assembly)
+    :end-before: def configure(self)
     :prepend: class Turbine_CostsSE(Assembly):
 
 
@@ -69,8 +69,8 @@ The following inputs and outputs are defined for NREL_CSM_TCC:
 
 .. literalinclude:: ../src/nrel_csm_tcc/nrel_csm_tcc.py
     :language: python
-    :start-after: tcc_csm_assembly(BaseTurbineCapitalCostModel)
-    :end-before: def __init__(self)
+    :start-after: tcc_csm_assembly(Assembly)
+    :end-before: def configure(self)
     :prepend: class tcc_csm_assembly(Assembly):
 
 Referenced Sub-System Modules (Blades)

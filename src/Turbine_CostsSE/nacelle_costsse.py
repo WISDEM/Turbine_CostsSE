@@ -11,11 +11,12 @@ from openmdao.main.datatypes.api import Array, Float, Bool, Int
 from math import pi
 import numpy as np
 
-from fusedwind.plant_cost.fused_tcc_asym import FullNacelleCostModel, BaseComponentCostModel, FullNacelleCostAggregator
+from fusedwind.plant_cost.fused_tcc import FullNacelleCostModel, BaseComponentCostModel, FullNacelleCostAggregator, configure_full_ncc
+from fusedwind.interface import implement_base
 
 # -------------------------------------------------
-
-class LowSpeedShaftCost(BaseComponentCostModel):
+@implement_base(BaseComponentCostModel)
+class LowSpeedShaftCost(Component):
 
     # variables
     low_speed_shaft_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -24,13 +25,16 @@ class LowSpeedShaftCost(BaseComponentCostModel):
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
 
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+
     def __init__(self):
         '''
         Initial computation of the costs for the wind turbine low speed shaft component.
 
         '''
 
-        super(LowSpeedShaftCost, self).__init__()
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
@@ -64,8 +68,8 @@ class LowSpeedShaftCost(BaseComponentCostModel):
         return self.J
 
 #-------------------------------------------------------------------------------
-
-class BearingsCost(BaseComponentCostModel):
+@implement_base(BaseComponentCostModel)
+class BearingsCost(Component):
 
     # variables
     main_bearing_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -75,28 +79,16 @@ class BearingsCost(BaseComponentCostModel):
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
 
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+
     def __init__(self):
         '''
         Initial computation of the costs for the wind turbine maing bearings.
 
-        Parameters
-        ----------
-        main_bearing_mass : float
-          bearing mass [kg]
-        second_bearing_mass : float
-          bearing mass [kg]
-        curr_yr : int
-          Project start year
-        curr_mon : int
-          Project start month
-
-        Returns
-        -------
-        cost : float
-          component cost [USD]
         '''
 
-        super(BearingsCost, self).__init__()
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
@@ -134,8 +126,8 @@ class BearingsCost(BaseComponentCostModel):
         return self.J
 
 #-------------------------------------------------------------------------------
-
-class GearboxCost(BaseComponentCostModel):
+@implement_base(BaseComponentCostModel)
+class GearboxCost(Component):
 
     # variables
     gearbox_mass = Float(iotype='in', units='kg', desc='component mass')
@@ -146,30 +138,16 @@ class GearboxCost(BaseComponentCostModel):
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
 
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+
     def __init__(self):
         '''
         Initial computation of the costs for the wind turbine gearbox component.
 
-        Parameters
-        ----------
-        gearbox_mass : float
-          gearbox mass [kg]
-        machine_rating : float
-          machine rating [kW]
-        drivetrain_design : int
-          machine configuration 1 conventional, 2 medium speed, 3 multi-gen, 4 direct-drive
-        curr_yr : int
-          Project start year
-        curr_mon : int
-          Project start month
-
-        Returns
-        -------
-        cost : float
-          component cost [USD]
         '''
 
-        super(GearboxCost, self).__init__()
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
@@ -215,8 +193,8 @@ class GearboxCost(BaseComponentCostModel):
         return self.J
 
 #-------------------------------------------------------------------------------
-
-class HighSpeedSideCost(BaseComponentCostModel):
+@implement_base(BaseComponentCostModel)
+class HighSpeedSideCost(Component):
 
     # variables
     high_speed_side_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -225,26 +203,16 @@ class HighSpeedSideCost(BaseComponentCostModel):
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
 
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+
     def __init__(self):
         '''
         Initial computation of the costs for the wind turbine mechanical brake and HSS component.
 
-        Parameters
-        ----------
-        high_speed_side_mass : float
-          mechBrake mass [kg]
-        curr_yr : int
-          Project start year
-        curr_mon : int
-          Project start month
-
-        Returns
-        -------
-        cost : float
-          component cost [USD]
         '''
 
-        super(HighSpeedSideCost, self).__init__()
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
@@ -277,8 +245,8 @@ class HighSpeedSideCost(BaseComponentCostModel):
         return self.J
 
 #-------------------------------------------------------------------------------
-
-class GeneratorCost(BaseComponentCostModel):
+@implement_base(BaseComponentCostModel)
+class GeneratorCost(Component):
 
     # variables
     generator_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -289,28 +257,16 @@ class GeneratorCost(BaseComponentCostModel):
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
 
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+
     def __init__(self):
         '''
         Initial computation of the costs for the wind turbine generator component.
 
-        Parameters
-        ----------
-        generator_mass : float
-          generator mass [kg]
-        drivetrain_design : int
-          machine configuration 1 conventional, 2 medium speed, 3 multi-gen, 4 direct-drive
-        curr_yr : int
-          Project start year
-        curr_mon : int
-          Project start month
-
-        Returns
-        -------
-        cost : float
-          component cost [USD]
         '''
 
-        super(GeneratorCost, self).__init__()
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
@@ -356,8 +312,8 @@ class GeneratorCost(BaseComponentCostModel):
         return self.J
 
 #-------------------------------------------------------------------------------
-
-class BedplateCost(BaseComponentCostModel):
+@implement_base(BaseComponentCostModel)
+class BedplateCost(Component):
 
     # variables
     bedplate_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -367,31 +323,17 @@ class BedplateCost(BaseComponentCostModel):
     month = Int(iotype='in', desc='Current Month')
     drivetrain_design = Int(iotype='in', desc='type of drivetrain')
 
-    # returns
+    # Outputs
     cost2002 = Float(iotype='out', units='USD', desc='component cost in 2002 USD')
+    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
 
     def __init__(self):
         '''
         Initial computation of the costs for the wind turbine bedplate component.
 
-        Parameters
-        ----------
-        bedplate_mass : float
-          bedplate mass [kg]
-        curr_yr : int
-          Project start year
-        curr_mon : int
-          Project start month
-
-        Returns
-        -------
-        cost : float
-          component cost [USD]
-        cost2002 : float
-          componet 2002 cost [USD]
         '''
 
-        super(BedplateCost, self).__init__()
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
@@ -431,8 +373,8 @@ class BedplateCost(BaseComponentCostModel):
         return self.J
 
 #---------------------------------------------------------------------------------
-
-class YawSystemCost(BaseComponentCostModel):
+@implement_base(BaseComponentCostModel)
+class YawSystemCost(Component):
 
     # variables
     yaw_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -441,26 +383,15 @@ class YawSystemCost(BaseComponentCostModel):
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
 
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+
     def __init__(self):
         '''
         Initial computation of the costs for the wind turbine yaw system.
-
-        Parameters
-        ----------
-        yaw_system_mass : float
-          yawSystem mass [kg]
-        curr_yr : int
-          Project start year
-        curr_mon : int
-          Project start month
-
-        Returns
-        -------
-        cost : float
-          component cost [USD]
         '''
-
-        super(YawSystemCost, self).__init__()
+        
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
@@ -495,10 +426,17 @@ class YawSystemCost(BaseComponentCostModel):
         return self.J
 
 #-------------------------------------------------------------------------------
-
-class NacelleSystemCostAdder(FullNacelleCostAggregator):
+@implement_base(FullNacelleCostAggregator)
+class NacelleSystemCostAdder(Component):
 
     # variables
+    lss_cost = Float(iotype='in', units='USD', desc='component cost')
+    bearings_cost = Float(iotype='in', units='USD', desc='component cost')
+    gearbox_cost = Float(iotype='in', units='USD', desc='component cost')
+    hss_cost = Float(iotype='in', units='USD', desc='component cost')
+    generator_cost = Float(iotype='in', units='USD', desc='component cost')
+    bedplate_cost = Float(iotype='in', units='USD', desc='component cost')
+    yaw_system_cost = Float(iotype='in', units='USD', desc='component cost')
     machine_rating = Float(iotype='in', units='kW', desc='machine rating')
     bedplate_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     bedplate_cost = Float(iotype='in', units='USD', desc='component cost [USD]')
@@ -509,43 +447,16 @@ class NacelleSystemCostAdder(FullNacelleCostAggregator):
     offshore = Bool(iotype='in', desc='flag for offshore project')
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
+    
+    # returns
+    cost = Float(iotype='out', units='USD', desc='component cost')
 
     def __init__(self):
         '''
         Initial computation of the costs for the wind turbine gearbox component.
-
-        Parameters
-        ----------
-        lowSpeedShaftCost : float
-          component cost [USD]
-        bearingsCost : float
-          component cost [USD]
-        gearboxCost : float
-          component cost [USD]
-        highSpeedSideCost : float
-          component cost [USD]
-        generatorCost : float
-          component cost [USD]
-        mainframeCost : float
-          component cost [USD]
-        yawSystemCost : float
-          component cost [USD]
-        machine_rating : float
-          machine rating [kW]
-        curr_yr : int
-          Project start year
-        curr_mon : int
-          Project start month
-        offshore : bool
-          flag for offshore project
-
-        Returns
-        -------
-        cost : float
-          component cost [USD]
         '''
 
-        super(NacelleSystemCostAdder, self).__init__()
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
@@ -682,13 +593,12 @@ class Nacelle_CostsSE(FullNacelleCostModel):
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
 
-    def __init__(self):
-
-        super(Nacelle_CostsSE, self).__init__()
+    # outputs
+    cost = Float(iotype='out', units='USD', desc='component cost')
 
     def configure(self):
 
-        super(Nacelle_CostsSE, self).configure()
+        configure_full_ncc(self)
 
         # select components
         self.replace('lssCC', LowSpeedShaftCost())

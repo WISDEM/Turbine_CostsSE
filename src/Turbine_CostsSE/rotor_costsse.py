@@ -11,11 +11,12 @@ from openmdao.main.datatypes.api import Array, Float, Bool, Int
 from math import pi
 import numpy as np
 
-from fusedwind.plant_cost.fused_tcc_asym import FullRotorCostModel, FullRotorCostAggregator, FullHubSystemCostAggregator, BaseComponentCostModel
+from fusedwind.plant_cost.fused_tcc import FullRotorCostModel, FullRotorCostAggregator, FullHubSystemCostAggregator, BaseComponentCostModel, configure_full_rcc
+from fusedwind.interface import implement_base
 
 #-------------------------------------------------------------------------------
-
-class BladeCost(BaseComponentCostModel):
+@implement_base(BaseComponentCostModel)
+class BladeCost(Component):
 
     # variables
     blade_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -25,13 +26,16 @@ class BladeCost(BaseComponentCostModel):
     month = Int(iotype='in', desc='Current Month')
     advanced = Bool(True, iotype='in', desc='advanced (True) or traditional (False) blade design')
 
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+
     def __init__(self):
         '''
         Initial computation of the costs for the wind turbine blade component.
 
         '''
 
-        super(BladeCost, self).__init__()
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
@@ -79,8 +83,8 @@ class BladeCost(BaseComponentCostModel):
 
 
 # -----------------------------------------------------------------------------------------------
-
-class HubCost(BaseComponentCostModel):
+@implement_base(BaseComponentCostModel)
+class HubCost(Component):
 
     # variables
     hub_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -89,13 +93,16 @@ class HubCost(BaseComponentCostModel):
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
 
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+
     def __init__(self):
         '''
         Initial computation of the costs for the wind turbine hub component.
 
         '''
 
-        super(HubCost, self).__init__()
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
@@ -134,8 +141,8 @@ class HubCost(BaseComponentCostModel):
         return self.J
 
 #-------------------------------------------------------------------------------
-
-class PitchSystemCost(BaseComponentCostModel):
+@implement_base(BaseComponentCostModel)
+class PitchSystemCost(Component):
 
     # variables
     pitch_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -144,26 +151,16 @@ class PitchSystemCost(BaseComponentCostModel):
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
 
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+
     def __init__(self):
         '''
         Initial computation of the costs for the wind turbine pitch system.
 
-        Parameters
-        ----------
-        pitch_system_mass : float
-          pitch system mass [kg]
-        curr_yr : int
-          Project start year
-        curr_mon : int
-          Project start month
-
-        Returns
-        -------
-        cost : float
-          component cost [USD]
         '''
 
-        super(PitchSystemCost, self).__init__()
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
@@ -202,8 +199,8 @@ class PitchSystemCost(BaseComponentCostModel):
         return self.J
 
 #-------------------------------------------------------------------------------
-
-class SpinnerCost(BaseComponentCostModel):
+@implement_base(BaseComponentCostModel)
+class SpinnerCost(Component):
 
     # variables
     spinner_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -212,25 +209,16 @@ class SpinnerCost(BaseComponentCostModel):
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
 
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+
     def __init__(self):
         '''
         Initial computation of the costs for the wind turbine spinner component.
 
-        Parameters
-        ----------
-        spinner_mass : float
-          spinner mass [kg]
-        curr_yr : int
-          Project start year
-        curr_mon : int
-          Project start month
-
-        Returns
-        -------
-        cost : float
         '''
 
-        super(SpinnerCost, self).__init__()
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
@@ -268,29 +256,24 @@ class SpinnerCost(BaseComponentCostModel):
         return self.J
 
 #-------------------------------------------------------------------------------
+@implement_base(FullHubSystemCostAggregator)
+class HubSystemCostAdder(Component):
 
-class HubSystemCostAdder(FullHubSystemCostAggregator):
+    # variables
+    hub_cost = Float(iotype='in', units='USD', desc='hub component cost')
+    pitch_system_cost = Float(iotype='in', units='USD', desc='pitch system cost')
+    spinner_cost = Float(iotype='in', units='USD', desc='spinner component cost')
+
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind sub-assembly capial costs including transportation costs')
 
     def __init__(self):
         '''
         Computation of overall hub system cost.
 
-        Parameters
-        ----------
-        hubCost : float
-          hub component cost [USD]
-        pitchSystemCost : float
-          pitch system cost [USD]
-        spinnerCost : float [USD]
-          spinner component cost [USD]
-
-        Returns
-        -------
-        cost : float
-          overall hub system cost [USD]
         '''
 
-        super(HubSystemCostAdder,self).__init__()
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
@@ -327,32 +310,29 @@ class HubSystemCostAdder(FullHubSystemCostAggregator):
         return self.J
 
 #-------------------------------------------------------------------------------
-
-class RotorCostAdder(FullRotorCostAggregator):
+@implement_base(FullRotorCostAggregator)
+class RotorCostAdder(Component):
     """
     RotorCostAdder adds up individual rotor system and component costs to get overall rotor cost.
     """
+
+    # variables
+    blade_cost = Float(iotype='in', units='USD', desc='individual blade cost')
+    hub_system_cost = Float(iotype='in', units='USD', desc='cost for hub system')
+    
+    # parameters
+    blade_number = Int(iotype='in', desc='number of rotor blades')
+
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind sub-assembly capial costs including transportation costs')
 
     def __init__(self):
         '''
         Computation of overall hub system cost.
 
-        Parameters
-        ----------
-        bladeCost : float
-          individual blade cost [USD]
-        hubSystemCost : float
-          hub system cost [USD]
-        blade_number : int
-          number of rotor blades
-
-        Returns
-        -------
-        cost : float
-          overall rotor cost [USD]
         '''
 
-        super(RotorCostAdder, self).__init__()
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
@@ -380,7 +360,7 @@ class RotorCostAdder(FullRotorCostAggregator):
         return self.J
 
 #-------------------------------------------------------------------------------
-
+@implement_base(FullRotorCostModel)
 class Rotor_CostsSE(FullRotorCostModel):
 
     '''
@@ -398,14 +378,14 @@ class Rotor_CostsSE(FullRotorCostModel):
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
     advanced = Bool(True, iotype='in', desc='advanced (True) or traditional (False) blade design')
+    blade_number = Int(iotype='in', desc='number of rotor blades')
 
-    def __init__(self):
-
-        super(Rotor_CostsSE, self).__init__()
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind sub-assembly capial costs including transportation costs')
 
     def configure(self):
 
-        super(Rotor_CostsSE,self).configure()
+        configure_full_rcc(self)
 
         # select components
         self.replace('bladeCC', BladeCost())
@@ -446,7 +426,7 @@ def example():
     rotor.year = 2009
     rotor.month = 12
 
-    rotor.execute()
+    rotor.run()
 
     print "Overall rotor cost with 3 advanced blades is ${0:.2f} USD".format(rotor.cost)
 

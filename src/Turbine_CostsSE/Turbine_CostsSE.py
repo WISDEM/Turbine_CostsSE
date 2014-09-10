@@ -9,15 +9,16 @@ from openmdao.main.api import Component, Assembly
 from openmdao.main.datatypes.api import Array, Float, Bool, Int
 import numpy as np
 
-from fusedwind.plant_cost.fused_tcc_asym import FullTurbineCapitalCostModel, FullTCCAggregator
+from fusedwind.plant_cost.fused_tcc import FullTurbineCostModel, FullTCCAggregator, configure_full_tcc
+from fusedwind.interface import implement_base
 
 from rotor_costsse import Rotor_CostsSE
 from nacelle_costsse import Nacelle_CostsSE
 from tower_costsse import Tower_CostsSE
 
 #-------------------------------------------------------------------------------
-
-class Turbine_CostsSE(FullTurbineCapitalCostModel):
+@implement_base(FullTurbineCostModel)
+class Turbine_CostsSE(Assembly):
 
     # variables
     blade_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
@@ -44,13 +45,12 @@ class Turbine_CostsSE(FullTurbineCapitalCostModel):
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
 
-    def __init__(self):
-
-        super(Turbine_CostsSE, self).__init__()
+    # Outputs
+    turbine_cost = Float(0.0, iotype='out', desc='Overall wind turbine capial costs including transportation costs')
 
     def configure(self):
 
-        super(Turbine_CostsSE, self).configure()
+        configure_full_tcc(self)
 
         # select components
         self.replace('rotorCC', Rotor_CostsSE())
@@ -88,8 +88,13 @@ class Turbine_CostsSE(FullTurbineCapitalCostModel):
 
 
 #-------------------------------------------------------------------------------
+@implement_base(FullTCCAggregator)
+class TurbineCostAdder(Component):
 
-class TurbineCostAdder(FullTCCAggregator):
+    # Variables
+    rotor_cost = Float(iotype='in', units='USD', desc='rotor cost')
+    nacelle_cost = Float(iotype='in', units='USD', desc='nacelle cost')
+    tower_cost = Float(iotype='in', units='USD', desc='tower cost')
 
     # parameters
     offshore = Bool(iotype='in', desc='flag for offshore site')
@@ -98,9 +103,12 @@ class TurbineCostAdder(FullTCCAggregator):
     profitMultiplier = Float(0.0, iotype='in', desc='multiplier for profit markup')
     transportMultiplier = Float(0.0, iotype='in', desc='multiplier for transport costs')
 
+    # Outputs
+    turbine_cost = Float(0.0, iotype='out', desc='Overall wind turbine capial costs including transportation costs')
+
     def __init__(self):
 
-        super(TurbineCostAdder, self).__init__()
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'

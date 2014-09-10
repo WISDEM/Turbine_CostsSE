@@ -10,7 +10,8 @@ import numpy as np
 from openmdao.main.api import Component, Assembly, set_as_top, VariableTree
 from openmdao.main.datatypes.api import Int, Bool, Float, Array, VarTree
 
-from fusedwind.plant_cost.fused_tcc_asym import BaseTurbineCapitalCostModel, BaseTCCAggregator
+from fusedwind.plant_cost.fused_tcc import BaseTurbineCostModel, BaseTCCAggregator, configure_base_tcc
+from fusedwind.interface import implement_base
 
 from blades_csm_component import blades_csm_component
 from hub_csm_component import hub_csm_component
@@ -59,8 +60,8 @@ class rotor_mass_adder(Component):
         return self.J
 
 # --------------------------------------------------------------------
-
-class tcc_csm_assembly(BaseTurbineCapitalCostModel):
+@implement_base(BaseTurbineCostModel)
+class tcc_csm_assembly(Assembly):
 
     # Variables
     rotor_diameter = Float(126.0, units = 'm', iotype='in', desc= 'rotor diameter of the machine') 
@@ -80,13 +81,12 @@ class tcc_csm_assembly(BaseTurbineCapitalCostModel):
     advanced_bedplate = Int(0, iotype='in', desc= 'indicator for drivetrain bedplate design 0 - conventional')   
     advanced_tower = Bool(False, iotype='in', desc = 'advanced tower configuration')
 
-    def __init__(self):
-
-        super(tcc_csm_assembly, self).__init__()
+    # Outputs
+    turbine_cost = Float(0.0, iotype='out', desc='Overall wind turbine capial costs including transportation costs')
 
     def configure(self):
 
-        super(tcc_csm_assembly,self).configure()
+        configure_base_tcc(self)
 
         self.replace('tcc', tcc_csm_component())
         self.add('blades', blades_csm_component())
@@ -168,8 +168,8 @@ class tcc_csm_assembly(BaseTurbineCapitalCostModel):
         super(tcc_csm_assembly, self).execute()  # will actually run the workflow
 
 #------------------------------------------------------------------
-
-class tcc_csm_component(BaseTCCAggregator):
+@implement_base(BaseTCCAggregator)
+class tcc_csm_component(Component):
 
     # Variables    
     blade_cost = Float(0.0, units='USD', iotype='in', desc='cost for a single wind turbine blade')
@@ -220,10 +220,11 @@ class tcc_csm_component(BaseTCCAggregator):
 
     # Outputs
     turbine_mass = Float(0.0, units='kg', iotype='out', desc='turbine mass')
+    turbine_cost = Float(0.0, iotype='out', desc='Overall wind turbine capial costs including transportation costs')
 
     def __init__(self):    
 
-        super(tcc_csm_component, self).__init__()
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'

@@ -10,11 +10,12 @@ from openmdao.main.api import Component, Assembly
 from openmdao.main.datatypes.api import Array, Float, Bool, Int
 import numpy as np
 
-from fusedwind.plant_cost.fused_tcc_asym import FullTowerCostModel, FullTowerCostAggregator, BaseComponentCostModel
+from fusedwind.plant_cost.fused_tcc import FullTowerCostModel, FullTowerCostAggregator, BaseComponentCostModel, configure_full_twcc
+from fusedwind.interface import implement_base
 
 #-------------------------------------------------------------------------------
-
-class TowerCost(BaseComponentCostModel):
+@implement_base(BaseComponentCostModel)
+class TowerCost(Component):
 
     # variables
     tower_mass = Float(iotype='in', units='kg', desc='tower mass [kg]')
@@ -23,13 +24,16 @@ class TowerCost(BaseComponentCostModel):
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
 
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+
     def __init__(self):
         '''
         Initial computation of the costs for the wind turbine tower component.
 
         '''
 
-        super(TowerCost, self).__init__()
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
@@ -66,12 +70,18 @@ class TowerCost(BaseComponentCostModel):
 
 
 #-------------------------------------------------------------------------------
+@implement_base(FullTowerCostAggregator)
+class TowerCostAdder(Component):
 
-class TowerCostAdder(FullTowerCostAggregator):
+    # variables
+    tower_cost = Float(iotype='in', units='USD', desc='component cost')
+    
+    # returns
+    cost = Float(iotype='out', units='USD', desc='component cost') 
 
     def __init__(self):
 
-        super(TowerCostAdder,self).__init__()
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
@@ -105,8 +115,8 @@ class TowerCostAdder(FullTowerCostAggregator):
 
         return self.J
 
-
-class Tower_CostsSE(FullTowerCostModel):
+@implement_base(FullTowerCostModel)
+class Tower_CostsSE(Assembly):
 
     # variables
     tower_mass = Float(iotype='in', units='kg', desc='tower mass [kg]')
@@ -115,13 +125,12 @@ class Tower_CostsSE(FullTowerCostModel):
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
 
-    def __init__(self):
-
-        super(Tower_CostsSE, self).__init__()
+    # returns
+    cost = Float(iotype='out', units='USD', desc='component cost')
 
     def configure(self):
 
-        super(Tower_CostsSE, self).configure()
+        configure_full_twcc(self)
 
         self.replace('towerCC', TowerCost())
         self.replace('twrcc', TowerCostAdder())
