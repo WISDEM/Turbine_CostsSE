@@ -37,7 +37,7 @@ turbine.tower_mass = 434559.0
 turbine.machine_rating = 5000.0
 turbine.advanced = True
 turbine.blade_number = 3
-turbine.drivetrain_design = 1
+turbine.drivetrain_design = 'geared'
 turbine.crane = True
 turbine.offshore = True
 
@@ -94,7 +94,7 @@ trb.blade_number = 3
 trb.hub_height = 90.0    
 trb.machine_rating = 5000.0
 trb.offshore = True
-trb.drivetrain_design = 1
+trb.drivetrain_design = 'geared'
 
 # 7 ----------
 # 8 ----------
@@ -126,7 +126,7 @@ trb.run()
 # 10 ----------
 
 print "The results for the NREL 5 MW Reference Turbine in an offshore 20 m water depth location are:"
-print "Turbine mass: {0:.2f} kg".format(trb.turbine_mass)
-print "Turbine cost: ${0:.2f} USD".format(trb.turbine_cost)
+print "Overall turbine mass is {0:.2f} kg".format(trb.turbine_mass)
+print "Overall turbine cost is ${0:.2f} USD".format(trb.turbine_cost)
 
 # 10 ----------

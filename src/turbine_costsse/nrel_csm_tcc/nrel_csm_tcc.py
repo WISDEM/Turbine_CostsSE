@@ -304,8 +304,8 @@ def example():
     trb.run()
     
     print "The results for the NREL 5 MW Reference Turbine in an offshore 20 m water depth location are:"
-    print "Turbine mass: {0:.2f} kg".format(trb.turbine_mass)
-    print "Turbine cost: ${0:.2f} USD".format(trb.turbine_cost)
+    print "Overall turbine mass is {0:.2f} kg".format(trb.turbine_mass)
+    print "Overall turbine cost is ${0:.2f} USD".format(trb.turbine_cost)
 
 if __name__ == "__main__":
 

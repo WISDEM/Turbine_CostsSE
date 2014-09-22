@@ -54,7 +54,7 @@ Referenced Turbine Cost Modules
 .. class:: TurbineCostAdder
 
 Referenced PPI Index Models (via commonse.config)
-================================================
+=================================================
 .. module:: commonse.csmPPI
 .. class:: PPI
 
@@ -102,7 +102,7 @@ Referenced Turbine Cost Modules
 .. class:: rotor_mass_adder
 
 Referenced PPI Index Models (via commonse.config)
-================================================
+=================================================
 .. module:: commonse.csmPPI
 .. class:: PPI
 
