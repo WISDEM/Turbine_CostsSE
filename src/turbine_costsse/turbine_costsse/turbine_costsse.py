@@ -179,24 +179,27 @@ def example():
 
     turbine.run()
 
-    print "Turbine cost is ${0:.2f} USD".format(turbine.turbine_cost) # $5350414.10
+    print "The results for the NREL 5 MW Reference Turbine in an offshore 20 m water depth location are:"
     print
     print "Overall rotor cost with 3 advanced blades is ${0:.2f} USD".format(turbine.rotorCC.cost)
     print "Blade cost is ${0:.2f} USD".format(turbine.rotorCC.bladeCC.cost)
-    print "Hub cost is ${0:.2f} USD".format(turbine.rotorCC.hubCC.cost)   # $175513.50
-    print "Pitch cost is ${0:.2f} USD".format(turbine.rotorCC.pitchSysCC.cost)  # $535075.0
-    print "Spinner cost is ${0:.2f} USD".format(turbine.rotorCC.spinnerCC.cost)  # $10509.00
+    print "Hub cost is ${0:.2f} USD".format(turbine.rotorCC.hubCC.cost)
+    print "Pitch system cost is ${0:.2f} USD".format(turbine.rotorCC.pitchSysCC.cost)
+    print "Spinner cost is ${0:.2f} USD".format(turbine.rotorCC.spinnerCC.cost)
     print
-    print "Overall nacelle cost is ${0:.2f} USD".format(turbine.nacelleCC.cost) # $2884227.08
-    print "LSS cost is ${0:.2f} USD".format(turbine.nacelleCC.lssCC.cost) # $183363.52
-    print "Main bearings cost is ${0:.2f} USD".format(turbine.nacelleCC.bearingsCC.cost) # $56660.71
-    print "Gearbox cost is ${0:.2f} USD".format(turbine.nacelleCC.gearboxCC.cost) # $648030.18
-    print "HSS cost is ${0:.2f} USD".format(turbine.nacelleCC.hssCC.cost) # $15218.20
-    print "Generator cost is ${0:.2f} USD".format(turbine.nacelleCC.generatorCC.cost) # $435157.75
+    print "Overall nacelle cost is ${0:.2f} USD".format(turbine.nacelleCC.cost)
+    print "LSS cost is ${0:.2f} USD".format(turbine.nacelleCC.lssCC.cost)
+    print "Main bearings cost is ${0:.2f} USD".format(turbine.nacelleCC.bearingsCC.cost)
+    print "Gearbox cost is ${0:.2f} USD".format(turbine.nacelleCC.gearboxCC.cost)
+    print "High speed side cost is ${0:.2f} USD".format(turbine.nacelleCC.hssCC.cost)
+    print "Generator cost is ${0:.2f} USD".format(turbine.nacelleCC.generatorCC.cost)
     print "Bedplate cost is ${0:.2f} USD".format(turbine.nacelleCC.bedplateCC.cost)
-    print "Yaw system cost is ${0:.2f} USD".format(turbine.nacelleCC.yawSysCC.cost) # $137609.38
+    print "Yaw system cost is ${0:.2f} USD".format(turbine.nacelleCC.yawSysCC.cost)
     print
-    print "Tower cost is ${0:.2f} USD".format(turbine.towerCC.cost) # $987180.30
+    print "Tower cost is ${0:.2f} USD".format(turbine.towerCC.cost)
+    print
+    print "The overall turbine cost is ${0:.2f} USD".format(turbine.turbine_cost)
+    print
 
 if __name__ == "__main__":
 

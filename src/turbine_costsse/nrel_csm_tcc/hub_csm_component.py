@@ -49,7 +49,7 @@ class hub_csm_component(Component):
         """
         Executes hub model of the NREL _cost and Scaling model to compute hub system component masses and costs.
         """
-        print "In {0}.execute()...".format(self.__class__)
+
 
         #*** Pitch bearing and mechanism
         pitchBearingMass = 0.1295 * self.blade_mass*self.blade_number + 491.31  # slope*BldMass3 + int

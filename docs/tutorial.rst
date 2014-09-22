@@ -44,27 +44,30 @@ We then print out the resulting cost values
     :start-after: # 5 ---
     :end-before: # 5 ---
 
-The result is
+The result is:
 
->>> Turbine cost is $5315270.08 USD
+>>> The results for the NREL 5 MW Reference Turbine in an offshore 20 m water depth location are:
 >>>
 >>> Overall rotor cost with 3 advanced blades is $1471019.77 USD
 >>> Advanced blade cost is $251829.54 USD
 >>> Cost of 3 blades is $755488.63 USD
 >>> Hub cost is $173823.07 USD
->>> Pitch cost is $531016.46 USD
+>>> Pitch system cost is $531016.46 USD
 >>> Spinner cost is $10691.61 USD
 >>>
 >>> Overall nacelle cost is $2856229.57 USD
 >>> LSS cost is $174104.10 USD
 >>> Main bearings cost is $56228.71 USD
 >>> Gearbox cost is $641045.88 USD
->>> HSS cost is $15161.40 USD
+>>> High speed side cost is $15161.40 USD
 >>> Generator cost is $432991.21 USD
 >>> Bedplate cost is $136836.34 USD
 >>> Yaw system cost is $137375.05 USD
 >>>
 >>> Tower cost is $988020.74 USD
+>>>
+>>> Turbine cost is $5315270.08 USD
+>>>
 
 Note that the output for the individual nacelle components do not sum to the overall nacelle cost.  There are additional costs in the overall nacelle assembly including the onboard crane, electronics and controls, HVAC, other miscellaneous hardware and the nacelle cover.
 
@@ -106,13 +109,11 @@ We then print out the resulting cost values
     :start-after: # 10 ---
     :end-before: # 10 ---
 
-The result is
+The result is:
 
->>> Turbine mass: 747191.36
->>> Turbine cost: 5949405.79
+>>> The results for the NREL 5 MW Reference Turbine in an offshore 20 m water depth location are:
+>>> Turbine mass: 747191.36 kg
+>>> Turbine cost: $5950346.87 USD
 
 It is also possible to output individual component masses and cost as in the Turbine_CostsSE model.
-
-.. bibliography:: references.bib
-    :style: unsrt
 

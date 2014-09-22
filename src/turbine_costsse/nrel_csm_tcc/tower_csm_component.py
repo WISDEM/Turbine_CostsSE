@@ -31,27 +31,7 @@ class tower_csm_component(Component):
 
     def __init__(self):
         """
-        OpenMDAO component to wrap tower model based of the NREL _cost and Scaling Model data (csmTower.py).
-
-        Parameters
-        ----------
-        rotor_diameter : float
-          rotor diameter of the machine [m]
-        hub_height : float
-          hub height of machine [m]
-        year : int
-          year of project start
-        month : int
-          month of project start
-        advanced : bool
-          advanced tower configuration
-        
-        Returns
-        -------
-        tower_cost : float
-          cost for a tower [USD]
-        tower_mass : float
-          mass for a turbine tower [kg]       
+        OpenMDAO component to wrap tower model based of the NREL _cost and Scaling Model data (csmTower.py).     
         """        
 
         super(tower_csm_component, self).__init__()
@@ -63,7 +43,6 @@ class tower_csm_component(Component):
         """
         Executes the tower model of the NREL _cost and Scaling Model.
         """
-        print "In {0}.execute()...".format(self.__class__)
 
         windpactMassSlope = 0.397251147546925
         windpactMassInt   = -1414.381881

@@ -429,7 +429,56 @@ def example():
     rotor.run()
 
     print "Overall rotor cost with 3 advanced blades is ${0:.2f} USD".format(rotor.cost)
+    print
+
+def example_sub():
+
+   # other sub model tests
+
+    print "NREL 5 MW Reference Turbine Component Costs"
+
+    blade = BladeCost()
+
+    blade.blade_mass = 17650.67
+    blade.year = 2009
+    blade.month = 12
+    
+    blade.run()
+    
+    print "Blade cost is ${0:.2f} USD".format(blade.cost)
+
+    hub = HubCost()
+
+    hub.hub_mass = 31644.5
+    hub.year = 2009
+    hub.month = 12
+    
+    hub.run()
+    
+    print "Hub cost is ${0:.2f} USD".format(hub.cost)
+
+    pitch = PitchSystemCost()
+
+    pitch.pitch_system_mass = 17004.0
+    pitch.year = 2009
+    pitch.month = 12
+
+    pitch.run()
+
+    print "Hub cost is ${0:.2f} USD".format(pitch.cost)
+
+    spinner = SpinnerCost()
+
+    spinner.spinner_mass = 1810.5
+    spinner.year = 2009
+    spinner.month = 12
+
+    spinner.run()
+
+    print "Spinner cost is ${0:.2f} USD".format(spinner.cost)
 
 if __name__ == "__main__":
 
     example()
+
+    example_sub()

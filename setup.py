@@ -16,7 +16,7 @@ kwargs = {'author': 'Katherine Dykes',
  'name': 'Turbine_CostsSE',
  'package_data': {'Turbine_CostsSE': []},
  'package_dir': {'': 'src'},
- 'packages': ['turbine_costsse', 'nrel_csm_tcc'],
+ 'packages': ['turbine_costsse.turbine_costsse', 'turbine_costsse.nrel_csm_tcc','test'],
  'zip_safe': False}
 
 

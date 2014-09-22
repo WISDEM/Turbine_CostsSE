@@ -32,24 +32,6 @@ class blades_csm_component(Component):
         """
         OpenMDAO component to wrap blade model of the NREL _cost and Scaling Model (csmBlades.py)
         
-        Parameters
-        ----------
-        rotor_diameter : float
-          rotor diameter of the machine [m]
-        advanced_blade : bool
-          boolean for use of advanced blade curve
-        year : int
-          year of project start
-        month : int
-          month of project start
-          
-        Returns
-        -------
-        blade_cost : float
-          cost for a single wind turbine blade [USD}
-        blade_mass : float
-          mass of a single rotor blade [kg]
-        
         """
         super(blades_csm_component, self).__init__()
 
@@ -60,7 +42,7 @@ class blades_csm_component(Component):
         """
         Executes Blade model of the NREL _cost and Scaling Model to estimate wind turbine blade cost and mass.
         """
-        print "In {0}.execute()...".format(self.__class__)
+
 
         if (self.advanced_blade == True):
             massCoeff = 0.4948

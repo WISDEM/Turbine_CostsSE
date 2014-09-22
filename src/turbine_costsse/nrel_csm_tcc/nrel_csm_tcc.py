@@ -64,11 +64,11 @@ class rotor_mass_adder(Component):
 class tcc_csm_assembly(Assembly):
 
     # Variables
-    rotor_diameter = Float(126.0, units = 'm', iotype='in', desc= 'rotor diameter of the machine') 
-    machine_rating = Float(5000.0, units = 'kW', iotype='in', desc = 'rated power of wind turbine')
-    hub_height = Float(90.0, units = 'm', iotype='in', desc= 'hub height of wind turbine above ground / sea level')
-    rotor_thrust = Float(500930.0837, iotype='in', units='N', desc='maximum thurst from rotor')    
-    rotor_torque = Float(4365248.7375, iotype='in', units='N * m', desc = 'torque from rotor at rated power')
+    rotor_diameter = Float(units = 'm', iotype='in', desc= 'rotor diameter of the machine') 
+    machine_rating = Float(units = 'kW', iotype='in', desc = 'rated power of wind turbine')
+    hub_height = Float(units = 'm', iotype='in', desc= 'hub height of wind turbine above ground / sea level')
+    rotor_thrust = Float(iotype='in', units='N', desc='maximum thurst from rotor')    
+    rotor_torque = Float(iotype='in', units='N * m', desc = 'torque from rotor at rated power')
 
     # Parameters
     year = Int(2009, iotype='in', desc = 'year of project start')
@@ -163,8 +163,6 @@ class tcc_csm_assembly(Assembly):
 
     def execute(self):
 
-        print "In {0}.execute()...".format(self.__class__)
-
         super(tcc_csm_assembly, self).execute()  # will actually run the workflow
 
 #------------------------------------------------------------------
@@ -233,7 +231,7 @@ class tcc_csm_component(Component):
         """
         Execute Turbine Capital _costs Model of the NREL _cost and Scaling Model.
         """
-        print "In {0}.execute()...".format(self.__class__)
+
 
         # high level output assignment
         self.turbine_mass = self.blade_mass * self.blade_number + self.hub_system_mass + self.nacelle_mass + self.tower_mass
@@ -305,9 +303,9 @@ def example():
 
     trb.run()
     
-    print "Offshore turbine in 20 m of water"
-    print "Turbine mass: {0}".format(trb.turbine_mass)
-    print "Turbine cost: {0}".format(trb.turbine_cost)
+    print "The results for the NREL 5 MW Reference Turbine in an offshore 20 m water depth location are:"
+    print "Turbine mass: {0:.2f} kg".format(trb.turbine_mass)
+    print "Turbine cost: ${0:.2f} USD".format(trb.turbine_cost)
 
 if __name__ == "__main__":
 

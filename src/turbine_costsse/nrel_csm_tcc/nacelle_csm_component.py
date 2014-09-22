@@ -75,7 +75,7 @@ class nacelle_csm_component(Component):
         Execute nacelle model of the NREL _cost and Scaling Model.
         """
 
-        print "In {0}.execute()...".format(self.__class__)
+
 
         # basic variable initialization        
         if self.offshore == False:

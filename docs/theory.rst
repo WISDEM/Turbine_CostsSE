@@ -33,8 +33,6 @@ A set of models based on the NREL Cost and Scaling model data have been develope
 
 Blades:
 
-.. module:: twister.models.csm.blades
-
 The new NREL blades mass-cost model is based on the data of the NREL Cost and Scaling Model which was acquired via the WindPACT design studies efforts :cite:`Sunderland1993`.  The data for the blade costs in particular stem from the "WindPACT Turbine Rotor Design Study" :cite:`Malcolm2002` as well as the "Cost Study for Large Wind Turbine Blades:  WindPACT Blade System Design Studies" :cite:`TPI2003`.  The equation for blade costs includes both materials and manufacturing.  The NREL Cost and Scaling Model has built in escalators to update labor and material input cost factors based on cost trends over time.  The model here is reduced to a cost model relationship dependent only on mass as is consistent with the full set of mass-to-cost models.  A graph of the relationships for mass-to-cost from the WindPACT study data based on 2002 USD is shown below.
 
 .. _BladeCost:

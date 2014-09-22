@@ -642,6 +642,8 @@ class Nacelle_CostsSE(FullNacelleCostModel):
         self.connect('offshore', 'ncc.offshore')
         self.connect('year', ['lssCC.year', 'bearingsCC.year', 'gearboxCC.year', 'hssCC.year', 'generatorCC.year', 'bedplateCC.year', 'yawSysCC.year', 'ncc.year'])
         self.connect('month', ['lssCC.month', 'bearingsCC.month', 'gearboxCC.month', 'hssCC.month', 'generatorCC.month', 'bedplateCC.month', 'yawSysCC.month', 'ncc.month'])
+        
+        self.connect('bedplateCC.cost2002','ncc.bedplateCost2002')
 
 
 #==================================================================
@@ -682,7 +684,110 @@ def example():
     print "Yaw system cost is ${0:.2f} USD".format(nacelle.yawSysCC.cost) # $137609.38
 
     print "Overall nacelle cost is ${0:.2f} USD".format(nacelle.cost) # $2884227.08
+    print
+
+def example_sub():
+
+   # other sub model tests
+    print "NREL 5 MW Reference Turbine Component Costs"
+
+    lss = LowSpeedShaftCost()
+
+    lss.low_speed_shaft_mass = 31257.3
+    lss.year = 2009
+    lss.month = 12
+    
+    lss.run()
+    
+    print "LSS cost is ${0:.2f} USD".format(lss.cost)
+
+    bearings = BearingsCost()
+
+    bearings.main_bearing_mass = 9731.41 / 2.0
+    bearings.second_bearing_mass = 9731.41 / 2.0
+    bearings.year = 2009
+    bearings.month = 12
+
+    bearings.run()
+    
+    print "Main bearings cost is ${0:.2f} USD".format(bearings.cost)
+
+    gearbox = GearboxCost()
+
+    gearbox.gearbox_mass = 30237.60
+    gearbox.year = 2009
+    gearbox.month = 12
+    gearbox.drivetrain_design = 'geared'
+
+    gearbox.run()
+    
+    print "Gearbox cost is ${0:.2f} USD".format(gearbox.cost)
+
+    hss = HighSpeedSideCost()
+
+    hss.high_speed_side_mass = 1492.45
+    hss.year = 2009
+    hss.month = 12
+
+    hss.run()
+
+    print "High speed side cost is ${0:.2f} USD".format(hss.cost)
+
+    generator = GeneratorCost()
+
+    generator.generator_mass = 16699.85
+    generator.year = 2009
+    generator.month = 12
+    generator.drivetrain_design = 'geared'
+    generator.machine_rating = 5000.0
+
+    generator.run()
+
+    print "Generator cost is ${0:.2f} USD".format(generator.cost)
+
+    bedplate = BedplateCost()
+
+    bedplate.bedplate_mass = 93090.6
+    bedplate.year = 2009
+    bedplate.month = 12
+
+    bedplate.run()
+
+    print "Bedplate cost is ${0:.2f} USD".format(bedplate.cost)
+
+    yaw = YawSystemCost()
+
+    yaw.yaw_system_mass = 11878.24
+    yaw.year = 2009
+    yaw.month = 12
+
+    yaw.run()
+
+    print "Yaw system cost is ${0:.2f} USD".format(yaw.cost)
+
+    nacelle = NacelleSystemCostAdder()
+
+    nacelle.bedplate_mass = 93090.6
+    nacelle.machine_rating = 5000.0
+    nacelle.crane = True
+    nacelle.offshore = True
+    nacelle.year = 2009
+    nacelle.month = 12
+    nacelle.lss_cost = 183363.66
+    nacelle.bearings_cost = 56660.73
+    nacelle.gearbox_cost = 648030.64
+    nacelle.hss_cost = 15218.23
+    nacelle.generator_cost = 435157.71
+    nacelle.bedplate_cost = 138167.19
+    nacelle.bedplateCost2002 = 105872.02
+    nacelle.yaw_system_cost = 137698.39
+
+    nacelle.run()
+
+    print "Overall nacelle system cost is ${0:.2f} USD".format(nacelle.cost)
 
 if __name__ == '__main__':
 
     example()
+
+    example_sub()
