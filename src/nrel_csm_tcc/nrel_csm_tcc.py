@@ -8,7 +8,7 @@ Copyright (c) NREL. All rights reserved.
 import numpy as np
 
 from openmdao.main.api import Component, Assembly, set_as_top, VariableTree
-from openmdao.main.datatypes.api import Int, Bool, Float, Array, VarTree
+from openmdao.main.datatypes.api import Int, Bool, Float, Array, VarTree, Enum
 
 from fusedwind.plant_cost.fused_tcc import BaseTurbineCostModel, BaseTCCAggregator, configure_base_tcc
 from fusedwind.interface import implement_base
@@ -76,7 +76,7 @@ class tcc_csm_assembly(Assembly):
     blade_number = Int(3, iotype='in', desc = 'number of rotor blades')
     offshore = Bool(True, iotype='in', desc = 'boolean for offshore')
     advanced_blade = Bool(False, iotype='in', desc = 'boolean for use of advanced blade curve')
-    drivetrain_design = Int(1, iotype='in', desc = 'drivetrain configuration type 1 - 3-stage, 2 - single speed, 3 - multi-generator, 4 - direct drive')
+    drivetrain_design = Enum('geared', ('geared', 'single_stage', 'multi_drive', 'pm_direct_drive'), iotype='in')
     crane = Bool(True, iotype='in', desc = 'boolean for presence of a service crane up tower')
     advanced_bedplate = Int(0, iotype='in', desc= 'indicator for drivetrain bedplate design 0 - conventional')   
     advanced_tower = Bool(False, iotype='in', desc = 'advanced tower configuration')
@@ -289,7 +289,7 @@ def example():
     trb.offshore = True
     trb.year = 2009
     trb.month = 12
-    trb.drivetrain_design = 1
+    trb.drivetrain_design = 'geared'
 
     # Rotor force calculations for nacelle inputs
     maxTipSpd = 80.0

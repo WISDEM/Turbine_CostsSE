@@ -7,7 +7,7 @@ Copyright (c) NREL. All rights reserved.
 
 from commonse.config import *
 from openmdao.main.api import Component, Assembly
-from openmdao.main.datatypes.api import Array, Float, Bool, Int
+from openmdao.main.datatypes.api import Array, Float, Bool, Int, Enum
 from math import pi
 import numpy as np
 
@@ -134,7 +134,7 @@ class GearboxCost(Component):
     machine_rating = Float(iotype='in', units='kW', desc='machine rating')
 
     # parameters
-    drivetrain_design = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
+    drivetrain_design = Enum('geared', ('geared', 'single_stage', 'multi_drive', 'pm_direct_drive'), iotype='in')
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
 
@@ -164,20 +164,29 @@ class GearboxCost(Component):
         costCoeff = [None, 16.45  , 74.101     ,   15.25697015,  0 ]
         costExp   = [None,  1.2491,  1.002     ,    1.2491    ,  0 ]
 
-        if self.drivetrain_design == 1:
+        if self.drivetrain_design == 'geared':
+            drivetrain_design = 1
+        elif self.drivetrain_design == 'single_stage':
+            drivetrain_design = 2
+        elif self.drivetrain_design == 'multi-drive':
+            drivetrain_design = 3
+        elif self.drivetrain_design == 'pm_direct_drive':
+            drivetrain_design = 4
+
+        if drivetrain_design == 1:
           Gearbox2002 = 16.9 * self.gearbox_mass - 25066          # for traditional 3-stage gearbox, use mass based cost equation from NREL CSM
         else:
-          Gearbox2002 = costCoeff[self.drivetrain_design] * (self.machine_rating ** costCoeff[self.drivetrain_design])        # for other drivetrain configurations, use NREL CSM equation based on machine rating
+          Gearbox2002 = costCoeff[drivetrain_design] * (self.machine_rating ** costCoeff[drivetrain_design])        # for other drivetrain configurations, use NREL CSM equation based on machine rating
 
         self.cost   = Gearbox2002 * GearboxCostEsc
 
         # derivatives
-        if self.drivetrain_design == 1:
+        if drivetrain_design == 1:
           self.d_cost_d_gearbox_mass = GearboxCostEsc * 16.9
           self.d_cost_d_machine_rating = 0.0
         else:
           self.d_cost_d_gearbox_mass = 0.0
-          self.d_cost_d_machine_rating =  GearboxCostEsc * costCoeff[self.drivetrain_design] * (costCoeff[self.drivetrain_design] * (self.machine_rating ** (costCoeff[self.drivetrain_design]-1)))
+          self.d_cost_d_machine_rating =  GearboxCostEsc * costCoeff[drivetrain_design] * (costCoeff[drivetrain_design] * (self.machine_rating ** (costCoeff[drivetrain_design]-1)))
 
     def list_deriv_vars(self):
 
@@ -253,7 +262,7 @@ class GeneratorCost(Component):
     machine_rating = Float(iotype='in', units='kW', desc='machine rating')
 
     # parameters
-    drivetrain_design = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
+    drivetrain_design = Enum('geared', ('geared', 'single_stage', 'multi_drive', 'pm_direct_drive'), iotype='in')
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
 
@@ -281,21 +290,29 @@ class GeneratorCost(Component):
         generatorCostEsc     = ppi.compute('IPPI_GEN')
         costCoeff = [None, 65    , 54.73 ,  48.03 , 219.33 ] # $/kW - from 'Generators' worksheet
 
+        if self.drivetrain_design == 'geared':
+            drivetrain_design = 1
+        elif self.drivetrain_design == 'single_stage':
+            drivetrain_design = 2
+        elif self.drivetrain_design == 'multi-drive':
+            drivetrain_design = 3
+        elif self.drivetrain_design == 'pm_direct_drive':
+            drivetrain_design = 4
 
-        if self.drivetrain_design == 1:
+        if drivetrain_design == 1:
             GeneratorCost2002 = 19.697 * self.generator_mass + 9277.3
         else:
-            GeneratorCost2002 = costCoeff[self.drivetrain_design] * self.machine_rating
+            GeneratorCost2002 = costCoeff[drivetrain_design] * self.machine_rating
 
         self.cost         = GeneratorCost2002 * generatorCostEsc
 
         # derivatives
-        if self.drivetrain_design == 1:
+        if drivetrain_design == 1:
             self.d_cost_d_generator_mass = generatorCostEsc * 19.697
             self.d_cost_d_machine_rating = 0.0
         else:
             self.d_cost_d_generator_mass = 0.0
-            self.d_cost_d_machine_rating = costCoeff[self.drivetrain_design] * generatorCostEsc
+            self.d_cost_d_machine_rating = costCoeff[drivetrain_design] * generatorCostEsc
 
     def list_deriv_vars(self):
 
@@ -587,7 +604,7 @@ class Nacelle_CostsSE(FullNacelleCostModel):
     machine_rating = Float(iotype='in', units='kW', desc='machine rating')
 
     # parameters
-    drivetrain_design = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
+    drivetrain_design = Enum('geared', ('geared', 'single_stage', 'multi_drive', 'pm_direct_drive'), iotype='in')
     crane = Bool(iotype='in', desc='flag for presence of onboard crane')
     offshore = Bool(iotype='in', desc='flat for offshore site')
     year = Int(iotype='in', desc='Current Year')
@@ -648,7 +665,7 @@ def example():
     nacelle.bedplate_mass = 93090.6
     nacelle.yaw_system_mass = 11878.24
     nacelle.machine_rating = 5000.0
-    nacelle.drivetrain_design = 1
+    nacelle.drivetrain_design = 'geared'
     nacelle.crane = True
     nacelle.offshore = True
     nacelle.year = 2009

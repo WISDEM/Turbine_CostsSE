@@ -6,7 +6,7 @@ Copyright (c) NREL. All rights reserved.
 """
 
 from openmdao.main.api import Component, Assembly, set_as_top, VariableTree
-from openmdao.main.datatypes.api import Int, Bool, Float, Array, VarTree
+from openmdao.main.datatypes.api import Int, Bool, Float, Array, VarTree, Enum
 
 from commonse.config import *
 import numpy as np
@@ -24,7 +24,7 @@ class nacelle_csm_component(Component):
     machine_rating = Float(5000.0, units='kW', iotype='in', desc = 'Machine rated power')
 
     # Parameters
-    drivetrain_design = Int(1, iotype='in', desc = 'drivetrain configuration type 1 - 3-stage, 2 - single speed, 3 - multi-generator, 4 - direct drive')
+    drivetrain_design = Enum('geared', ('geared', 'single_stage', 'multi_drive', 'pm_direct_drive'), iotype='in')
     crane = Bool(True, iotype='in', desc = 'boolean for presence of a service crane up tower')
     advanced_bedplate = Int(0, iotype='in', desc= 'indicator for drivetrain bedplate design 0 - conventional')   
     year = Int(2009, iotype='in', desc = 'year of project start')
@@ -120,41 +120,50 @@ class nacelle_csm_component(Component):
         costExp   = [None,  1.2491,  1.002     ,    1.2491    ,  0 ]
         massCoeff = [None, 65.601 , 81.63967335,  129.1702924 ,  0 ]
         massExp   = [None,  0.759 ,  0.7738    ,    0.7738    ,  0 ]
+        
+        if self.drivetrain_design == 'geared':
+            drivetrain_design = 1
+        elif self.drivetrain_design == 'single_stage':
+            drivetrain_design = 2
+        elif self.drivetrain_design == 'multi-drive':
+            drivetrain_design = 3
+        elif self.drivetrain_design == 'pm_direct_drive':
+            drivetrain_design = 4
 
-        self.gearbox_mass = massCoeff[self.drivetrain_design] * (self.rotor_torque/1000) ** massExp[self.drivetrain_design] 
+        self.gearbox_mass = massCoeff[drivetrain_design] * (self.rotor_torque/1000) ** massExp[drivetrain_design] 
 
         gearboxCostEsc     = ppi.compute('IPPI_GRB')        
-        Gearbox2002 = costCoeff[self.drivetrain_design] * self.machine_rating ** costExp[self.drivetrain_design]  
+        Gearbox2002 = costCoeff[drivetrain_design] * self.machine_rating ** costExp[drivetrain_design]  
         self.gearbox_cost = Gearbox2002 * gearboxCostEsc   
         
-        if self.drivetrain_design == 4:
+        if drivetrain_design == 4:
             self.d_gearbox_mass_d_r_torque = 0.0
             self.d_gearbox_cost_d_rating = 0.0
         else:
-            self.d_gearbox_mass_d_r_torque = massExp[self.drivetrain_design]  * massCoeff[self.drivetrain_design] * ((self.rotor_torque/1000.) ** (massExp[self.drivetrain_design] - 1)) * (1/1000.)
-            self.d_gearbox_cost_d_rating = gearboxCostEsc * costExp[self.drivetrain_design] * costCoeff[self.drivetrain_design] * self.machine_rating ** (costExp[self.drivetrain_design] - 1)
+            self.d_gearbox_mass_d_r_torque = massExp[drivetrain_design]  * massCoeff[drivetrain_design] * ((self.rotor_torque/1000.) ** (massExp[drivetrain_design] - 1)) * (1/1000.)
+            self.d_gearbox_cost_d_rating = gearboxCostEsc * costExp[drivetrain_design] * costCoeff[drivetrain_design] * self.machine_rating ** (costExp[drivetrain_design] - 1)
 
         # Generator
         costCoeff = [None, 65.000, 54.72533,  48.02963 , 219.3333 ] # $/kW - from 'Generators' worksheet
         massCoeff = [None, 6.4737, 10.50972,  5.343902 , 37.68400 ]
         massExp   = [None, 0.9223, 0.922300,  0.922300 , 1.000000 ]
 
-        if (self.drivetrain_design < 4):
-            self.generator_mass = massCoeff[self.drivetrain_design] * self.machine_rating ** massExp[self.drivetrain_design]   
+        if (drivetrain_design < 4):
+            self.generator_mass = massCoeff[drivetrain_design] * self.machine_rating ** massExp[drivetrain_design]   
         else:  # direct drive
-            self.generator_mass = massCoeff[self.drivetrain_design] * self.rotor_torque ** massExp[self.drivetrain_design] 
+            self.generator_mass = massCoeff[drivetrain_design] * self.rotor_torque ** massExp[drivetrain_design] 
 
         generatorCostEsc     = ppi.compute('IPPI_GEN')                                                  
-        GeneratorCost2002 = costCoeff[self.drivetrain_design] * self.machine_rating 
+        GeneratorCost2002 = costCoeff[drivetrain_design] * self.machine_rating 
         self.generator_cost = GeneratorCost2002 * generatorCostEsc
 
-        if self.drivetrain_design < 4:
+        if drivetrain_design < 4:
             self.d_generator_mass_d_r_torque = 0.0
-            self.d_generator_mass_d_rating = massExp[self.drivetrain_design] * massCoeff[self.drivetrain_design] * self.machine_rating ** (massExp[self.drivetrain_design]-1)
+            self.d_generator_mass_d_rating = massExp[drivetrain_design] * massCoeff[drivetrain_design] * self.machine_rating ** (massExp[drivetrain_design]-1)
         else:
-            self.d_generator_mass_d_r_torque = massExp[self.drivetrain_design] * massCoeff[self.drivetrain_design] * self.rotor_torque ** (massExp[self.drivetrain_design]-1)
+            self.d_generator_mass_d_r_torque = massExp[drivetrain_design] * massCoeff[drivetrain_design] * self.rotor_torque ** (massExp[drivetrain_design]-1)
             self.d_generator_mass_d_rating = 0.0
-        self.d_generator_cost_d_rating = generatorCostEsc * costCoeff[self.drivetrain_design]
+        self.d_generator_cost_d_rating = generatorCostEsc * costCoeff[drivetrain_design]
         
         # Rest of the system
         
@@ -219,10 +228,10 @@ class nacelle_csm_component(Component):
         # --- nacelle totals        
         TotalMass = MassFromTorque + MassFromThrust + MassFromRotorWeight + MassFromArea
         
-        if (self.drivetrain_design == 1) or (self.drivetrain_design == 4):
+        if (drivetrain_design == 1) or (drivetrain_design == 4):
             self.bedplate_mass = TotalMass
         else:
-            self.bedplate_mass = mfmCoeff[self.drivetrain_design] * (self.rotor_diameter ** mfmExp[self.drivetrain_design] )
+            self.bedplate_mass = mfmCoeff[drivetrain_design] * (self.rotor_diameter ** mfmExp[drivetrain_design] )
 
         NacellePlatformsMass = .125 * self.bedplate_mass            
      
@@ -235,7 +244,7 @@ class nacelle_csm_component(Component):
         # --- main frame ---       
         self.mainframeTotal_mass = self.bedplate_mass + NacellePlatformsMass + self.crane_mass
 
-        if (self.drivetrain_design == 1) or (self.drivetrain_design == 4):
+        if (drivetrain_design == 1) or (drivetrain_design == 4):
             self.d_mainframe_mass_d_r_diameter = 1.125 * (((0.00158 * BedplateWeightFac * self.rotor_thrust * (12.29/1000.)) + \
                                                   (0.015   * BedplateWeightFac * self.rotor_mass * (12.29/1000.)) + \
                                                   (100 * BedplateWeightFac * 0.5 * (1.5874 * 0.052)**2. * (2 * self.rotor_diameter))))
@@ -243,8 +252,8 @@ class nacelle_csm_component(Component):
             self.d_mainframe_mass_d_r_thrust = 1.125 * (0.00158 * BedplateWeightFac * TowerTopDiam)
             self.d_mainframe_mass_d_r_torque = 1.125 * BedplateWeightFac * 0.00368
         else:
-            self.d_mainframe_mass_d_r_diameter = 1.125 * mfmCoeff[self.drivetrain_design] * \
-                                                  (mfmExp[self.drivetrain_design] * self.rotor_diameter ** (mfmExp[self.drivetrain_design]-1))
+            self.d_mainframe_mass_d_r_diameter = 1.125 * mfmCoeff[drivetrain_design] * \
+                                                  (mfmExp[drivetrain_design] * self.rotor_diameter ** (mfmExp[drivetrain_design]-1))
             self.d_mainframe_mass_d_r_mass = 0.0
             self.d_mainframe_mass_d_r_thrust = 0.0
             self.d_mainframe_mass_d_r_torque = 0.0      
@@ -356,7 +365,7 @@ class nacelle_csm_component(Component):
         mfmCoeff = [None,9.4885,303.96,17.923,627.28 ]
         mfmExp   = [None,1.9525,1.0669,1.6716,0.8500 ]
         
-        MainFrameCost2002 = mfmCoeff[self.drivetrain_design] * self.rotor_diameter ** mfmExp[self.drivetrain_design]
+        MainFrameCost2002 = mfmCoeff[drivetrain_design] * self.rotor_diameter ** mfmExp[drivetrain_design]
         BaseHardware2002  = MainFrameCost2002 * 0.7
         MainFrame2002 = ( MainFrameCost2002    + 
                           NacellePlatforms2002 + 
@@ -364,7 +373,7 @@ class nacelle_csm_component(Component):
                           BaseHardware2002 )
         self.mainframeTotal_cost = MainFrame2002 * mainFrameCostEsc
         
-        self.d_mainframe_cost_d_r_diameter = mainFrameCostEsc * (1.7 * mfmCoeff[self.drivetrain_design] * mfmExp[self.drivetrain_design] * self.rotor_diameter ** (mfmExp[self.drivetrain_design]-1) + \
+        self.d_mainframe_cost_d_r_diameter = mainFrameCostEsc * (1.7 * mfmCoeff[drivetrain_design] * mfmExp[drivetrain_design] * self.rotor_diameter ** (mfmExp[drivetrain_design]-1) + \
                                                                 8.7 * self.d_mainframe_mass_d_r_diameter * (0.125/1.125))
         self.d_mainframe_cost_d_r_mass = mainFrameCostEsc * 8.7 * self.d_mainframe_mass_d_r_mass * (0.125/1.125)
         self.d_mainframe_cost_d_r_thrust = mainFrameCostEsc * 8.7 * self.d_mainframe_mass_d_r_thrust * (0.125/1.125)
@@ -447,7 +456,7 @@ def example():
     #nac.max_rotor_speed = 12.12609
     nac.rotor_thrust = 500930.1
     nac.rotor_torque = 4365249
-    nac.drivetrain_design = 1
+    nac.drivetrain_design = 'geared'
     nac.offshore = True
     nac.crane=True
     nac.advanced_bedplate=0

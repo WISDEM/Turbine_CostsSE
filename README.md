@@ -2,6 +2,10 @@ Turbine_CostsSE is a set of models for assessing the costs of a wind turbine.  T
 
 Author: [K. Dykes](mailto:katherine.dykes@nrel.gov)
 
+## Detailed Documentation
+
+For detailed documentation see <http://wisdem.github.io/Turbine_CostsSE/>
+
 ## Prerequisites
 
 NumPy, SciPy, FUSED-Wind, OpenMDAO
@@ -26,6 +30,3 @@ You may also run the unit tests.
 
 	$ python src/test/test_Turbine_CostsSE_gradients.py
 
-## Detailed Documentation
-
-Online documentation is available at <http://wisdem.github.io/Turbine_CostsSE/>

@@ -6,7 +6,7 @@ Copyright (c) NREL. All rights reserved.
 """
 
 from openmdao.main.api import Component, Assembly
-from openmdao.main.datatypes.api import Array, Float, Bool, Int
+from openmdao.main.datatypes.api import Array, Float, Bool, Int, Enum
 import numpy as np
 
 from fusedwind.plant_cost.fused_tcc import FullTurbineCostModel, FullTCCAggregator, configure_full_tcc
@@ -39,7 +39,7 @@ class Turbine_CostsSE(Assembly):
     # parameters
     blade_number = Int(iotype='in', desc='number of rotor blades')
     advanced_blade = Bool(True, iotype='in', desc='advanced (True) or traditional (False) blade design')
-    drivetrain_design = Int(iotype='in', desc='type of gearbox based on drivetrain type: 1 = standard 3-stage gearbox, 2 = single-stage, 3 = multi-gen, 4 = direct drive')
+    drivetrain_design = Enum('geared', ('geared', 'single_stage', 'multi_drive', 'pm_direct_drive'), iotype='in')
     crane = Bool(iotype='in', desc='flag for presence of onboard crane')
     offshore = Bool(iotype='in', desc='flag for offshore site')
     year = Int(iotype='in', desc='Current Year')
@@ -171,7 +171,7 @@ def example():
     turbine.machine_rating = 5000.0
     turbine.advanced = True
     turbine.blade_number = 3
-    turbine.drivetrain_design = 1
+    turbine.drivetrain_design = 'geared'
     turbine.crane = True
     turbine.offshore = True
     turbine.year = 2010
