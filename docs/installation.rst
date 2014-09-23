@@ -34,7 +34,7 @@ or run the unit tests which include functional and gradient tests.  Analytic gra
 
 An "OK" signifies that all the tests passed.
 
-For software issues please use <https://github.com/WISDEM/Turbine_CostsSE/issues>.  For functionality and theory related questions and comments please use the NWTC forum for [Systems Engineering Software Questions]<https://wind.nrel.gov/forum/wind/viewtopic.php?f=34&t=1002>.
+For software issues please use `<https://github.com/WISDEM/Turbine_CostsSE/issues>`_.  For functionality and theory related questions and comments please use the NWTC forum for `Systems Engineering Software Questions <https://wind.nrel.gov/forum/wind/viewtopic.php?f=34&t=1002>`_.
 
 .. only:: latex
 
