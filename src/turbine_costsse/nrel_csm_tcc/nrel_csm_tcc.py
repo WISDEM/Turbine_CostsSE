@@ -288,6 +288,9 @@ def example():
     trb.year = 2009
     trb.month = 12
     trb.drivetrain_design = 'geared'
+    trb.crane = True
+    trb.advanced_bedplate = 0
+    trb.advanced_tower = False
 
     # Rotor force calculations for nacelle inputs
     maxTipSpd = 80.0

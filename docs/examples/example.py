@@ -95,6 +95,9 @@ trb.hub_height = 90.0
 trb.machine_rating = 5000.0
 trb.offshore = True
 trb.drivetrain_design = 'geared'
+trb.crane = True
+trb.advanced_bedplate = 0
+trb.advanced_tower = False
 
 # 7 ----------
 # 8 ----------
