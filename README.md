@@ -8,7 +8,7 @@ For detailed documentation see <http://wisdem.github.io/Turbine_CostsSE/>
 
 ## Prerequisites
 
-NumPy, SciPy, FUSED-Wind, OpenMDAO
+NumPy, SciPy, FUSED-Wind, OpenMDAO, CommonSE
 
 ## Installation
 

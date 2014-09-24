@@ -4,7 +4,7 @@ Installation
 .. admonition:: prerequisites
    :class: warning
 
-   NumPy, SciPy, FUSED-Wind, OpenMDAO
+   NumPy, SciPy, FUSED-Wind, OpenMDAO, CommonSE
 
 Clone the repository at `<https://github.com/WISDEM/Turbine_CostsSE>`_
 or download the releases and uncompress/unpack (Turbine_CostsSE.py-|release|.tar.gz or Turbine_CostsSE.py-|release|.zip)
