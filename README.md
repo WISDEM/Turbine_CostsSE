@@ -2,6 +2,10 @@ Turbine_CostsSE is a set of models for assessing the costs of a wind turbine.  T
 
 Author: [K. Dykes](mailto:katherine.dykes@nrel.gov)
 
+## Version
+
+This software is a beta version 0.1.0.
+
 ## Detailed Documentation
 
 For detailed documentation see <http://wisdem.github.io/Turbine_CostsSE/>
