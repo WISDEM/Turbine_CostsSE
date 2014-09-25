@@ -67,7 +67,7 @@ class tcc_csm_assembly(Assembly):
     rotor_diameter = Float(units = 'm', iotype='in', desc= 'rotor diameter of the machine') 
     machine_rating = Float(units = 'kW', iotype='in', desc = 'rated power of wind turbine')
     hub_height = Float(units = 'm', iotype='in', desc= 'hub height of wind turbine above ground / sea level')
-    rotor_thrust = Float(iotype='in', units='N', desc='maximum thurst from rotor')    
+    rotor_thrust = Float(iotype='in', units='N', desc='maximum thrust from rotor')    
     rotor_torque = Float(iotype='in', units='N * m', desc = 'torque from rotor at rated power')
 
     # Parameters

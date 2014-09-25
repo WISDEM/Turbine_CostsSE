@@ -19,7 +19,7 @@ class nacelle_csm_component(Component):
     # Variables
     rotor_diameter = Float(126.0, units='m', iotype='in', desc = 'diameter of the rotor')
     rotor_mass = Float(123193.3010, iotype='in', units='kg', desc = 'mass of rotor including blades and hub')
-    rotor_thrust = Float(500930.0837, iotype='in', units='N', desc='maximum thurst from rotor')    
+    rotor_thrust = Float(500930.0837, iotype='in', units='N', desc='maximum thrust from rotor')    
     rotor_torque = Float(4365248.7375, iotype='in', units='N * m', desc = 'torque from rotor at rated power')
     machine_rating = Float(5000.0, units='kW', iotype='in', desc = 'Machine rated power')
 
