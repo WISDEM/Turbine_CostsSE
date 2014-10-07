@@ -44,6 +44,10 @@ class Turbine_CostsSE(Assembly):
     offshore = Bool(iotype='in', desc='flag for offshore site')
     year = Int(iotype='in', desc='Current Year')
     month = Int(iotype='in', desc='Current Month')
+    assemblyCostMultiplier = Float(0.0, iotype='in', desc='multiplier for assembly cost in manufacturing')
+    overheadCostMultiplier = Float(0.0, iotype='in', desc='multiplier for overhead')
+    profitMultiplier = Float(0.0, iotype='in', desc='multiplier for profit markup')
+    transportMultiplier = Float(0.0, iotype='in', desc='multiplier for transport costs')
 
     # Outputs
     turbine_cost = Float(0.0, iotype='out', desc='Overall wind turbine capial costs including transportation costs')
@@ -81,10 +85,10 @@ class Turbine_CostsSE(Assembly):
         self.connect('year', ['rotorCC.year', 'nacelleCC.year', 'towerCC.year'])
         self.connect('month', ['rotorCC.month', 'nacelleCC.month', 'towerCC.month'])
         
-        self.create_passthrough('tcc.assemblyCostMultiplier')
-        self.create_passthrough('tcc.overheadCostMultiplier')
-        self.create_passthrough('tcc.profitMultiplier')
-        self.create_passthrough('tcc.transportMultiplier')
+        self.connect('assemblyCostMultiplier','tcc.assemblyCostMultiplier')
+        self.connect('overheadCostMultiplier','tcc.overheadCostMultiplier')
+        self.connect('profitMultiplier','tcc.profitMultiplier')
+        self.connect('transportMultiplier','tcc.transportMultiplier')
 
 
 #-------------------------------------------------------------------------------

@@ -38,7 +38,7 @@ We can now evaluate the cost for the turbine and its components.
     :end-before: # 4 ---
 
 
-We then print out the resulting cost values
+We then print out the resulting cost values:
 
 .. literalinclude:: examples/example.py
     :start-after: # 5 ---
@@ -103,7 +103,7 @@ We can now evaluate the cost for the turbine and its components.
     :end-before: # 9 ---
 
 
-We then print out the resulting cost values
+We then print out the resulting cost values:
 
 .. literalinclude:: examples/example.py
     :start-after: # 10 ---
