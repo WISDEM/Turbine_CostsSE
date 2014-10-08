@@ -4,10 +4,16 @@ Installation
 .. admonition:: prerequisites
    :class: warning
 
-   NumPy, SciPy, FUSED-Wind, OpenMDAO, CommonSE
+	General: NumPy, SciPy, Swig, pyWin32, MatlPlotLib, Lxml, OpenMDAO
+
+	Wind Plant Framework: FUSED-Wind (Framework for Unified Systems Engineering and Design of Wind Plants)
+
+	Sub-Models: CommonSE, AeroelasticSE, RotorSE, DriveSE, DriveWPACT, TowerSE, JacketSE, Turbine_CostsSE, Plant_CostsSE, Plant_EnergySE, Plant_FinanceSEE
+
+	Supporting python packages: Pandas, Algopy, Zope.interface, Sphinx, Xlrd, PyOpt, py2exe, Pyzmq, Sphinxcontrib-bibtex, Sphinxcontrib-zopeext, Numpydoc, Ipython
 
 Clone the repository at `<https://github.com/WISDEM/Turbine_CostsSE>`_
-or download the releases and uncompress/unpack (Turbine_CostsSE.py-|release|.tar.gz or Turbine_CostsSE.py-|release|.zip)
+or download the releases and uncompress/unpack (Turbine_CostsSE.py-|release|.tar.gz or Turbine_CostsSE.py-|release|.zip) from the website link at the bottom the `Turbine_CostsSE site<http://nwtc.nrel.gov/Turbine_CostsSE>`_.
 
 To install Turbine_CostsSE, first activate the OpenMDAO environment and then install with the following command.
 
@@ -15,7 +21,7 @@ To install Turbine_CostsSE, first activate the OpenMDAO environment and then ins
 
    $ plugin install
 
-To check if installation was successful try to import the module
+To check if installation was successful try to import the module from within an activated OpenMDaO environment:
 
 .. code-block:: bash
 

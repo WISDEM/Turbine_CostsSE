@@ -5,7 +5,7 @@ Turbine_CostsSE
 
     Wind turbine capital cost models.
 
-    Author: `Katherine Dykes <mailto:katherine.dykes@nrel.gov>`_
+    Author: `Katherine Dykes <mailto:nrel.wisdem+turbinecostsse@gmail.com>`_
 
     .. rubric:: Table of Contents
 
