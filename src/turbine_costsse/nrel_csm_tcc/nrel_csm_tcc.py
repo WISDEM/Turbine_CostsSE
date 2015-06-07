@@ -121,15 +121,15 @@ class tcc_csm_assembly(Assembly):
 
         self.connect('hub.hub_system_cost', 'tcc.hub_system_cost')
         self.connect('hub.hub_system_mass', 'tcc.hub_system_mass')
-        self.connect('hub.hub_cost', 'tcc.hub_cost')
+        '''self.connect('hub.hub_cost', 'tcc.hub_cost')
         self.connect('hub.hub_mass', 'tcc.hub_mass')
         self.connect('hub.pitch_system_cost', 'tcc.pitch_system_cost')
         self.connect('hub.pitch_system_mass', 'tcc.pitch_system_mass')
         self.connect('hub.spinner_cost', 'tcc.spinner_cost')
-        self.connect('hub.spinner_mass', 'tcc.spinner_mass')
+        self.connect('hub.spinner_mass', 'tcc.spinner_mass')'''
 
         self.connect('nacelle.nacelle_mass', 'tcc.nacelle_mass')
-        self.connect('nacelle.lowSpeedShaft_mass', 'tcc.lowSpeedShaft_mass')
+        '''self.connect('nacelle.lowSpeedShaft_mass', 'tcc.lowSpeedShaft_mass')
         self.connect('nacelle.bearings_mass', 'tcc.bearings_mass')
         self.connect('nacelle.gearbox_mass', 'tcc.gearbox_mass')
         self.connect('nacelle.mechanicalBrakes_mass', 'tcc.mechanicalBrakes_mass')
@@ -140,10 +140,10 @@ class tcc_csm_assembly(Assembly):
         self.connect('nacelle.electronicCabling_mass', 'tcc.electronicCabling_mass')
         self.connect('nacelle.HVAC_mass', 'tcc.HVAC_mass')
         self.connect('nacelle.nacelleCover_mass', 'tcc.nacelleCover_mass')
-        self.connect('nacelle.controls_mass', 'tcc.controls_mass')
+        self.connect('nacelle.controls_mass', 'tcc.controls_mass')'''
 
         self.connect('nacelle.nacelle_cost', 'tcc.nacelle_cost')
-        self.connect('nacelle.lowSpeedShaft_cost', 'tcc.lowSpeedShaft_cost')
+        '''self.connect('nacelle.lowSpeedShaft_cost', 'tcc.lowSpeedShaft_cost')
         self.connect('nacelle.bearings_cost', 'tcc.bearings_cost')
         self.connect('nacelle.gearbox_cost', 'tcc.gearbox_cost')
         self.connect('nacelle.mechanicalBrakes_cost', 'tcc.mechanicalBrakes_cost')
@@ -154,7 +154,7 @@ class tcc_csm_assembly(Assembly):
         self.connect('nacelle.electronicCabling_cost', 'tcc.electronicCabling_cost')
         self.connect('nacelle.HVAC_cost', 'tcc.HVAC_cost')
         self.connect('nacelle.nacelleCover_cost', 'tcc.nacelleCover_cost')
-        self.connect('nacelle.controls_cost', 'tcc.controls_cost')
+        self.connect('nacelle.controls_cost', 'tcc.controls_cost')'''
         
         self.connect('tower.tower_mass', 'tcc.tower_mass')
         self.connect('tower.tower_cost', 'tcc.tower_cost')
@@ -183,7 +183,7 @@ class tcc_csm_component(Component):
     blade_number = Int(3, iotype='in', desc = 'number of rotor blades')
     offshore = Bool(False, iotype='in', desc= 'boolean for offshore')
 
-    hub_cost = Float(0.0, units='USD', iotype='in', desc='hub cost')
+    '''hub_cost = Float(0.0, units='USD', iotype='in', desc='hub cost')
     hub_mass = Float(0.0, units='kg', iotype='in', desc='hub mass')
     pitch_system_cost = Float(0.0, units='USD', iotype='in', desc='pitch system cost')
     pitch_system_mass = Float(0.0, units='kg', iotype='in', desc='pitch system mass')
@@ -214,7 +214,7 @@ class tcc_csm_component(Component):
     electronicCabling_cost = Float(0.0, units='kg', iotype='in', desc= 'electronic cabling _cost')
     HVAC_cost = Float(0.0, units='kg', iotype='in', desc= 'HVAC system _cost')
     nacelleCover_cost = Float(0.0, units='kg', iotype='in', desc= 'nacelle cover _cost')
-    controls_cost = Float(0.0, units='kg', iotype='in', desc= 'control system _cost')
+    controls_cost = Float(0.0, units='kg', iotype='in', desc= 'control system _cost')'''
 
     # Outputs
     turbine_mass = Float(0.0, units='kg', iotype='out', desc='turbine mass')
