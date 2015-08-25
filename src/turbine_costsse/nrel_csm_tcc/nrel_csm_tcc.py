@@ -83,6 +83,9 @@ class tcc_csm_assembly(Assembly):
 
     # Outputs
     turbine_cost = Float(0.0, iotype='out', desc='Overall wind turbine capial costs including transportation costs')
+    rotor_cost = Float(0.0, iotype='out', desc='Rotor cost')
+    nacelle_cost = Float(0.0, iotype='out', desc='Nacelle cost')
+    tower_cost = Float(0.0, iotype='out', desc='Tower cost')
 
     def configure(self):
 
@@ -142,7 +145,7 @@ class tcc_csm_assembly(Assembly):
         self.connect('nacelle.nacelleCover_mass', 'tcc.nacelleCover_mass')
         self.connect('nacelle.controls_mass', 'tcc.controls_mass')'''
 
-        self.connect('nacelle.nacelle_cost', 'tcc.nacelle_cost')
+        self.connect('nacelle.nacelle_cost', ['tcc.nacelle_cost', 'nacelle_cost'])
         '''self.connect('nacelle.lowSpeedShaft_cost', 'tcc.lowSpeedShaft_cost')
         self.connect('nacelle.bearings_cost', 'tcc.bearings_cost')
         self.connect('nacelle.gearbox_cost', 'tcc.gearbox_cost')
@@ -157,8 +160,9 @@ class tcc_csm_assembly(Assembly):
         self.connect('nacelle.controls_cost', 'tcc.controls_cost')'''
         
         self.connect('tower.tower_mass', 'tcc.tower_mass')
-        self.connect('tower.tower_cost', 'tcc.tower_cost')
+        self.connect('tower.tower_cost', ['tcc.tower_cost','tower_cost'])
 
+        self.connect('tcc.rotor_cost','rotor_cost')
         self.create_passthrough('tcc.turbine_mass')
 
     def execute(self):
@@ -217,6 +221,8 @@ class tcc_csm_component(Component):
     controls_cost = Float(0.0, units='kg', iotype='in', desc= 'control system _cost')'''
 
     # Outputs
+    rotor_mass = Float(0.0, units='kg', iotype='out', desc='rotor mass')
+    rotor_cost = Float(0.0, iotype='out', desc='rotor cost')
     turbine_mass = Float(0.0, units='kg', iotype='out', desc='turbine mass')
     turbine_cost = Float(0.0, iotype='out', desc='Overall wind turbine capial costs including transportation costs')
 
@@ -234,8 +240,10 @@ class tcc_csm_component(Component):
 
 
         # high level output assignment
-        self.turbine_mass = self.blade_mass * self.blade_number + self.hub_system_mass + self.nacelle_mass + self.tower_mass
-        self.turbine_cost = self.blade_cost * self.blade_number + self.hub_system_cost + self.nacelle_cost + self.tower_cost
+        self.rotor_mass = self.blade_mass * self.blade_number + self.hub_system_mass
+        self.rotor_cost = self.blade_cost * self.blade_number + self.hub_system_cost
+        self.turbine_mass = self.rotor_mass + self.nacelle_mass + self.tower_mass
+        self.turbine_cost = self.rotor_cost + self.nacelle_cost + self.tower_cost
 
         if self.offshore:
             self.turbine_cost *= 1.1
