@@ -68,6 +68,30 @@ class TowerCost(Component):
 
         return self.J
 
+#-------------------------------------------------------------------------------
+@implement_base(BaseComponentCostModel)
+class TowerCost2015(Component):
+
+    # variables
+    tower_mass = Float(iotype='in', units='kg', desc='tower mass [kg]')
+	tower_mass_cost_coefficient = Float(3.20, iotype='in', units='$/kg', desc='tower mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+
+    def __init__(self):
+        '''
+        Initial computation of the costs for the wind turbine tower component.
+
+        '''
+
+        Component.__init__(self)
+
+    def execute(self):
+
+        # calculate component cost
+		TowerCost2015 = tower_mass_cost_coefficient * tower_mass
+		self.cost = TowerCost2015
 
 #-------------------------------------------------------------------------------
 @implement_base(FullTowerCostAggregator)
