@@ -103,7 +103,7 @@ class BladeCost2015(Component):
     def execute(self):
 
         # calculate component cost
-		BladeCost2015 = blade_mass_cost_coeff * blade_mass
+		BladeCost2015 = self.blade_mass_cost_coeff * self.blade_mass
 		self.cost = BladeCost2015
 
 # -----------------------------------------------------------------------------------------------
@@ -186,7 +186,7 @@ class HubCost2015(Component):
     def execute(self):
 
         # calculate component cost
-		HubCost2015 = hub_mass_cost_coeff * hub_mass
+		HubCost2015 = self.hub_mass_cost_coeff * self.hub_mass
 		self.cost = HubCost2015
 
 #-------------------------------------------------------------------------------
@@ -267,10 +267,6 @@ class PitchSystemCost2015(Component):
         Component.__init__(self)
 
     def execute(self):
-
-        # assign input variables
-        ppi.curr_yr   = self.year
-        ppi.curr_mon   = self.month
 
         #calculate system costs
         PitchSystemCost2015 = self.pitch_system_mass_cost_coeff * self.pitch_system_mass
@@ -355,10 +351,10 @@ class SpinnerCost2015(Component):
     def execute(self):
 
         #calculate system costs
-        SpinnerCost2015 = self.spinner_mass_cost_coeff * spinner_mass_cost
+        SpinnerCost2015 = self.spinner_mass_cost_coeff * self.spinner_mass
         self.cost = SpinnerCost2015
 
-##-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 @implement_base(FullHubSystemCostAggregator)
 class HubSystemCostAdder(Component):
 
@@ -513,8 +509,14 @@ class HubSystemCostAdder2015(Component):
 
     # variables
     hub_cost = Float(iotype='in', units='USD', desc='hub component cost')
-    #JMFpitch_system_cost = Float(iotype='in', units='USD', desc='pitch system cost')
-    #JMFspinner_cost = Float(iotype='in', units='USD', desc='spinner component cost')
+	pitch_system_cost = Float(iotype='in', units='USD', desc='pitch system cost')
+	spinner_cost = Float(iotype='in', units='USD', desc='spinner component cost')
+	
+	# multipliers
+	assemblyCostMultiplier = Float(0.0, iotype='in', desc='assembly cost multiplier')
+	overheadCostMultiplier = Float(0.0, iotype='in', desc='overhead cost multiplier')
+	profitMultiplier = Float(0.0, iotype='in', desc='profit cost multiplier')
+	transportMultiplier = Float(0.0, iotype='in', desc='transport cost multiplier')
 
     # Outputs
     cost = Float(0.0, iotype='out', desc='Overall wind sub-assembly capial costs including transportation costs')
@@ -530,14 +532,9 @@ class HubSystemCostAdder2015(Component):
     def execute(self):
 
         partsCost = self.hub_cost + self.pitch_system_cost + self.spinner_cost
-#JMF
-        # updated calculations below to account for assembly, transport, overhead and profits
-        #assemblyCostMultiplier = 0.0 # (4/72)
-        #overheadCostMultiplier = 0.0 # (24/72)
-        #profitMultiplier = 0.0
-        #transportMultiplier = 0.0
-
-        #self.cost = (1 + transportMultiplier + profitMultiplier) * ((1+overheadCostMultiplier+assemblyCostMultiplier)*partsCost)
+        
+		# updated calculations below to account for assembly, transport, overhead and profit
+        self.cost = (1 + self.transportMultiplier + self.profitMultiplier) * ((1 + self.overheadCostMultiplier + self.assemblyCostMultiplier) * partsCost)
 
 #-------------------------------------------------------------------------------
 @implement_base(FullRotorCostAggregator)
@@ -582,14 +579,19 @@ class Rotor_CostsSE_2015(FullRotorCostModel):
 	blade_mass_cost_coeff = Float(13.08, iotype='in', units='$/kg', desc='blade mass-cost coefficient [$/kg]')
 	hub_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
 	hub_mass_cost_coeff = Float(3.80, iotype='in', units='$/kg', desc='hub mass-cost coefficient [$/kg]')
-	
-#JMF variables not updated yet
     pitch_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+	pitch_system_mass_cost_coeff = Float(22.91, iotype='in', units='$/kg', desc='pitch system mass-cost coefficient [$/kg']) #mass-cost coefficient with default from list
     spinner_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+	spinner_mass_cost_coeff = Float(23.00, iotype='in', units='$/kg', desc='spinner/nose cone mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
 
     # parameters
-    #JMF this is going away? advanced = Bool(True, iotype='in', desc='advanced (True) or traditional (False) blade design') #JMF yes going away
     blade_number = Int(iotype='in', desc='number of rotor blades')
+	
+	#multipliers
+	assemblyCostMultiplier = Float(0.0, iotype='in', desc='cost multiplier for assembly')
+	overheadCostMultiplier = Float(0.0, iotype='in', desc='cost multiplier for overhead')
+    profitMultiplier = Float(0.0, iotype='in', desc='cost multiplier for profit')
+    transportMultiplier = Float(0.0, iotype='in', desc='cost multiplier for transport')
 
     # Outputs
     cost = Float(0.0, iotype='out', desc='Overall wind sub-assembly capial costs including transportation costs')
@@ -601,8 +603,8 @@ class Rotor_CostsSE_2015(FullRotorCostModel):
         # select components
         self.replace('bladeCC', BladeCost2015())
         self.replace('hubCC', HubCost2015())
-        self.replace('pitchSysCC', PitchSystemCost()) #JMF
-        self.replace('spinnerCC', SpinnerCost()) #JMF
+        self.replace('pitchSysCC', PitchSystemCost2015())
+        self.replace('spinnerCC', SpinnerCost2015())
         self.replace('hubSysCC', HubSystemCostAdder2015())
         self.replace('rcc', RotorCostAdder2015())
 
@@ -611,10 +613,16 @@ class Rotor_CostsSE_2015(FullRotorCostModel):
 		self.connect('blade_mass_cost_coeff', 'bladeCC.blade_mass_cost_coeff')
         self.connect('hub_mass', 'hubCC.hub_mass')
 		self.connect('hub_mass_cost_coeff', 'hubCC.hub_mass_cost_coeff')
-		#JMF all following
         self.connect('pitch_system_mass', 'pitchSysCC.pitch_system_mass')
+		self.connect('pitch_system_mass_cost_coeff', 'pitchSysCC.pitch_system_mass_cost_coeff')
         self.connect('spinner_mass', 'spinnerCC.spinner_mass')
-        #self.connect('advanced', 'bladeCC.advanced')
+		self.connect('spinner_mass_cost_coeff', 'spinnerCC.spinner_mass_cost_coeff')
+		
+		# connect multipliers
+		self.connect('assemblyCostMultiplier', 'rcc.assemblyCostMultiplier')
+		self.connect('overheadCostMultiplier' 'rcc.overheadCostMultiplier')
+		self.connect('profitMultiplier', 'rcc.profitMultiplier')
+		self.connect('transportMultiplier', 'rcc.transportMultiplier')
 
 #-------------------------------------------------------------------------------
 

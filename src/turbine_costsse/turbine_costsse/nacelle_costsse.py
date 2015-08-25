@@ -354,7 +354,6 @@ class HighSpeedSideCost2015(Component):
         MechBrakeCost2015 = self.high_speed_side_mass_cost_coeff * self.high_speed_side_mass
         self.cost = MechBrakeCost2015
 
-
 #-------------------------------------------------------------------------------
 @implement_base(BaseComponentCostModel)
 class GeneratorCost(Component):
@@ -695,9 +694,9 @@ class NacelleCoverCost2015(Component):
 class ElecConnecCost2015(Component):
 
     # variables
-	machine_rating = #JMF finish this
-	elec_connec_cost_scaling = 
-	elec_connec_machine_rating_coeff = (40.0, 
+	machine_rating = Float(iotype='in', units='kW', desc='machine rating')
+	elec_connec_cost_esc = Float(1.5, iotype='in', desc='cost escalator from 2002 to 2015 for electrical connections') ####KLD update this
+	elec_connec_machine_rating_cost_coeff = (40.0, iotype='in', units='$/kW', desc='2002 electrical connections cost coefficient per kW') #default from old CSM
 
     # Outputs
     cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
@@ -712,7 +711,7 @@ class ElecConnecCost2015(Component):
     def execute(self):
 
         # electronic systems, hydraulics and controls
-        ElecConnecCost2015  = self.elec_connec_machine_rating_coeff * self.machine_rating  * elec_connec_cost_scaling #scaling will be from 2002 to 2015
+        ElecConnecCost2015  = self.elec_connec_machine_rating_cost_coeff * self.machine_rating * self.elec_connec_cost_esc #escalator will be from 2002 $ to 2015 $
         self.cost = ElecConnecCost2015
 
 #---------------------------------------------------------------------------------
@@ -720,9 +719,9 @@ class ElecConnecCost2015(Component):
 class ControlsCost2015(Component):
 
     # variables
-	offshore = #JMF finish this
-	controls_cost_coeff = Array(np.array([35000.0,55900.0]) #same other attributes as others, finish this
-	controls_escalator = Float #JMF finish this
+    offshore = Bool(iotype='in', desc='flag for offshore project')
+	controls_cost_base = Array(np.array([35000.0,55900.0]), iotype='in', desc='2002 controls cost for [onshore, offshore]') #defaults from old CSM
+	controls_escalator = Float(1.5, iotype='in', desc='cost escalator from 2002 to 2015 for controls') ####KLD update this
 
     # Outputs
     cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
@@ -737,20 +736,25 @@ class ControlsCost2015(Component):
     def execute(self):
 
         if (not self.offshore):
-			ControlsCost = controls_cost_coeff[0] * controls_escalator
+			ControlsCost = self.controls_cost_base[0] * self.controls_escalator
         else:
-			ControlsCost  = controls_cost_coeff[1] * controls_escalator
+			ControlsCost  = self.controls_cost_base[1] * self.controls_escalator
 		self.cost = ControlsCost
 
 #---------------------------------------------------------------------------------
 @implement_base(BaseComponentCostModel)
-class OtherMainframeCost2015(Component): #JMF other mainframe components- a single mass-cost coeff for all individual masses combined, or what?
+class OtherMainframeCost2015(Component):
 
 	#model all three (nacelle platform, service crane, and base hardware) from old model, DO NOT USE THE COST/KG IN THE LIST
 	
     # variables
-    #nacelle_cover_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-	#nacelle_cover_mass_cost_coeff = Float(7.61, iotype='in', units='$/kg', desc='nacelle cover mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
+    bedplate_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+	nacelle_platforms_mass_coeff = Float(0.125, iotype='in', units='kg/kg', desc='nacelle platforms mass coefficient as a function of bedplate mass [kg/kg]') #default from old CSM
+	nacelle_platforms_mass_cost_coeff = Float(8.7, iotype='in', units='$/kg', desc='nacelle platforms mass cost coefficient [$/kg]') #default from old CSM
+    crane = Bool(iotype='in', desc='flag for presence of onboard crane')
+	crane_cost = Float(12000.0, iotype='in', units='USD', desc='crane cost if present [$]') #default from old CSM
+    bedplate_cost = Float(iotype='in', units='USD', desc='component cost [USD]')
+	base_hardware_cost_coeff = Float(0.7, iotype='in', units='$/$', desc='base hardware cost coefficient based on bedplate cost [$/$]') #default from old CSM
 
     # Outputs
     cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
@@ -764,9 +768,47 @@ class OtherMainframeCost2015(Component): #JMF other mainframe components- a sing
 
     def execute(self):
 
-        # calculate cost
-		#OtherMainframeCost2015 = self.nacelle_cover_mass_cost_coeff * self.nacelle_cover_mass
-        #self.cost = OtherMainframeCost2015
+	    # nacelle platform cost
+        nacellePlatformsMass = self.nacelle_platforms_mass_coeff * self.bedplate_mass
+        NacellePlatformsCost = self.nacelle_platforms_mass_cost_coeff * nacellePlatformsMass
+
+		# crane cost
+        if (self.crane):
+            craneCost  = self.crane_cost
+        else:
+            craneCost  = 0.0
+
+        # base hardware cost
+        BaseHardwareCost = self.bedplate_cost * self.base_hardware_cost_coeff
+		
+		#aggregate all three mainframe costs
+        MainFrameCost = (NacellePlatformsCost + craneCost + BaseHardwareCost)
+        self.cost  = MainFrameCost
+
+#-------------------------------------------------------------------------------
+@implement_base(BaseComponentCostModel)
+class TransformerCost2015(Component):
+
+    # variables
+    transformer_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    transformer_mass_cost_coeff = Float(26.5, iotype='in', units= '$/kg', desc='transformer mass cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+
+    def __init__(self):
+        '''
+        Initial computation of the costs for the wind turbine generator component.
+
+        '''
+
+        Component.__init__(self)
+
+    def execute(self):
+
+        #calculate component cost
+		TransformerCost2015 = self.transformer_mass_cost_coeff * self.transformer_mass
+		self.cost = TransformerCost2015
 
 #-------------------------------------------------------------------------------
 @implement_base(FullNacelleCostAggregator)
@@ -783,7 +825,7 @@ class NacelleSystemCostAdder(Component):
     machine_rating = Float(iotype='in', units='kW', desc='machine rating')
     bedplate_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     bedplate_cost = Float(iotype='in', units='USD', desc='component cost [USD]')
-    bedplateCost2002 = Float(iotype='in', units='USD', desc='component cost in 2002 USD') #JMF cost2002 stuff goes away
+    bedplateCost2002 = Float(iotype='in', units='USD', desc='component cost in 2002 USD')
 
     # parameters
     crane = Bool(iotype='in', desc='flag for presence of onboard crane')
@@ -910,7 +952,6 @@ class NacelleSystemCostAdder(Component):
         return self.J
 
 #------------------------------------------------------------------
-
 class Nacelle_CostsSE(FullNacelleCostModel):
 
     '''
@@ -986,7 +1027,16 @@ class NacelleSystemCostAdder2015(Component):
 	variable_speed_elec_cost = Float(iotype='in', units='USD', desc='component cost')
 	hydraulic_cooling_cost = Float(iotype='in', units='USD', desc='component cost')
 	nacelle_cover_cost = Float(iotype='in', units='USD', desc='component cost')
-	#JMF add other mainframe
+	elec_connec_cost = Float(iotype='in', units='USD', desc='component cost')
+	controls_cost = Float(iotype='in', units='USD', desc='component cost')
+	other_mainframe_cost = Float(iotype='in', units='USD', desc='component cost')
+	transformer_cost = Float(iotype='in', units='USD', desc='component cost')
+	
+	#multipliers
+	assemblyCostMultiplier = Float(0.0, iotype='in', desc='cost multiplier for assembly')
+	overheadCostMultiplier = Float(0.0, iotype='in', desc='cost multiplier for overhead')
+    profitMultiplier = Float(0.0, iotype='in', desc='cost multiplier for profit')
+    transportMultiplier = Float(0.0, iotype='in', desc='cost multiplier for transport')
 
     # returns
     cost = Float(iotype='out', units='USD', desc='component cost')
@@ -1010,16 +1060,14 @@ class NacelleSystemCostAdder2015(Component):
                     self.yaw_system_cost + \
                     self.variable_speed_elec_cost + \
                     self.hydraulic_cooling_cost + \
-                    self.nacelle_cover_cost #JMF add other mainframe
+                    self.nacelle_cover_cost + \
+					self.elec_connec_cost + \
+					self.controls_cost + \
+					self.other_mainframe_cost + \
+					self.transformer_cost
 
-        # updated calculations below to account for assembly, transport, overhead and profits
-        assemblyCostMultiplier = 0.0 # (4/72)
-        overheadCostMultiplier = 0.0 # (24/72)
-        profitMultiplier = 0.0
-        transportMultiplier = 0.0
-
-		#JMF still this format? multipliers need to be inputs? YES, EXACT SAME ORDER
-        self.cost = (1 + transportMultiplier + profitMultiplier) * ((1+overheadCostMultiplier+assemblyCostMultiplier)*partsCost)
+		#apply multipliers for assembly, transport, overhead, and profits
+        self.cost = (1 + self.transportMultiplier + self.profitMultiplier) * ((1 + self.overheadCostMultiplier + self.assemblyCostMultiplier) * partsCost)
 
 #---------------------------------------------------------------------------------------------
 class Nacelle_CostsSE_2015(FullNacelleCostModel):
@@ -1051,7 +1099,26 @@ class Nacelle_CostsSE_2015(FullNacelleCostModel):
 	hydraulic_cooling_mass_cost_coeff = Float(163.95, iotype='in', units='$/kg', desc='hydraulic and cooling system mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
 	nacelle_cover_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
 	nacelle_cover_mass_cost_coeff = Float(7.61, iotype='in', units='$/kg', desc='nacelle cover mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
-	#add other components and multipliers from cost adder func
+	machine_rating = Float(iotype='in', units='kW', desc='machine rating')
+	elec_connec_cost_esc = Float(1.5, iotype='in', desc='cost escalator from 2002 to 2015 for electrical connections') ####KLD update this
+	elec_connec_machine_rating_cost_coeff = (40.0, iotype='in', units='$/kW', desc='2002 electrical connections cost coefficient per kW')
+    offshore = Bool(iotype='in', desc='flag for offshore project')
+	controls_cost_base = Array(np.array([35000.0,55900.0]), iotype='in', desc='2002 controls cost for [onshore, offshore]')
+	controls_escalator = Float(1.5, iotype='in', desc='cost escalator from 2002 to 2015 for controls') ####KLD update this
+	nacelle_platforms_mass_coeff = Float(0.125, iotype='in', units='kg/kg', desc='nacelle platforms mass coefficient as a function of bedplate mass [kg/kg]') #default from old CSM
+	nacelle_platforms_mass_cost_coeff = Float(8.7, iotype='in', units='$/kg', desc='nacelle platforms mass cost coefficient [$/kg]') #default from old CSM
+    crane = Bool(iotype='in', desc='flag for presence of onboard crane')
+	crane_cost = Float(12000.0, iotype='in', units='USD', desc='crane cost if present [$]') #default from old CSM
+    bedplate_cost = Float(iotype='in', units='USD', desc='component cost [USD]')
+	base_hardware_cost_coeff = Float(0.7, iotype='in', units='$/$', desc='base hardware cost coefficient based on bedplate cost [$/$]') #default from old CSM
+    transformer_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    transformer_mass_cost_coeff = Float(26.5, iotype='in', units= '$/kg', desc='transformer mass cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+	
+	#multipliers
+	assemblyCostMultiplier = Float(0.0, iotype='in', desc='cost multiplier for assembly')
+	overheadCostMultiplier = Float(0.0, iotype='in', desc='cost multiplier for overhead')
+    profitMultiplier = Float(0.0, iotype='in', desc='cost multiplier for profit')
+    transportMultiplier = Float(0.0, iotype='in', desc='cost multiplier for transport')
 
     # outputs
     cost = Float(iotype='out', units='USD', desc='component cost')
@@ -1071,8 +1138,11 @@ class Nacelle_CostsSE_2015(FullNacelleCostModel):
 		self.replace('vsCC', VariableSpeedElecCost2015())
 		self.replace('hydraulicCC', HydraulicCoolingCost2015())
 		self.replace('nacelleCC', NacelleCoverCost2015())
-        self.replace('ncc', NacelleSystemCostAdder2015())
-		#JMF add other mainframe component
+		self.replace('elecCC', ElecConnecCost2015())
+		self.replace('controlsCC', ControlsCost2015())
+		self.replace('mainframeCC', OtherMainframeCost2015())
+		self.replace('transformerCC', TransformerCost2015())
+	    self.replace('ncc', NacelleSystemCostAdder2015())
 
         # connect inputs
         self.connect('low_speed_shaft_mass', 'lssCC.low_speed_shaft_mass')
@@ -1086,7 +1156,7 @@ class Nacelle_CostsSE_2015(FullNacelleCostModel):
 		self.connect('high_speed_side_mass_cost_coeff', 'hssCC.high_speed_side_mass_cost_coeff')
         self.connect('generator_mass', 'generatorCC.generator_mass')
 		self.connect('generator_mass_cost_coeff', 'generatorCC.generator_mass_cost_coeff')
-        self.connect('bedplate_mass', 'bedplateCC.bedplate_mass')
+        self.connect('bedplate_mass', ['bedplateCC.bedplate_mass', 'mainframeCC.bedplate_mass'])
 		self.connect('bedplate_mass_cost_coeff', 'bedplateCC.bedplate_mass_cost_coeff')
         self.connect('yaw_system_mass', 'yawSysCC.yaw_system_mass')
 		self.connect('yaw_system_mass_cost_coeff', 'yawSysCC.yaw_system_mass_cost_coeff')
@@ -1096,7 +1166,26 @@ class Nacelle_CostsSE_2015(FullNacelleCostModel):
 		self.connect('hydraulic_cooling_mass_cost_coeff', 'hydraulicCC.hydraulic_cooling_mass_cost_coeff')
 		self.connect('nacelle_cover_mass', 'nacelleCC.nacelle_cover_mass')
 		self.connect('nacelle_cover_mass_cost_coeff', 'nacelleCC.nacelle_cover_mass_cost_coeff')
-		#JMF add other mainframe component
+		self.connect('machine_rating','elecCC.machine_rating')
+		self.connect('elec_connec_cost_esc', 'elecCC.elec_connec_cost_esc')
+		self.connect('elec_connec_machine_rating_cost_coeff', 'elecCC.elec_connec_machine_rating_cost_coeff')
+		self.connect('offshore', 'controlsCC.offshore')
+		self.connect('controls_cost_base', 'controlsCC.controls_cost_base')
+		self.connect('controls_escalator', 'controlsCC.controls_escalator')
+		self.connect('nacelle_platforms_mass_coeff', 'mainframeCC.nacelle_platforms_mass_coeff')
+		self.connect('nacelle_platforms_mass_cost_coeff', 'mainframeCC.nacelle_platforms_mass_cost_coeff')
+		self.connect('crane', 'mainframeCC.crane')
+		self.connect('crane_cost', 'mainframeCC.crane_cost')
+		self.connect('bedplate_cost', 'mainframeCC.bedplate_cost')
+		self.connect('base_hardware_cost_coeff', 'mainframeCC.base_hardware_cost_coeff')
+		self.connect('transformer_mass', 'transformerCC.transformer_mass')
+		self.connect('transformer_mass_cost_coeff', 'transformerCC.transformer_mass_cost_coeff')
+		
+		# connect multipliers
+		self.connect('assemblyCostMultiplier', 'ncc.assemblyCostMultiplier')
+		self.connect('overheadCostMultiplier' 'ncc.overheadCostMultiplier')
+		self.connect('profitMultiplier', 'ncc.profitMultiplier')
+		self.connect('transportMultiplier', 'ncc.transportMultiplier')
 
 
 #==================================================================

@@ -90,7 +90,7 @@ class TowerCost2015(Component):
     def execute(self):
 
         # calculate component cost
-		TowerCost2015 = tower_mass_cost_coefficient * tower_mass
+		TowerCost2015 = self.tower_mass_cost_coefficient * self.tower_mass
 		self.cost = TowerCost2015
 
 #-------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ class TowerCostAdder(Component):
     def execute(self):
 
         partsCost = self.tower_cost
-
+#make multipliers all inputs
         # updated calculations below to account for assembly, transport, overhead and profits
         assemblyCostMultiplier = 0.0 # (4/72)
         overheadCostMultiplier = 0.0 # (24/72)
@@ -139,6 +139,7 @@ class TowerCostAdder(Component):
 
         return self.J
 
+#-------------------------------------------------------------------------------
 @implement_base(FullTowerCostModel)
 class Tower_CostsSE(Assembly):
 
@@ -162,6 +163,66 @@ class Tower_CostsSE(Assembly):
         self.connect('tower_mass', 'towerCC.tower_mass')
         self.connect('year', 'towerCC.year')
         self.connect('month', 'towerCC.month')
+
+#-------------------------------------------------------------------------------
+@implement_base(FullTowerCostAggregator)
+class TowerCostAdder2015(Component):
+
+    # variables
+    tower_cost = Float(iotype='in', units='USD', desc='component cost')
+	
+	# multipliers
+	assemblyCostMultiplier = Float(0.0, iotype='in', desc='assembly cost multiplier')
+	overheadCostMultiplier = Float(0.0, iotype='in', desc='overhead cost multiplier')
+	profitMultiplier = Float(0.0, iotype='in', desc='profit cost multiplier')
+	transportMultiplier = Float(0.0, iotype='in', desc='transport cost multiplier')
+    
+    # returns
+    cost = Float(iotype='out', units='USD', desc='component cost') 
+
+    def __init__(self):
+
+        Component.__init__(self)
+
+    def execute(self):
+
+        partsCost = self.tower_cost
+        self.cost = (1 + self.transportMultiplier + self.profitMultiplier) * ((1 + self.overheadCostMultiplier + self.assemblyCostMultiplier) * partsCost)
+
+#-------------------------------------------------------------------------------
+@implement_base(FullTowerCostModel)
+class Tower_CostsSE_2015(Assembly):
+
+    # variables
+    tower_mass = Float(iotype='in', units='kg', desc='tower mass [kg]')
+	tower_mass_cost_coefficient = Float(3.20, iotype='in', units='$/kg', desc='tower mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+	
+	#multipliers
+	assemblyCostMultiplier = Float(0.0, iotype='in', desc='cost multiplier for assembly')
+	overheadCostMultiplier = Float(0.0, iotype='in', desc='cost multiplier for overhead')
+    profitMultiplier = Float(0.0, iotype='in', desc='cost multiplier for profit')
+    transportMultiplier = Float(0.0, iotype='in', desc='cost multiplier for transport')
+
+    # returns
+    cost = Float(iotype='out', units='USD', desc='component cost')
+
+    def configure(self):
+
+        configure_full_twcc(self)
+
+		# create instances of components
+        self.replace('towerCC', TowerCost2015())
+        self.replace('twrcc', TowerCostAdder2015())
+
+		# connect inputs
+        self.connect('tower_mass', 'towerCC.tower_mass')
+		self.connect('tower_mass_cost_coefficient', 'towerCC.tower_mass_cost_coefficient')
+		
+		# connect multipliers
+		self.connect('assemblyCostMultiplier', 'twrcc.assemblyCostMultiplier')
+		self.connect('overheadCostMultiplier' 'twrcc.overheadCostMultiplier')
+		self.connect('profitMultiplier', 'twrcc.profitMultiplier')
+		self.connect('transportMultiplier', 'twrcc.transportMultiplier')
 
 
 #-------------------------------------------------------------------------------
