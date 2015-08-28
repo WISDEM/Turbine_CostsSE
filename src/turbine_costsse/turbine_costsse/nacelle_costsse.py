@@ -2,6 +2,7 @@
 nacelle_costsse.py
 
 Created by Katherine Dykes 2012.
+2015 Functions added by Janine Freeman 2015.
 Copyright (c) NREL. All rights reserved.
 """
 
@@ -745,11 +746,10 @@ class ControlsCost2015(Component):
 @implement_base(BaseComponentCostModel)
 class OtherMainframeCost2015(Component):
 
-	#model all three (nacelle platform, service crane, and base hardware) from old model, DO NOT USE THE COST/KG IN THE LIST
+	#model all three (nacelle platform, service crane, and base hardware) from old model
 	
     # variables
-    bedplate_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-	nacelle_platforms_mass_coeff = Float(0.125, iotype='in', units='kg/kg', desc='nacelle platforms mass coefficient as a function of bedplate mass [kg/kg]') #default from old CSM
+	nacelle_platforms_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
 	nacelle_platforms_mass_cost_coeff = Float(8.7, iotype='in', units='$/kg', desc='nacelle platforms mass cost coefficient [$/kg]') #default from old CSM
     crane = Bool(iotype='in', desc='flag for presence of onboard crane')
 	crane_cost = Float(12000.0, iotype='in', units='USD', desc='crane cost if present [$]') #default from old CSM
@@ -769,8 +769,7 @@ class OtherMainframeCost2015(Component):
     def execute(self):
 
 	    # nacelle platform cost
-        nacellePlatformsMass = self.nacelle_platforms_mass_coeff * self.bedplate_mass
-        NacellePlatformsCost = self.nacelle_platforms_mass_cost_coeff * nacellePlatformsMass
+        NacellePlatformsCost = self.nacelle_platforms_mass_cost_coeff * self.nacelle_platforms_mass
 
 		# crane cost
         if (self.crane):
@@ -1033,10 +1032,10 @@ class NacelleSystemCostAdder2015(Component):
 	transformer_cost = Float(iotype='in', units='USD', desc='component cost')
 	
 	#multipliers
-	assemblyCostMultiplier = Float(0.0, iotype='in', desc='cost multiplier for assembly')
-	overheadCostMultiplier = Float(0.0, iotype='in', desc='cost multiplier for overhead')
-    profitMultiplier = Float(0.0, iotype='in', desc='cost multiplier for profit')
-    transportMultiplier = Float(0.0, iotype='in', desc='cost multiplier for transport')
+	nacelle_assemblyCostMultiplier = Float(0.0, iotype='in', desc='nacelle assembly cost multiplier')
+	nacelle_overheadCostMultiplier = Float(0.0, iotype='in', desc='nacelle overhead cost multiplier')
+    nacelle_profitMultiplier = Float(0.0, iotype='in', desc='nacelle profit multiplier')
+    nacelle_transportMultiplier = Float(0.0, iotype='in', desc='nacelle transport multiplier')
 
     # returns
     cost = Float(iotype='out', units='USD', desc='component cost')
@@ -1067,7 +1066,7 @@ class NacelleSystemCostAdder2015(Component):
 					self.transformer_cost
 
 		#apply multipliers for assembly, transport, overhead, and profits
-        self.cost = (1 + self.transportMultiplier + self.profitMultiplier) * ((1 + self.overheadCostMultiplier + self.assemblyCostMultiplier) * partsCost)
+        self.cost = (1 + self.nacelle_transportMultiplier + self.nacelle_profitMultiplier) * ((1 + self.nacelle_overheadCostMultiplier + self.nacelle_assemblyCostMultiplier) * partsCost)
 
 #---------------------------------------------------------------------------------------------
 class Nacelle_CostsSE_2015(FullNacelleCostModel):
@@ -1105,7 +1104,7 @@ class Nacelle_CostsSE_2015(FullNacelleCostModel):
     offshore = Bool(iotype='in', desc='flag for offshore project')
 	controls_cost_base = Array(np.array([35000.0,55900.0]), iotype='in', desc='2002 controls cost for [onshore, offshore]')
 	controls_escalator = Float(1.5, iotype='in', desc='cost escalator from 2002 to 2015 for controls') ####KLD update this
-	nacelle_platforms_mass_coeff = Float(0.125, iotype='in', units='kg/kg', desc='nacelle platforms mass coefficient as a function of bedplate mass [kg/kg]') #default from old CSM
+	nacelle_platforms_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
 	nacelle_platforms_mass_cost_coeff = Float(8.7, iotype='in', units='$/kg', desc='nacelle platforms mass cost coefficient [$/kg]') #default from old CSM
     crane = Bool(iotype='in', desc='flag for presence of onboard crane')
 	crane_cost = Float(12000.0, iotype='in', units='USD', desc='crane cost if present [$]') #default from old CSM
@@ -1115,10 +1114,10 @@ class Nacelle_CostsSE_2015(FullNacelleCostModel):
     transformer_mass_cost_coeff = Float(26.5, iotype='in', units= '$/kg', desc='transformer mass cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
 	
 	#multipliers
-	assemblyCostMultiplier = Float(0.0, iotype='in', desc='cost multiplier for assembly')
-	overheadCostMultiplier = Float(0.0, iotype='in', desc='cost multiplier for overhead')
-    profitMultiplier = Float(0.0, iotype='in', desc='cost multiplier for profit')
-    transportMultiplier = Float(0.0, iotype='in', desc='cost multiplier for transport')
+	nacelle_assemblyCostMultiplier = Float(0.0, iotype='in', desc='nacelle assembly cost multiplier')
+	nacelle_overheadCostMultiplier = Float(0.0, iotype='in', desc='nacelle overhead cost multiplier')
+    nacelle_profitMultiplier = Float(0.0, iotype='in', desc='nacelle profit multiplier')
+    nacelle_transportMultiplier = Float(0.0, iotype='in', desc='nacelle transport multiplier')
 
     # outputs
     cost = Float(iotype='out', units='USD', desc='component cost')
@@ -1172,7 +1171,7 @@ class Nacelle_CostsSE_2015(FullNacelleCostModel):
 		self.connect('offshore', 'controlsCC.offshore')
 		self.connect('controls_cost_base', 'controlsCC.controls_cost_base')
 		self.connect('controls_escalator', 'controlsCC.controls_escalator')
-		self.connect('nacelle_platforms_mass_coeff', 'mainframeCC.nacelle_platforms_mass_coeff')
+		self.connect('nacelle_platforms_mass', 'mainframeCC.nacelle_platforms_mass')
 		self.connect('nacelle_platforms_mass_cost_coeff', 'mainframeCC.nacelle_platforms_mass_cost_coeff')
 		self.connect('crane', 'mainframeCC.crane')
 		self.connect('crane_cost', 'mainframeCC.crane_cost')
@@ -1182,10 +1181,10 @@ class Nacelle_CostsSE_2015(FullNacelleCostModel):
 		self.connect('transformer_mass_cost_coeff', 'transformerCC.transformer_mass_cost_coeff')
 		
 		# connect multipliers
-		self.connect('assemblyCostMultiplier', 'ncc.assemblyCostMultiplier')
-		self.connect('overheadCostMultiplier' 'ncc.overheadCostMultiplier')
-		self.connect('profitMultiplier', 'ncc.profitMultiplier')
-		self.connect('transportMultiplier', 'ncc.transportMultiplier')
+		self.connect('nacelle_assemblyCostMultiplier', 'ncc.nacelle_assemblyCostMultiplier')
+		self.connect('nacelle_overheadCostMultiplier' 'ncc.nacelle_overheadCostMultiplier')
+		self.connect('nacelle_profitMultiplier', 'ncc.nacelle_profitMultiplier')
+		self.connect('nacelle_transportMultiplier', 'ncc.nacelle_transportMultiplier')
 
 
 #==================================================================

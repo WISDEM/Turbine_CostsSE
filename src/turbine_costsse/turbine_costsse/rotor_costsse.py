@@ -2,6 +2,7 @@
 rotor_costsse.py
 
 Created by Katherine Dykes 2012.
+2015 Functions added by Janine Freeman 2015.
 Copyright (c) NREL. All rights reserved.
 """
 
@@ -90,7 +91,7 @@ class BladeCost2015(Component):
 	blade_mass_cost_coeff = Float(13.08, iotype='in', units='$/kg', desc='blade mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
 
     # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capital costs excluding transportation costs')
 
     def __init__(self):
         '''
@@ -513,10 +514,10 @@ class HubSystemCostAdder2015(Component):
 	spinner_cost = Float(iotype='in', units='USD', desc='spinner component cost')
 	
 	# multipliers
-	assemblyCostMultiplier = Float(0.0, iotype='in', desc='assembly cost multiplier')
-	overheadCostMultiplier = Float(0.0, iotype='in', desc='overhead cost multiplier')
-	profitMultiplier = Float(0.0, iotype='in', desc='profit cost multiplier')
-	transportMultiplier = Float(0.0, iotype='in', desc='transport cost multiplier')
+	rotor_assemblyCostMultiplier = Float(0.0, iotype='in', desc='rotor assembly cost multiplier')
+	rotor_overheadCostMultiplier = Float(0.0, iotype='in', desc='rotor overhead cost multiplier')
+	rotor_profitMultiplier = Float(0.0, iotype='in', desc='rotor profit multiplier')
+	rotor_transportMultiplier = Float(0.0, iotype='in', desc='rotor transport multiplier')
 
     # Outputs
     cost = Float(0.0, iotype='out', desc='Overall wind sub-assembly capial costs including transportation costs')
@@ -534,7 +535,7 @@ class HubSystemCostAdder2015(Component):
         partsCost = self.hub_cost + self.pitch_system_cost + self.spinner_cost
         
 		# updated calculations below to account for assembly, transport, overhead and profit
-        self.cost = (1 + self.transportMultiplier + self.profitMultiplier) * ((1 + self.overheadCostMultiplier + self.assemblyCostMultiplier) * partsCost)
+        self.cost = (1 + self.rotor_transportMultiplier + self.rotor_profitMultiplier) * ((1 + self.rotor_overheadCostMultiplier + self.rotor_assemblyCostMultiplier) * partsCost)
 
 #-------------------------------------------------------------------------------
 @implement_base(FullRotorCostAggregator)
@@ -588,10 +589,10 @@ class Rotor_CostsSE_2015(FullRotorCostModel):
     blade_number = Int(iotype='in', desc='number of rotor blades')
 	
 	#multipliers
-	assemblyCostMultiplier = Float(0.0, iotype='in', desc='cost multiplier for assembly')
-	overheadCostMultiplier = Float(0.0, iotype='in', desc='cost multiplier for overhead')
-    profitMultiplier = Float(0.0, iotype='in', desc='cost multiplier for profit')
-    transportMultiplier = Float(0.0, iotype='in', desc='cost multiplier for transport')
+	rotor_assemblyCostMultiplier = Float(0.0, iotype='in', desc='rotor assembly cost multiplier')
+	rotor_overheadCostMultiplier = Float(0.0, iotype='in', desc='rotor overhead cost multiplier')
+    rotor_profitMultiplier = Float(0.0, iotype='in', desc='rotor profit multiplier')
+    rotor_transportMultiplier = Float(0.0, iotype='in', desc='rotor transport multiplier')
 
     # Outputs
     cost = Float(0.0, iotype='out', desc='Overall wind sub-assembly capial costs including transportation costs')
@@ -619,10 +620,10 @@ class Rotor_CostsSE_2015(FullRotorCostModel):
 		self.connect('spinner_mass_cost_coeff', 'spinnerCC.spinner_mass_cost_coeff')
 		
 		# connect multipliers
-		self.connect('assemblyCostMultiplier', 'rcc.assemblyCostMultiplier')
-		self.connect('overheadCostMultiplier' 'rcc.overheadCostMultiplier')
-		self.connect('profitMultiplier', 'rcc.profitMultiplier')
-		self.connect('transportMultiplier', 'rcc.transportMultiplier')
+		self.connect('rotor_assemblyCostMultiplier', 'rcc.rotor_assemblyCostMultiplier')
+		self.connect('rotor_overheadCostMultiplier' 'rcc.rotor_overheadCostMultiplier')
+		self.connect('rotor_profitMultiplier', 'rcc.rotor_profitMultiplier')
+		self.connect('rotor_transportMultiplier', 'rcc.rotor_transportMultiplier')
 
 #-------------------------------------------------------------------------------
 
