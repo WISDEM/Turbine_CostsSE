@@ -82,31 +82,6 @@ class BladeCost(Component):
 
         return self.J
 
-#-------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
-class BladeCost2015(Component):
-
-    # variables
-    blade_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-	blade_mass_cost_coeff = Float(13.08, iotype='in', units='$/kg', desc='blade mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
-
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capital costs excluding transportation costs')
-
-    def __init__(self):
-        '''
-        Initial computation of the costs for the wind turbine blade component.
-
-        '''
-
-        Component.__init__(self)
-
-    def execute(self):
-
-        # calculate component cost
-		BladeCost2015 = self.blade_mass_cost_coeff * self.blade_mass
-		self.cost = BladeCost2015
-
 # -----------------------------------------------------------------------------------------------
 @implement_base(BaseComponentCostModel)
 class HubCost(Component):
@@ -165,30 +140,7 @@ class HubCost(Component):
 
         return self.J
 
-# -----------------------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
-class HubCost2015(Component):
 
-    # variables
-    hub_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-	hub_mass_cost_coeff = Float(3.80, iotype='in', units='$/kg', desc='hub mass-cost coefficient [$/kg]')
-
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
-
-    def __init__(self):
-        '''
-        Initial computation of the costs for the wind turbine hub component.
-
-        '''
-
-        Component.__init__(self)
-
-    def execute(self):
-
-        # calculate component cost
-		HubCost2015 = self.hub_mass_cost_coeff * self.hub_mass
-		self.cost = HubCost2015
 
 #-------------------------------------------------------------------------------
 @implement_base(BaseComponentCostModel)
@@ -248,30 +200,6 @@ class PitchSystemCost(Component):
 
         return self.J
 
-#-------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
-class PitchSystemCost2015(Component):
-
-    # variables
-    pitch_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-	pitch_system_mass_cost_coeff = Float(22.91, iotype='in', units='$/kg', desc='pitch system mass-cost coefficient [$/kg']) #mass-cost coefficient with default from list
-
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
-
-    def __init__(self):
-        '''
-        Initial computation of the costs for the wind turbine pitch system.
-
-        '''
-
-        Component.__init__(self)
-
-    def execute(self):
-
-        #calculate system costs
-        PitchSystemCost2015 = self.pitch_system_mass_cost_coeff * self.pitch_system_mass
-        self.cost = PitchSystemCost2015
 
 #-------------------------------------------------------------------------------
 @implement_base(BaseComponentCostModel)
@@ -330,30 +258,7 @@ class SpinnerCost(Component):
 
         return self.J
 
-#-------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
-class SpinnerCost2015(Component):
 
-    # variables
-    spinner_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-	spinner_mass_cost_coeff = Float(23.00, iotype='in', units='$/kg', desc='spinner/nose cone mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
-
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
-
-    def __init__(self):
-        '''
-        Initial computation of the costs for the wind turbine spinner component.
-
-        '''
-
-        Component.__init__(self)
-
-    def execute(self):
-
-        #calculate system costs
-        SpinnerCost2015 = self.spinner_mass_cost_coeff * self.spinner_mass
-        self.cost = SpinnerCost2015
 
 #-------------------------------------------------------------------------------
 @implement_base(FullHubSystemCostAggregator)
@@ -503,129 +408,7 @@ class Rotor_CostsSE(FullRotorCostModel):
         self.connect('year', ['hubCC.year', 'pitchSysCC.year', 'spinnerCC.year', 'bladeCC.year'])
         self.connect('month', ['hubCC.month', 'pitchSysCC.month', 'spinnerCC.month', 'bladeCC.month'])
         self.connect('advanced', 'bladeCC.advanced')
-		
-#-------------------------------------------------------------------------------
-@implement_base(FullHubSystemCostAggregator)
-class HubSystemCostAdder2015(Component):
-
-    # variables
-    hub_cost = Float(iotype='in', units='USD', desc='hub component cost')
-	pitch_system_cost = Float(iotype='in', units='USD', desc='pitch system cost')
-	spinner_cost = Float(iotype='in', units='USD', desc='spinner component cost')
-	
-	# multipliers
-	rotor_assemblyCostMultiplier = Float(0.0, iotype='in', desc='rotor assembly cost multiplier')
-	rotor_overheadCostMultiplier = Float(0.0, iotype='in', desc='rotor overhead cost multiplier')
-	rotor_profitMultiplier = Float(0.0, iotype='in', desc='rotor profit multiplier')
-	rotor_transportMultiplier = Float(0.0, iotype='in', desc='rotor transport multiplier')
-
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind sub-assembly capial costs including transportation costs')
-
-    def __init__(self):
-        '''
-        Computation of overall hub system cost.
-
-        '''
-
-        Component.__init__(self)
-
-    def execute(self):
-
-        partsCost = self.hub_cost + self.pitch_system_cost + self.spinner_cost
-        
-		# updated calculations below to account for assembly, transport, overhead and profit
-        self.cost = (1 + self.rotor_transportMultiplier + self.rotor_profitMultiplier) * ((1 + self.rotor_overheadCostMultiplier + self.rotor_assemblyCostMultiplier) * partsCost)
-
-#-------------------------------------------------------------------------------
-@implement_base(FullRotorCostAggregator)
-class RotorCostAdder2015(Component):
-    """
-    RotorCostAdder adds up individual rotor system and component costs to get overall rotor cost.
-    """
-
-    # variables
-    blade_cost = Float(iotype='in', units='USD', desc='individual blade cost')
-    hub_system_cost = Float(iotype='in', units='USD', desc='cost for hub system')
     
-    # parameters
-    blade_number = Int(iotype='in', desc='number of rotor blades')
-
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind sub-assembly capial costs including transportation costs')
-
-    def __init__(self):
-        '''
-        Computation of overall hub system cost.
-
-        '''
-
-        Component.__init__(self)
-
-    def execute(self):
-
-        self.cost = self.blade_cost * self.blade_number + self.hub_system_cost
-
-#-------------------------------------------------------------------------------
-@implement_base(FullRotorCostModel)
-class Rotor_CostsSE_2015(FullRotorCostModel):
-
-    '''
-       Rotor_CostsSE class
-          The Rotor_costsSE class is used to represent the rotor costs of a wind turbine.
-    '''
-
-    # variables
-	blade_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-	blade_mass_cost_coeff = Float(13.08, iotype='in', units='$/kg', desc='blade mass-cost coefficient [$/kg]')
-	hub_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-	hub_mass_cost_coeff = Float(3.80, iotype='in', units='$/kg', desc='hub mass-cost coefficient [$/kg]')
-    pitch_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-	pitch_system_mass_cost_coeff = Float(22.91, iotype='in', units='$/kg', desc='pitch system mass-cost coefficient [$/kg']) #mass-cost coefficient with default from list
-    spinner_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-	spinner_mass_cost_coeff = Float(23.00, iotype='in', units='$/kg', desc='spinner/nose cone mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
-
-    # parameters
-    blade_number = Int(iotype='in', desc='number of rotor blades')
-	
-	#multipliers
-	rotor_assemblyCostMultiplier = Float(0.0, iotype='in', desc='rotor assembly cost multiplier')
-	rotor_overheadCostMultiplier = Float(0.0, iotype='in', desc='rotor overhead cost multiplier')
-    rotor_profitMultiplier = Float(0.0, iotype='in', desc='rotor profit multiplier')
-    rotor_transportMultiplier = Float(0.0, iotype='in', desc='rotor transport multiplier')
-
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind sub-assembly capial costs including transportation costs')
-
-    def configure(self):
-
-        configure_full_rcc(self)
-
-        # select components
-        self.replace('bladeCC', BladeCost2015())
-        self.replace('hubCC', HubCost2015())
-        self.replace('pitchSysCC', PitchSystemCost2015())
-        self.replace('spinnerCC', SpinnerCost2015())
-        self.replace('hubSysCC', HubSystemCostAdder2015())
-        self.replace('rcc', RotorCostAdder2015())
-
-        # connect inputs
-        self.connect('blade_mass', 'bladeCC.blade_mass')
-		self.connect('blade_mass_cost_coeff', 'bladeCC.blade_mass_cost_coeff')
-        self.connect('hub_mass', 'hubCC.hub_mass')
-		self.connect('hub_mass_cost_coeff', 'hubCC.hub_mass_cost_coeff')
-        self.connect('pitch_system_mass', 'pitchSysCC.pitch_system_mass')
-		self.connect('pitch_system_mass_cost_coeff', 'pitchSysCC.pitch_system_mass_cost_coeff')
-        self.connect('spinner_mass', 'spinnerCC.spinner_mass')
-		self.connect('spinner_mass_cost_coeff', 'spinnerCC.spinner_mass_cost_coeff')
-		
-		# connect multipliers
-		self.connect('rotor_assemblyCostMultiplier', 'rcc.rotor_assemblyCostMultiplier')
-		self.connect('rotor_overheadCostMultiplier' 'rcc.rotor_overheadCostMultiplier')
-		self.connect('rotor_profitMultiplier', 'rcc.rotor_profitMultiplier')
-		self.connect('rotor_transportMultiplier', 'rcc.rotor_transportMultiplier')
-
-#-------------------------------------------------------------------------------
 
 def example():
 
