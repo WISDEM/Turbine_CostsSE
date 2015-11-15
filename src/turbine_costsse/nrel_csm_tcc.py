@@ -1152,10 +1152,10 @@ if __name__ == "__main__":
 
     example_turbine()
     
-    example_blade()
+    #example_blade()
     
-    example_hub()
+    #example_hub()
     
-    example_nacelle()
+    #example_nacelle()
     
-    example_tower()
+    #example_tower()

@@ -1612,13 +1612,13 @@ if __name__ == "__main__":
 
     example_turbine()
     
-    example_rotor()
+    #example_rotor()
     
-    example_rotor_subs()
+    #example_rotor_subs()
     
-    example_nacelle()
+    #example_nacelle()
     
-    example_nacelle_subs()
+    #example_nacelle_subs()
     
-    example_tower()
+    #example_tower()
     
