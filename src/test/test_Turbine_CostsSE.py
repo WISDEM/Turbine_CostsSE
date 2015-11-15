@@ -9,21 +9,22 @@ Copyright (c) NREL. All rights reserved.
 """
 
 import unittest
+import numpy as np
 from commonse.utilities import check_gradient_unit_test
 
-from turbine_costsse.turbine_costsse.tower_costsse import TowerCostAdder, TowerCost, Tower_CostsSE
-from turbine_costsse.turbine_costsse.rotor_costsse import BladeCost, HubCost, PitchSystemCost, SpinnerCost, \
+from turbine_costsse.turbine_costsse import TowerCostAdder, TowerCost, Tower_CostsSE
+from turbine_costsse.turbine_costsse import BladeCost, HubCost, PitchSystemCost, SpinnerCost, \
     HubSystemCostAdder, RotorCostAdder, Rotor_CostsSE
-from turbine_costsse.turbine_costsse.nacelle_costsse import LowSpeedShaftCost, BearingsCost, GearboxCost, \
+from turbine_costsse.turbine_costsse import LowSpeedShaftCost, BearingsCost, GearboxCost, \
     HighSpeedSideCost, GeneratorCost, BedplateCost, \
     YawSystemCost, NacelleSystemCostAdder, Nacelle_CostsSE
-from turbine_costsse.turbine_costsse.turbine_costsse import TurbineCostAdder, Turbine_CostsSE
+from turbine_costsse.turbine_costsse import TurbineCostAdder, Turbine_CostsSE
 
-from turbine_costsse.nrel_csm_tcc.tower_csm_component import tower_csm_component
-from turbine_costsse.nrel_csm_tcc.blades_csm_component import blades_csm_component
-from turbine_costsse.nrel_csm_tcc.hub_csm_component import hub_csm_component
-from turbine_costsse.nrel_csm_tcc.nacelle_csm_component import nacelle_csm_component
-from turbine_costsse.nrel_csm_tcc.nrel_csm_tcc import rotor_mass_adder, tcc_csm_component, tcc_csm_assembly
+from turbine_costsse.nrel_csm_tcc import tower_csm_component
+from turbine_costsse.nrel_csm_tcc import blades_csm_component
+from turbine_costsse.nrel_csm_tcc import hub_csm_component
+from turbine_costsse.nrel_csm_tcc import nacelle_csm_component
+from turbine_costsse.nrel_csm_tcc import rotor_mass_adder, tcc_csm_component, tcc_csm_assembly
 
 # turbine_costsse Model
 # ----------------------------------------------------------
@@ -648,17 +649,28 @@ class Test_tcc_csm_assembly(unittest.TestCase):
         self.trb.blade_number = 3
         self.trb.hub_height = 90.0
         self.trb.machine_rating = 5000.0
-        self.trb.rotor_thrust = 505575.481173    
-        self.trb.rotor_torque = 4365250.93957
         self.trb.offshore = True
         self.trb.year = 2009
         self.trb.month = 12
+        self.trb.drivetrain_design = 'geared'
+    
+        # Rotor force calculations for nacelle inputs
+        maxTipSpd = 80.0
+        maxEfficiency = 0.90201
+        ratedWindSpd = 11.5064
+        thrustCoeff = 0.50
+        airDensity = 1.225
+    
+        ratedHubPower  = self.trb.machine_rating / maxEfficiency 
+        rotorSpeed     = (maxTipSpd/(0.5*self.trb.rotor_diameter)) * (60.0 / (2*np.pi))
+        self.trb.rotor_thrust  = airDensity * thrustCoeff * np.pi * self.trb.rotor_diameter**2 * (ratedWindSpd**2) / 8
+        self.trb.rotor_torque = ratedHubPower/(rotorSpeed*(np.pi/30))*1000
 
     def test_functionality(self):
     
         self.trb.run()
         
-        self.assertEqual(round(self.trb.turbine_cost,2), 5950346.87)
+        self.assertEqual(round(self.trb.turbine_cost,2), 5925727.43)
 
 #----------------------------------------------------
 

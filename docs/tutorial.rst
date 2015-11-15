@@ -48,25 +48,24 @@ The result is:
 
 >>> The results for the NREL 5 MW Reference Turbine in an offshore 20 m water depth location are:
 >>>
->>> Overall rotor cost with 3 advanced blades is $1471019.77 USD
->>> Advanced blade cost is $251829.54 USD
->>> Cost of 3 blades is $755488.63 USD
->>> Hub cost is $173823.07 USD
->>> Pitch system cost is $531016.46 USD
->>> Spinner cost is $10691.61 USD
+>>> Overall rotor cost with 3 advanced blades is $1519510.91 USD
+>>> Advanced blade cost is $255145.73 USD
+>>> Hub cost is $188237.21 USD
+>>> Pitch system cost is $555063.45 USD
+>>> Spinner cost is $10773.08 USD
 >>>
->>> Overall nacelle cost is $2856229.57 USD
->>> LSS cost is $174104.10 USD
->>> Main bearings cost is $56228.71 USD
->>> Gearbox cost is $641045.88 USD
->>> High speed side cost is $15161.40 USD
->>> Generator cost is $432991.21 USD
->>> Bedplate cost is $136836.34 USD
->>> Yaw system cost is $137375.05 USD
+>>> Overall nacelle cost is $3043115.22 USD
+>>> LSS cost is $187016.00 USD
+>>> Main bearings cost is $58305.64 USD
+>>> Gearbox cost is $667445.08 USD
+>>> High speed side cost is $15400.07 USD
+>>> Generator cost is $451838.76 USD
+>>> Bedplate cost is $148183.38 USD
+>>> Yaw system cost is $144978.37 USD
 >>>
->>> Tower cost is $988020.74 USD
+>>> Tower cost is $1031523.34 USD
 >>>
->>> Turbine cost is $5315270.08 USD
+>>> Turbine cost is $6153564.42 USD
 >>>
 
 Note that the output for the individual nacelle components do not sum to the overall nacelle cost.  There are additional costs in the overall nacelle assembly including the onboard crane, electronics and controls, HVAC, other miscellaneous hardware and the nacelle cover.
@@ -112,8 +111,8 @@ We then print out the resulting cost values:
 The result is:
 
 >>> The results for the NREL 5 MW Reference Turbine in an offshore 20 m water depth location are:
->>> Turbine mass: 747191.36 kg
->>> Turbine cost: $5950346.87 USD
+>>> Turbine mass: 728368.02 kg
+>>> Turbine cost: $5925727.43 USD
 
 It is also possible to output individual component masses and cost as in the Turbine_CostsSE model.
 
