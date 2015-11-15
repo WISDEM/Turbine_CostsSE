@@ -1,19 +1,493 @@
 """
-nacelle_costsse.py
+turbine_costsse.py
 
 Created by Katherine Dykes 2012.
-2015 Functions added by Janine Freeman 2015.
 Copyright (c) NREL. All rights reserved.
 """
 
-from commonse.config import *
 from openmdao.main.api import Component, Assembly
 from openmdao.main.datatypes.api import Array, Float, Bool, Int, Enum
-from math import pi
 import numpy as np
 
+from commonse.config import *
+
+from fusedwind.plant_cost.fused_tcc import FullRotorCostModel, FullRotorCostAggregator, FullHubSystemCostAggregator, BaseComponentCostModel, configure_full_rcc
 from fusedwind.plant_cost.fused_tcc import FullNacelleCostModel, BaseComponentCostModel, FullNacelleCostAggregator, configure_full_ncc
+from fusedwind.plant_cost.fused_tcc import FullTowerCostModel, FullTowerCostAggregator, BaseComponentCostModel, configure_full_twcc
+from fusedwind.plant_cost.fused_tcc import FullTurbineCostModel, FullTCCAggregator, configure_full_tcc
 from fusedwind.interface import implement_base
+
+
+#### Rotor
+
+#-------------------------------------------------------------------------------
+@implement_base(BaseComponentCostModel)
+class BladeCost(Component):
+
+    # variables
+    blade_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+
+    # parameters
+    year = Int(2010, iotype='in', desc='Current Year')
+    month = Int(12, iotype='in', desc='Current Month')
+    advanced = Bool(True, iotype='in', desc='advanced (True) or traditional (False) blade design')
+
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+
+    def __init__(self):
+        '''
+        Initial computation of the costs for the wind turbine blade component.
+
+        '''
+
+        Component.__init__(self)
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
+
+    def execute(self):
+
+        # assign input variables
+        ppi.curr_yr   = self.year
+        ppi.curr_mon   = self.month
+
+        ppi_labor  = ppi.compute('IPPI_BLL')
+
+        if (self.advanced == True):
+            ppi.ref_yr = 2003
+            ppi_mat   = ppi.compute('IPPI_BLA')
+            slope   = 13.0 #14.0 from model
+            intercept     = 5813.9
+        else:
+            ppi_mat   = ppi.compute('IPPI_BLD')
+            slope   = 8.0
+            intercept     = 21465.0
+        ppi.ref_yr = 2002
+
+        laborCoeff    = 2.7445         # todo: ignoring labor impacts for now
+        laborExp      = 2.5025
+
+        self.cost = ((slope*self.blade_mass + intercept)*ppi_mat)
+
+        # derivatives
+        self.d_cost_d_blade_mass = slope * ppi_mat
+
+    def list_deriv_vars(self):
+
+        inputs = ['blade_mass']
+        outputs = ['cost']
+
+        return inputs, outputs
+
+    def provideJ(self):
+
+        # Jacobian
+        self.J = np.array([[self.d_cost_d_blade_mass]])
+
+        return self.J
+
+# -----------------------------------------------------------------------------------------------
+@implement_base(BaseComponentCostModel)
+class HubCost(Component):
+
+    # variables
+    hub_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+
+    # parameters
+    year = Int(2010, iotype='in', desc='Current Year')
+    month = Int(12, iotype='in', desc='Current Month')
+
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+
+    def __init__(self):
+        '''
+        Initial computation of the costs for the wind turbine hub component.
+
+        '''
+
+        Component.__init__(self)
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
+
+    def execute(self):
+
+        # assign input variables
+        ppi.curr_yr   = self.year
+        ppi.curr_mon   = self.month
+
+        #calculate system costs
+        ppi_labor  = ppi.compute('IPPI_BLL')
+
+        laborCoeff    = 2.7445
+        laborExp      = 2.5025
+
+        hubCost2002      = (self.hub_mass * 4.25) # $/kg
+        hubCostEscalator = ppi.compute('IPPI_HUB')
+        self.cost = (hubCost2002 * hubCostEscalator )
+
+        # derivatives
+        self.d_cost_d_hub_mass = hubCostEscalator * 4.25
+
+    def list_deriv_vars(self):
+
+        inputs = ['hub_mass']
+        outputs = ['cost']
+
+        return inputs, outputs
+
+    def provideJ(self):
+
+        # Jacobian
+        self.J = np.array([[self.d_cost_d_hub_mass]])
+
+        return self.J
+
+
+
+#-------------------------------------------------------------------------------
+@implement_base(BaseComponentCostModel)
+class PitchSystemCost(Component):
+
+    # variables
+    pitch_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+
+    # parameters
+    year = Int(2010, iotype='in', desc='Current Year')
+    month = Int(12, iotype='in', desc='Current Month')
+
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+
+    def __init__(self):
+        '''
+        Initial computation of the costs for the wind turbine pitch system.
+
+        '''
+
+        Component.__init__(self)
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
+
+    def execute(self):
+
+        # assign input variables
+        ppi.curr_yr   = self.year
+        ppi.curr_mon   = self.month
+
+        #calculate system costs
+        ppi_labor  = ppi.compute('IPPI_BLL')
+
+        laborCoeff    = 2.7445
+        laborExp      = 2.5025
+
+        pitchSysCost2002     = 2.28 * (0.0808 * (self.pitch_system_mass ** 1.4985))            # new cost based on mass - x1.328 for housing proportion
+        bearingCostEscalator = ppi.compute('IPPI_PMB')
+        self.cost = (bearingCostEscalator * pitchSysCost2002)
+
+        # derivatives
+        self.d_cost_d_pitch_system_mass = bearingCostEscalator * 2.28 * (0.0808 * 1.4985 * (self.pitch_system_mass ** 0.4985))
+
+    def list_deriv_vars(self):
+
+        inputs = ['pitch_system_mass']
+        outputs = ['cost']
+
+        return inputs, outputs
+
+    def provideJ(self):
+
+        # Jacobian
+        self.J = np.array([[self.d_cost_d_pitch_system_mass]])
+
+        return self.J
+
+
+#-------------------------------------------------------------------------------
+@implement_base(BaseComponentCostModel)
+class SpinnerCost(Component):
+
+    # variables
+    spinner_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+
+    # parameters
+    year = Int(2010, iotype='in', desc='Current Year')
+    month = Int(12, iotype='in', desc='Current Month')
+
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+
+    def __init__(self):
+        '''
+        Initial computation of the costs for the wind turbine spinner component.
+
+        '''
+
+        Component.__init__(self)
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
+
+    def execute(self):
+
+        # assign input variables
+        ppi.curr_yr   = self.year
+        ppi.curr_mon   = self.month
+
+        #calculate system costs
+        ppi_labor  = ppi.compute('IPPI_BLL')
+
+        laborCoeff    = 2.7445
+        laborExp      = 2.5025
+
+        spinnerCostEscalator = ppi.compute('IPPI_NAC')
+        self.cost = (spinnerCostEscalator * (5.57*self.spinner_mass))
+
+        # derivatives
+        self.d_cost_d_spinner_mass = spinnerCostEscalator * 5.57
+
+    def list_deriv_vars(self):
+
+        inputs = ['spinner_mass']
+        outputs = ['cost']
+
+        return inputs, outputs
+
+    def provideJ(self):
+
+        # Jacobian
+        self.J = np.array([[self.d_cost_d_spinner_mass]])
+
+        return self.J
+
+
+
+#-------------------------------------------------------------------------------
+@implement_base(FullHubSystemCostAggregator)
+class HubSystemCostAdder(Component):
+
+    # variables
+    hub_cost = Float(iotype='in', units='USD', desc='hub component cost')
+    pitch_system_cost = Float(iotype='in', units='USD', desc='pitch system cost')
+    spinner_cost = Float(iotype='in', units='USD', desc='spinner component cost')
+
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind sub-assembly capial costs including transportation costs')
+
+    def __init__(self):
+        '''
+        Computation of overall hub system cost.
+
+        '''
+
+        Component.__init__(self)
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
+
+    def execute(self):
+
+        partsCost = self.hub_cost + self.pitch_system_cost + self.spinner_cost
+
+        # updated calculations below to account for assembly, transport, overhead and profits
+        assemblyCostMultiplier = 0.0 # (4/72)
+        overheadCostMultiplier = 0.0 # (24/72)
+        profitMultiplier = 0.0
+        transportMultiplier = 0.0
+
+        self.cost = (1 + transportMultiplier + profitMultiplier) * ((1+overheadCostMultiplier+assemblyCostMultiplier)*partsCost)
+
+        # derivatives
+        self.d_cost_d_hubCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+        self.d_cost_d_pitchSystemCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+        self.d_cost_d_spinnerCost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+
+    def list_deriv_vars(self):
+
+        inputs = ['hub_cost', 'pitch_system_cost', 'spinner_cost']
+        outputs = ['cost']
+
+        return inputs, outputs
+
+    def provideJ(self):
+
+        # Jacobian
+        self.J = np.array([[self.d_cost_d_hubCost, self.d_cost_d_pitchSystemCost, self.d_cost_d_spinnerCost]])
+
+        return self.J
+
+#-------------------------------------------------------------------------------
+@implement_base(FullRotorCostAggregator)
+class RotorCostAdder(Component):
+    """
+    RotorCostAdder adds up individual rotor system and component costs to get overall rotor cost.
+    """
+
+    # variables
+    blade_cost = Float(iotype='in', units='USD', desc='individual blade cost')
+    hub_system_cost = Float(iotype='in', units='USD', desc='cost for hub system')
+    
+    # parameters
+    blade_number = Int(iotype='in', desc='number of rotor blades')
+
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind sub-assembly capial costs including transportation costs')
+
+    def __init__(self):
+        '''
+        Computation of overall hub system cost.
+
+        '''
+
+        Component.__init__(self)
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
+
+    def execute(self):
+
+        self.cost = self.blade_cost * self.blade_number + self.hub_system_cost
+
+        # derivatives
+        self.d_cost_d_bladeCost = self.blade_number
+        self.d_cost_d_hubSystemCost = 1
+
+    def list_deriv_vars(self):
+
+        inputs = ['blade_cost', 'hub_system_cost']
+        outputs = ['cost']
+
+        return inputs, outputs
+
+    def provideJ(self):
+
+        # Jacobian
+        self.J = np.array([[self.d_cost_d_bladeCost, self.d_cost_d_hubSystemCost]])
+
+        return self.J
+
+#-------------------------------------------------------------------------------
+@implement_base(FullRotorCostModel)
+class Rotor_CostsSE(FullRotorCostModel):
+
+    '''
+       Rotor_CostsSE class
+          The Rotor_costsSE class is used to represent the rotor costs of a wind turbine.
+    '''
+
+    # variables
+    blade_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    hub_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    pitch_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    spinner_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+
+    # parameters
+    year = Int(2010, iotype='in', desc='Current Year')
+    month = Int(12,iotype='in', desc='Current Month')
+    advanced = Bool(True, iotype='in', desc='advanced (True) or traditional (False) blade design')
+    blade_number = Int(iotype='in', desc='number of rotor blades')
+
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind sub-assembly capial costs including transportation costs')
+
+    def configure(self):
+
+        configure_full_rcc(self)
+
+        # select components
+        self.replace('bladeCC', BladeCost())
+        self.replace('hubCC', HubCost())
+        self.replace('pitchSysCC', PitchSystemCost())
+        self.replace('spinnerCC', SpinnerCost())
+        self.replace('hubSysCC', HubSystemCostAdder())
+        self.replace('rcc', RotorCostAdder())
+
+        # connect inputs
+        self.connect('blade_mass', 'bladeCC.blade_mass')
+        self.connect('hub_mass', 'hubCC.hub_mass')
+        self.connect('pitch_system_mass', 'pitchSysCC.pitch_system_mass')
+        self.connect('spinner_mass', 'spinnerCC.spinner_mass')
+        self.connect('year', ['hubCC.year', 'pitchSysCC.year', 'spinnerCC.year', 'bladeCC.year'])
+        self.connect('month', ['hubCC.month', 'pitchSysCC.month', 'spinnerCC.month', 'bladeCC.month'])
+        self.connect('advanced', 'bladeCC.advanced')
+    
+
+def example_rotor():
+
+    # simple test of module
+    ppi.ref_yr   = 2002
+    ppi.ref_mon  = 9
+
+    # NREL 5 MW turbine
+    print "NREL 5 MW turbine test"
+    rotor = Rotor_CostsSE()
+
+    # Blade Test 1
+    rotor.blade_number = 3
+    rotor.advanced = True
+    rotor.blade_mass = 17650.67  # inline with the windpact estimates
+    rotor.hub_mass = 31644.5
+    rotor.pitch_system_mass = 17004.0
+    rotor.spinner_mass = 1810.5
+    rotor.year = 2009
+    rotor.month = 12
+
+    rotor.run()
+
+    print "Overall rotor cost with 3 advanced blades is ${0:.2f} USD".format(rotor.cost)
+    print
+
+def example_rotor_subs():
+
+   # other sub model tests
+
+    print "NREL 5 MW Reference Turbine Component Costs"
+
+    blade = BladeCost()
+
+    blade.blade_mass = 17650.67
+    blade.year = 2009
+    blade.month = 12
+    
+    blade.run()
+    
+    print "Blade cost is ${0:.2f} USD".format(blade.cost)
+
+    hub = HubCost()
+
+    hub.hub_mass = 31644.5
+    hub.year = 2009
+    hub.month = 12
+    
+    hub.run()
+    
+    print "Hub cost is ${0:.2f} USD".format(hub.cost)
+
+    pitch = PitchSystemCost()
+
+    pitch.pitch_system_mass = 17004.0
+    pitch.year = 2009
+    pitch.month = 12
+
+    pitch.run()
+
+    print "Hub cost is ${0:.2f} USD".format(pitch.cost)
+
+    spinner = SpinnerCost()
+
+    spinner.spinner_mass = 1810.5
+    spinner.year = 2009
+    spinner.month = 12
+
+    spinner.run()
+
+    print "Spinner cost is ${0:.2f} USD".format(spinner.cost)
+
+
+##### Nacelle
 
 # -------------------------------------------------
 @implement_base(BaseComponentCostModel) #pre-check for fusedwind that inputs/outputs are as expected, should precede every cost model
@@ -661,7 +1135,7 @@ class Nacelle_CostsSE(FullNacelleCostModel):
 
 #==================================================================
 
-def example():
+def example_nacelle():
 
     # test of module for turbine data set
 
@@ -699,7 +1173,7 @@ def example():
     print "Overall nacelle cost is ${0:.2f} USD".format(nacelle.cost) # $2884227.08
     print
 
-def example_sub():
+def example_nacelle_subs():
 
    # other sub model tests
     print "NREL 5 MW Reference Turbine Component Costs"
@@ -799,8 +1273,352 @@ def example_sub():
 
     print "Overall nacelle system cost is ${0:.2f} USD".format(nacelle.cost)
 
-if __name__ == '__main__':
 
-    example()
+##### Tower
 
-    example_sub()
+#-------------------------------------------------------------------------------
+@implement_base(BaseComponentCostModel)
+class TowerCost(Component):
+
+    # variables
+    tower_mass = Float(iotype='in', units='kg', desc='tower mass [kg]')
+
+    # parameters
+    year = Int(iotype='in', desc='Current Year')
+    month = Int(iotype='in', desc='Current Month')
+
+    # Outputs
+    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+
+    def __init__(self):
+        '''
+        Initial computation of the costs for the wind turbine tower component.
+
+        '''
+
+        Component.__init__(self)
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
+
+    def execute(self):
+
+        # assign input variables
+        ppi.curr_yr   = self.year
+        ppi.curr_mon   = self.month
+
+        twrCostEscalator  = ppi.compute('IPPI_TWR')
+
+        twrCostCoeff      = 1.5 # $/kg
+
+        self.towerCost2002 = self.tower_mass * twrCostCoeff
+        self.cost = self.towerCost2002 * twrCostEscalator
+
+        # derivatives
+        self.d_cost_d_tower_mass = twrCostEscalator * twrCostCoeff
+
+    def list_deriv_vars(self):
+
+        inputs = ['tower_mass']
+        outputs = ['cost']
+
+        return inputs, outputs
+
+    def provideJ(self):
+
+        # Jacobian
+        self.J = np.array([[self.d_cost_d_tower_mass]])
+
+        return self.J
+
+#-------------------------------------------------------------------------------
+@implement_base(FullTowerCostAggregator)
+class TowerCostAdder(Component):
+
+    # variables
+    tower_cost = Float(iotype='in', units='USD', desc='component cost')
+    
+    # returns
+    cost = Float(iotype='out', units='USD', desc='component cost') 
+
+    def __init__(self):
+
+        Component.__init__(self)
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
+
+    def execute(self):
+
+        partsCost = self.tower_cost
+        # updated calculations below to account for assembly, transport, overhead and profits
+        assemblyCostMultiplier = 0.0 # (4/72)
+        overheadCostMultiplier = 0.0 # (24/72)
+        profitMultiplier = 0.0
+        transportMultiplier = 0.0
+
+        self.cost = (1 + transportMultiplier + profitMultiplier) * ((1+overheadCostMultiplier+assemblyCostMultiplier)*partsCost)
+
+        # derivatives
+        self.d_cost_d_tower_cost = (1 + transportMultiplier + profitMultiplier) * (1+overheadCostMultiplier+assemblyCostMultiplier)
+
+    def list_deriv_vars(self):
+
+        inputs = ['tower_cost']
+        outputs = ['cost']
+
+        return inputs, outputs
+
+    def provideJ(self):
+
+        # Jacobian
+        self.J = np.array([[self.d_cost_d_tower_cost]])
+
+        return self.J
+
+#-------------------------------------------------------------------------------
+@implement_base(FullTowerCostModel)
+class Tower_CostsSE(Assembly):
+
+    # variables
+    tower_mass = Float(iotype='in', units='kg', desc='tower mass [kg]')
+
+    # parameters
+    year = Int(iotype='in', desc='Current Year')
+    month = Int(iotype='in', desc='Current Month')
+
+    # returns
+    cost = Float(iotype='out', units='USD', desc='component cost')
+
+    def configure(self):
+
+        configure_full_twcc(self)
+
+        self.replace('towerCC', TowerCost())
+        self.replace('twrcc', TowerCostAdder())
+
+        self.connect('tower_mass', 'towerCC.tower_mass')
+        self.connect('year', 'towerCC.year')
+        self.connect('month', 'towerCC.month')
+
+
+#-------------------------------------------------------------------------------
+
+def example_tower():
+
+    # simple test of module
+    tower = Tower_CostsSE()
+
+    ppi.ref_yr   = 2002
+    ppi.ref_mon  = 9
+
+    tower.tower_mass = 434559.0
+    tower.year = 2009
+    tower.month =  12
+
+    tower.run()
+
+    print "Tower cost is ${0:.2f} USD".format(tower.cost) # $987180.30
+
+
+##### Turbine
+
+#-------------------------------------------------------------------------------
+@implement_base(FullTurbineCostModel)
+class Turbine_CostsSE(Assembly):
+
+    # variables
+    blade_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    hub_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    pitch_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    spinner_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
+    low_speed_shaft_mass = Float(iotype='in', units='kg', desc='component mass')
+    main_bearing_mass = Float(iotype='in', units='kg', desc='component mass')
+    second_bearing_mass = Float(iotype='in', units='kg', desc='component mass')
+    gearbox_mass = Float(iotype='in', units='kg', desc='component mass')
+    high_speed_side_mass = Float(iotype='in', units='kg', desc='component mass')
+    generator_mass = Float(iotype='in', units='kg', desc='component mass')
+    bedplate_mass = Float(iotype='in', units='kg', desc='component mass')
+    yaw_system_mass = Float(iotype='in', units='kg', desc='component mass')
+    tower_mass = Float(iotype='in', units='kg', desc='tower mass [kg]')
+    machine_rating = Float(iotype='in', units='kW', desc='machine rating')
+
+    # parameters
+    blade_number = Int(iotype='in', desc='number of rotor blades')
+    advanced_blade = Bool(True, iotype='in', desc='advanced (True) or traditional (False) blade design')
+    drivetrain_design = Enum('geared', ('geared', 'single_stage', 'multi_drive', 'pm_direct_drive'), iotype='in')
+    crane = Bool(iotype='in', desc='flag for presence of onboard crane')
+    offshore = Bool(iotype='in', desc='flag for offshore site')
+    year = Int(iotype='in', desc='Current Year')
+    month = Int(iotype='in', desc='Current Month')
+
+    # Outputs
+    turbine_cost = Float(0.0, iotype='out', desc='Overall wind turbine capial costs including transportation costs')
+
+    def configure(self):
+
+        configure_full_tcc(self)
+
+        # select components
+        self.replace('rotorCC', Rotor_CostsSE())
+        self.replace('nacelleCC', Nacelle_CostsSE())
+        self.replace('towerCC', Tower_CostsSE())
+        self.replace('tcc', TurbineCostAdder())
+
+        # connect inputs
+        self.connect('blade_mass', 'rotorCC.blade_mass')
+        self.connect('blade_number', 'rotorCC.blade_number')
+        self.connect('hub_mass', 'rotorCC.hub_mass')
+        self.connect('pitch_system_mass', 'rotorCC.pitch_system_mass')
+        self.connect('spinner_mass', 'rotorCC.spinner_mass')
+        self.connect('advanced_blade', 'rotorCC.advanced')
+        self.connect('low_speed_shaft_mass', 'nacelleCC.low_speed_shaft_mass')
+        self.connect('main_bearing_mass', 'nacelleCC.main_bearing_mass')
+        self.connect('second_bearing_mass', 'nacelleCC.second_bearing_mass')
+        self.connect('gearbox_mass', 'nacelleCC.gearbox_mass')
+        self.connect('high_speed_side_mass', 'nacelleCC.high_speed_side_mass')
+        self.connect('generator_mass', 'nacelleCC.generator_mass')
+        self.connect('bedplate_mass', ['nacelleCC.bedplate_mass'])
+        self.connect('yaw_system_mass', 'nacelleCC.yaw_system_mass')
+        self.connect('machine_rating', ['nacelleCC.machine_rating'])
+        self.connect('drivetrain_design', ['nacelleCC.drivetrain_design'])
+        self.connect('crane', 'nacelleCC.crane')
+        self.connect('offshore', ['nacelleCC.offshore', 'tcc.offshore'])
+        self.connect('tower_mass', 'towerCC.tower_mass')
+        self.connect('year', ['rotorCC.year', 'nacelleCC.year', 'towerCC.year'])
+        self.connect('month', ['rotorCC.month', 'nacelleCC.month', 'towerCC.month'])
+        
+        self.create_passthrough('tcc.assemblyCostMultiplier')
+        self.create_passthrough('tcc.overheadCostMultiplier')
+        self.create_passthrough('tcc.profitMultiplier')
+        self.create_passthrough('tcc.transportMultiplier')
+
+
+#-------------------------------------------------------------------------------
+@implement_base(FullTCCAggregator)
+class TurbineCostAdder(Component):
+
+    # Variables
+    rotor_cost = Float(iotype='in', units='USD', desc='rotor cost')
+    nacelle_cost = Float(iotype='in', units='USD', desc='nacelle cost')
+    tower_cost = Float(iotype='in', units='USD', desc='tower cost')
+
+    # parameters
+    offshore = Bool(iotype='in', desc='flag for offshore site')
+    assemblyCostMultiplier = Float(0.0, iotype='in', desc='multiplier for assembly cost in manufacturing')
+    overheadCostMultiplier = Float(0.0, iotype='in', desc='multiplier for overhead')
+    profitMultiplier = Float(0.0, iotype='in', desc='multiplier for profit markup')
+    transportMultiplier = Float(0.0, iotype='in', desc='multiplier for transport costs')
+
+    # Outputs
+    turbine_cost = Float(0.0, iotype='out', desc='Overall wind turbine capial costs including transportation costs')
+
+    def __init__(self):
+
+        Component.__init__(self)
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
+
+    def execute(self):
+
+        partsCost = self.rotor_cost + self.nacelle_cost + self.tower_cost
+
+        self.turbine_cost = (1 + self.transportMultiplier + self.profitMultiplier) * ((1+self.overheadCostMultiplier+self.assemblyCostMultiplier)*partsCost)
+
+        # derivatives
+        self.d_cost_d_rotor_cost = (1 + self.transportMultiplier + self.profitMultiplier) * (1+self.overheadCostMultiplier+self.assemblyCostMultiplier)
+        self.d_cost_d_nacelle_cost = (1 + self.transportMultiplier + self.profitMultiplier) * (1+self.overheadCostMultiplier+self.assemblyCostMultiplier)
+        self.d_cost_d_tower_cost = (1 + self.transportMultiplier + self.profitMultiplier) * (1+self.overheadCostMultiplier+self.assemblyCostMultiplier)
+
+        if self.offshore:
+            self.turbine_cost *= 1.1
+
+            # derivatives
+            self.d_cost_d_rotor_cost *= 1.1
+            self.d_cost_d_nacelle_cost *= 1.1
+            self.d_cost_d_tower_cost *= 1.1
+
+    def list_deriv_vars(self):
+
+        inputs = ['rotor_cost', 'nacelle_cost', 'tower_cost']
+        outputs = ['turbine_cost']
+
+        return inputs, outputs
+
+    def provideJ(self):
+
+        # Jacobian
+        self.J = np.array([[self.d_cost_d_rotor_cost, self.d_cost_d_nacelle_cost, self.d_cost_d_tower_cost]])
+
+        return self.J
+
+#-------------------------------------------------------------------------------
+
+def example_turbine():
+
+    # simple test of module
+
+    turbine = Turbine_CostsSE()
+
+    turbine.blade_mass = 17650.67  # inline with the windpact estimates
+    turbine.hub_mass = 31644.5
+    turbine.pitch_system_mass = 17004.0
+    turbine.spinner_mass = 1810.5
+    turbine.low_speed_shaft_mass = 31257.3
+    #bearingsMass = 9731.41
+    turbine.main_bearing_mass = 9731.41 / 2
+    turbine.second_bearing_mass = 9731.41 / 2
+    turbine.gearbox_mass = 30237.60
+    turbine.high_speed_side_mass = 1492.45
+    turbine.generator_mass = 16699.85
+    turbine.bedplate_mass = 93090.6
+    turbine.yaw_system_mass = 11878.24
+    turbine.tower_mass = 434559.0
+    turbine.machine_rating = 5000.0
+    turbine.advanced = True
+    turbine.blade_number = 3
+    turbine.drivetrain_design = 'geared'
+    turbine.crane = True
+    turbine.offshore = True
+    turbine.year = 2010
+    turbine.month =  12
+
+    turbine.run()
+
+    print "The results for the NREL 5 MW Reference Turbine in an offshore 20 m water depth location are:"
+    print
+    print "Overall rotor cost with 3 advanced blades is ${0:.2f} USD".format(turbine.rotorCC.cost)
+    print "Blade cost is ${0:.2f} USD".format(turbine.rotorCC.bladeCC.cost)
+    print "Hub cost is ${0:.2f} USD".format(turbine.rotorCC.hubCC.cost)
+    print "Pitch system cost is ${0:.2f} USD".format(turbine.rotorCC.pitchSysCC.cost)
+    print "Spinner cost is ${0:.2f} USD".format(turbine.rotorCC.spinnerCC.cost)
+    print
+    print "Overall nacelle cost is ${0:.2f} USD".format(turbine.nacelleCC.cost)
+    print "LSS cost is ${0:.2f} USD".format(turbine.nacelleCC.lssCC.cost)
+    print "Main bearings cost is ${0:.2f} USD".format(turbine.nacelleCC.bearingsCC.cost)
+    print "Gearbox cost is ${0:.2f} USD".format(turbine.nacelleCC.gearboxCC.cost)
+    print "High speed side cost is ${0:.2f} USD".format(turbine.nacelleCC.hssCC.cost)
+    print "Generator cost is ${0:.2f} USD".format(turbine.nacelleCC.generatorCC.cost)
+    print "Bedplate cost is ${0:.2f} USD".format(turbine.nacelleCC.bedplateCC.cost)
+    print "Yaw system cost is ${0:.2f} USD".format(turbine.nacelleCC.yawSysCC.cost)
+    print
+    print "Tower cost is ${0:.2f} USD".format(turbine.towerCC.cost)
+    print
+    print "The overall turbine cost is ${0:.2f} USD".format(turbine.turbine_cost)
+    print
+
+if __name__ == "__main__":
+
+    example_turbine()
+    
+    example_rotor()
+    
+    example_rotor_subs()
+    
+    example_nacelle()
+    
+    example_nacelle_subs()
+    
+    example_tower()
+    

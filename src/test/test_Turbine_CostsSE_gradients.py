@@ -11,19 +11,19 @@ Copyright (c) NREL. All rights reserved.
 import unittest
 from commonse.utilities import check_gradient_unit_test
 
-from turbine_costsse.tower_costsse import TowerCostAdder, TowerCost
-from turbine_costsse.rotor_costsse import BladeCost, HubCost, PitchSystemCost, SpinnerCost, \
+from turbine_costsse.turbine_costsse import TowerCostAdder, TowerCost
+from turbine_costsse.turbine_costsse import BladeCost, HubCost, PitchSystemCost, SpinnerCost, \
     HubSystemCostAdder, RotorCostAdder
-from turbine_costsse.nacelle_costsse import LowSpeedShaftCost, BearingsCost, GearboxCost, \
+from turbine_costsse.turbine_costsse import LowSpeedShaftCost, BearingsCost, GearboxCost, \
     HighSpeedSideCost, GeneratorCost, BedplateCost, \
     YawSystemCost, NacelleSystemCostAdder
 from turbine_costsse.turbine_costsse import TurbineCostAdder
 
-from nrel_csm_tcc.tower_csm_component import tower_csm_component
-from nrel_csm_tcc.blades_csm_component import blades_csm_component
-from nrel_csm_tcc.hub_csm_component import hub_csm_component
-from nrel_csm_tcc.nacelle_csm_component import nacelle_csm_component
-from nrel_csm_tcc.nrel_csm_tcc import rotor_mass_adder, tcc_csm_component
+from turbine_costsse.nrel_csm_tcc import tower_csm_component
+from turbine_costsse.nrel_csm_tcc import blades_csm_component
+from turbine_costsse.nrel_csm_tcc import hub_csm_component
+from turbine_costsse.nrel_csm_tcc import nacelle_csm_component
+from turbine_costsse.nrel_csm_tcc import rotor_mass_adder, tcc_csm_component
 
 # turbine_costsse Model
 # ----------------------------------------------------------
@@ -171,7 +171,7 @@ class TestGearboxCost(unittest.TestCase):
         gearbox.gearbox_mass = 30237.60
         gearbox.year = 2009
         gearbox.month = 12
-        gearbox.drivetrain_design = 1
+        gearbox.drivetrain_design = 'geared'
 
         check_gradient_unit_test(self, gearbox)
 
@@ -198,7 +198,7 @@ class TestGeneratorCost(unittest.TestCase):
         generator.generator_mass = 16699.85
         generator.year = 2009
         generator.month = 12
-        generator.drivetrain_design = 1
+        generator.drivetrain_design = 'geared'
         generator.machine_rating = 5000.0
 
         check_gradient_unit_test(self, generator)
@@ -333,7 +333,7 @@ class Test_nacelle_csm_component(unittest.TestCase):
         nac.rotor_mass = 123193.30
         nac.rotor_thrust = 500930.1
         nac.rotor_torque = 4365249
-        nac.drivetrain_design = 1
+        nac.drivetrain_design = 'geared'
         nac.offshore = True
         nac.crane = True
         nac.advanced_bedplate = 0
