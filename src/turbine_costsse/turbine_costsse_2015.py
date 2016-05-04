@@ -24,7 +24,7 @@ class BladeCost2015(Component):
 
     # variables
     blade_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    blade_mass_cost_coeff = Float(13.08, iotype='in', units='USD/kg', desc='blade mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    blade_mass_cost_coeff = Float(13.92, iotype='in', units='USD/kg', desc='blade mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
 
     # Outputs
     cost = Float(0.0, iotype='out', desc='Overall wind turbine component capital costs excluding transportation costs')
@@ -77,7 +77,7 @@ class SpinnerCost2015(Component):
 
     # variables
     spinner_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    spinner_mass_cost_coeff = Float(23.00, iotype='in', units='USD/kg', desc='spinner/nose cone mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    spinner_mass_cost_coeff = Float(15.59, iotype='in', units='USD/kg', desc='spinner/nose cone mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
 
     # Outputs
     cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
@@ -151,7 +151,7 @@ class Rotor_CostsSE_2015(FullRotorCostModel):
     pitch_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
     pitch_system_mass_cost_coeff = Float(22.91, iotype='in', units='USD/kg', desc='pitch system mass-cost coefficient [$/kg]') #mass-cost coefficient with default from list
     spinner_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    spinner_mass_cost_coeff = Float(23.00, iotype='in', units='USD/kg', desc='spinner/nose cone mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    spinner_mass_cost_coeff = Float(15.59, iotype='in', units='USD/kg', desc='spinner/nose cone mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
 
     # parameters
     blade_number = Int(iotype='in', desc='number of rotor blades')
@@ -204,7 +204,7 @@ class LowSpeedShaftCost2015(Component):
 
     # variables
     low_speed_shaft_mass = Float(iotype='in', units='kg', desc='component mass [kg]') #mass input
-    lss_mass_cost_coeff = Float(12.60, iotype='in', units='USD/kg', desc='low speed shaft mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    lss_mass_cost_coeff = Float(13.30, iotype='in', units='USD/kg', desc='low speed shaft mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
 
     # Outputs
     cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs') #initialize cost output
@@ -239,7 +239,7 @@ class GearboxCost2015(Component):
 
     # variables
     gearbox_mass = Float(iotype='in', units='kg', desc='component mass')
-    gearbox_mass_cost_coeff = Float(17.40, iotype='in', units='USD/kg', desc='gearbox mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    gearbox_mass_cost_coeff = Float(18.14, iotype='in', units='USD/kg', desc='gearbox mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
 
     # Outputs
     cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
@@ -256,7 +256,7 @@ class HighSpeedSideCost2015(Component):
 
     # variables
     high_speed_side_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    high_speed_side_mass_cost_coeff = Float(8.25, iotype='in', units='USD/kg', desc='high speed side mass-cost coefficient [$/kg]') #mass-cost coefficient with default from list
+    high_speed_side_mass_cost_coeff = Float(9.55, iotype='in', units='USD/kg', desc='high speed side mass-cost coefficient [$/kg]') #mass-cost coefficient with default from list
 
     # Outputs
     cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
@@ -273,7 +273,7 @@ class GeneratorCost2015(Component):
 
     # variables
     generator_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    generator_mass_cost_coeff = Float(17.43, iotype='in', units= 'USD/kg', desc='generator mass cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    generator_mass_cost_coeff = Float(17.46, iotype='in', units= 'USD/kg', desc='generator mass cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
 
     # Outputs
     cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
@@ -290,7 +290,7 @@ class BedplateCost2015(Component):
 
     # variables
     bedplate_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    bedplate_mass_cost_coeff = Float(4.50, iotype='in', units='USD/kg', desc='bedplate mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    bedplate_mass_cost_coeff = Float(4.00, iotype='in', units='USD/kg', desc='bedplate mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
 
     # Outputs
     cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
@@ -307,7 +307,7 @@ class YawSystemCost2015(Component):
 
     # variables
     yaw_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    yaw_system_mass_cost_coeff = Float(11.01, iotype='in', units='USD/kg', desc='yaw system mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
+    yaw_system_mass_cost_coeff = Float(11.74, iotype='in', units='USD/kg', desc='yaw system mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
 
     # Outputs
     cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
@@ -341,7 +341,7 @@ class HydraulicCoolingCost2015(Component):
 
     # variables
     hydraulic_cooling_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    hydraulic_cooling_mass_cost_coeff = Float(163.95, iotype='in', units='USD/kg', desc='hydraulic and cooling system mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
+    hydraulic_cooling_mass_cost_coeff = Float(174.63, iotype='in', units='USD/kg', desc='hydraulic and cooling system mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
 
     # Outputs
     cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
@@ -358,7 +358,7 @@ class NacelleCoverCost2015(Component):
 
     # variables
     nacelle_cover_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    nacelle_cover_mass_cost_coeff = Float(7.61, iotype='in', units='USD/kg', desc='nacelle cover mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
+    nacelle_cover_mass_cost_coeff = Float(8.07, iotype='in', units='USD/kg', desc='nacelle cover mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
 
     # Outputs
     cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
@@ -538,21 +538,21 @@ class Nacelle_CostsSE_2015(FullNacelleCostModel):
     bearing_number = Float(2, iotype='in', desc='number of main bearings []') #number of main bearings- defaults to 2
 
     # coefficients
-    lss_mass_cost_coeff = Float(12.60, iotype='in', units='USD/kg', desc='low speed shaft mass-cost coefficient [$/kg]')
+    lss_mass_cost_coeff = Float(13.30, iotype='in', units='USD/kg', desc='low speed shaft mass-cost coefficient [$/kg]')
     bearings_mass_cost_coeff = Float(6.35, iotype='in', units='USD/kg', desc='main bearings mass-cost coefficient [$/kg]') #mass-cost coefficient- HALF of the 12.70 in powerpoint because it was based on TWO bearings 
-    gearbox_mass_cost_coeff = Float(17.40, iotype='in', units='USD/kg', desc='gearbox mass-cost coefficient [$/kg]')
-    high_speed_side_mass_cost_coeff = Float(8.25, iotype='in', units='USD/kg', desc='high speed side mass-cost coefficient [$/kg]') #mass-cost coefficient with default from list
-    generator_mass_cost_coeff = Float(17.43, iotype='in', units= 'USD/kg', desc='generator mass cost coefficient [$/kg]')
-    bedplate_mass_cost_coeff = Float(4.50, iotype='in', units='USD/kg', desc='bedplate mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
-    yaw_system_mass_cost_coeff = Float(11.01, iotype='in', units='USD/kg', desc='yaw system mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
+    gearbox_mass_cost_coeff = Float(18.46, iotype='in', units='USD/kg', desc='gearbox mass-cost coefficient [$/kg]')
+    high_speed_side_mass_cost_coeff = Float(9.55, iotype='in', units='USD/kg', desc='high speed side mass-cost coefficient [$/kg]') #mass-cost coefficient with default from list
+    generator_mass_cost_coeff = Float(17.46, iotype='in', units= 'USD/kg', desc='generator mass cost coefficient [$/kg]')
+    bedplate_mass_cost_coeff = Float(4.00, iotype='in', units='USD/kg', desc='bedplate mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    yaw_system_mass_cost_coeff = Float(11.74, iotype='in', units='USD/kg', desc='yaw system mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
     variable_speed_elec_mass_cost_coeff = Float(26.50, iotype='in', units='USD/kg', desc='variable speed electronics mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
-    hydraulic_cooling_mass_cost_coeff = Float(163.95, iotype='in', units='USD/kg', desc='hydraulic and cooling system mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
-    nacelle_cover_mass_cost_coeff = Float(7.61, iotype='in', units='USD/kg', desc='nacelle cover mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
+    hydraulic_cooling_mass_cost_coeff = Float(174.62, iotype='in', units='USD/kg', desc='hydraulic and cooling system mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
+    nacelle_cover_mass_cost_coeff = Float(8.07, iotype='in', units='USD/kg', desc='nacelle cover mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
     elec_connec_cost_esc = Float(1.5, iotype='in', desc='cost escalator from 2002 to 2015 for electrical connections') ####KLD update this
     elec_connec_machine_rating_cost_coeff = Float(40.0, iotype='in', units='USD/kW', desc='2002 electrical connections cost coefficient per kW')
     controls_cost_base = Array(np.array([35000.0,55900.0]), iotype='in', desc='2002 controls cost for [onshore, offshore]')
     controls_escalator = Float(1.5, iotype='in', desc='cost escalator from 2002 to 2015 for controls') ####KLD update this
-    nacelle_platforms_mass_cost_coeff = Float(8.7, iotype='in', units='USD/kg', desc='nacelle platforms mass cost coefficient [$/kg]') #default from old CSM
+    nacelle_platforms_mass_cost_coeff = Float(8.07, iotype='in', units='USD/kg', desc='nacelle platforms mass cost coefficient [$/kg]') #default from old CSM
     crane_cost = Float(12000.0, iotype='in', units='USD', desc='crane cost if present [$]') #default from old CSM
     base_hardware_cost_coeff = Float(0.7, iotype='in', desc='base hardware cost coefficient based on bedplate cost') #default from old CSM
     transformer_mass_cost_coeff = Float(26.5, iotype='in', units= 'USD/kg', desc='transformer mass cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
@@ -644,7 +644,7 @@ class TowerCost2015(Component):
 
     # variables
     tower_mass = Float(iotype='in', units='kg', desc='tower mass [kg]')
-    tower_mass_cost_coefficient = Float(3.20, iotype='in', units='USD/kg', desc='tower mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    tower_mass_cost_coefficient = Float(3.08, iotype='in', units='USD/kg', desc='tower mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
 
     # Outputs
     cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
@@ -682,7 +682,7 @@ class Tower_CostsSE_2015(Assembly):
 
     # variables
     tower_mass = Float(iotype='in', units='kg', desc='tower mass [kg]')
-    tower_mass_cost_coefficient = Float(3.20, iotype='in', units='USD/kg', desc='tower mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    tower_mass_cost_coefficient = Float(3.08, iotype='in', units='USD/kg', desc='tower mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
     
     # multipliers
     tower_assemblyCostMultiplier = Float(0.0, iotype='in', desc='tower assembly cost multiplier')
@@ -744,29 +744,29 @@ class Turbine_CostsSE_2015(Assembly):
     bearing_number = Float(2, iotype='in', desc='number of main bearings []') #number of main bearings- defaults to 2
 
     # cost coefficients
-    blade_mass_cost_coeff = Float(13.08, iotype='in', units='USD/kg', desc='blade mass-cost coefficient [$/kg]')
+    blade_mass_cost_coeff = Float(13.93, iotype='in', units='USD/kg', desc='blade mass-cost coefficient [$/kg]')
     hub_mass_cost_coeff = Float(3.80, iotype='in', units='USD/kg', desc='hub mass-cost coefficient [$/kg]')
     pitch_system_mass_cost_coeff = Float(22.91, iotype='in', units='USD/kg', desc='pitch system mass-cost coefficient [$/kg]') #mass-cost coefficient with default from list
-    spinner_mass_cost_coeff = Float(23.00, iotype='in', units='USD/kg', desc='spinner/nose cone mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
-    lss_mass_cost_coeff = Float(12.60, iotype='in', units='USD/kg', desc='low speed shaft mass-cost coefficient [$/kg]')
+    spinner_mass_cost_coeff = Float(15.60, iotype='in', units='USD/kg', desc='spinner/nose cone mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    lss_mass_cost_coeff = Float(13.30, iotype='in', units='USD/kg', desc='low speed shaft mass-cost coefficient [$/kg]')
     bearings_mass_cost_coeff = Float(6.35, iotype='in', units='USD/kg', desc='main bearings mass-cost coefficient [$/kg]') #mass-cost coefficient- HALF of the 12.70 in powerpoint because it was based on TWO bearings 
-    gearbox_mass_cost_coeff = Float(17.40, iotype='in', units='USD/kg', desc='gearbox mass-cost coefficient [$/kg]')
-    high_speed_side_mass_cost_coeff = Float(8.25, iotype='in', units='USD/kg', desc='high speed side mass-cost coefficient [$/kg]') #mass-cost coefficient with default from list
-    generator_mass_cost_coeff = Float(17.43, iotype='in', units= 'USD/kg', desc='generator mass cost coefficient [$/kg]')
-    bedplate_mass_cost_coeff = Float(4.50, iotype='in', units='USD/kg', desc='bedplate mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
-    yaw_system_mass_cost_coeff = Float(11.01, iotype='in', units='USD/kg', desc='yaw system mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
+    gearbox_mass_cost_coeff = Float(18.46, iotype='in', units='USD/kg', desc='gearbox mass-cost coefficient [$/kg]')
+    high_speed_side_mass_cost_coeff = Float(9.55, iotype='in', units='USD/kg', desc='high speed side mass-cost coefficient [$/kg]') #mass-cost coefficient with default from list
+    generator_mass_cost_coeff = Float(17.46, iotype='in', units= 'USD/kg', desc='generator mass cost coefficient [$/kg]')
+    bedplate_mass_cost_coeff = Float(4.00, iotype='in', units='USD/kg', desc='bedplate mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    yaw_system_mass_cost_coeff = Float(11.74, iotype='in', units='USD/kg', desc='yaw system mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
     variable_speed_elec_mass_cost_coeff = Float(26.50, iotype='in', units='USD/kg', desc='variable speed electronics mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
-    hydraulic_cooling_mass_cost_coeff = Float(163.95, iotype='in', units='USD/kg', desc='hydraulic and cooling system mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
-    nacelle_cover_mass_cost_coeff = Float(7.61, iotype='in', units='USD/kg', desc='nacelle cover mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
+    hydraulic_cooling_mass_cost_coeff = Float(174.62, iotype='in', units='USD/kg', desc='hydraulic and cooling system mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
+    nacelle_cover_mass_cost_coeff = Float(8.07, iotype='in', units='USD/kg', desc='nacelle cover mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
     elec_connec_cost_esc = Float(1.5, iotype='in', desc='cost escalator from 2002 to 2015 for electrical connections') ####KLD update this
     elec_connec_machine_rating_cost_coeff = Float(40.0, iotype='in', units='USD/kW', desc='2002 electrical connections cost coefficient per kW')
     controls_cost_base = Array(np.array([35000.0,55900.0]), iotype='in', desc='2002 controls cost for [onshore, offshore]')
     controls_escalator = Float(1.5, iotype='in', desc='cost escalator from 2002 to 2015 for controls') ####KLD update this
-    nacelle_platforms_mass_cost_coeff = Float(8.7, iotype='in', units='USD/kg', desc='nacelle platforms mass cost coefficient [$/kg]') #default from old CSM
+    nacelle_platforms_mass_cost_coeff = Float(8.07, iotype='in', units='USD/kg', desc='nacelle platforms mass cost coefficient [$/kg]') #default from old CSM
     crane_cost = Float(12000.0, iotype='in', units='USD', desc='crane cost if present [$]') #default from old CSM
     base_hardware_cost_coeff = Float(0.7, iotype='in', desc='base hardware cost coefficient based on bedplate cost') #default from old CSM
     transformer_mass_cost_coeff = Float(26.5, iotype='in', units= 'USD/kg', desc='transformer mass cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
-    tower_mass_cost_coefficient = Float(3.20, iotype='in', units='USD/kg', desc='tower mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    tower_mass_cost_coefficient = Float(3.08, iotype='in', units='USD/kg', desc='tower mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
   
     #multipliers
     hub_assemblyCostMultiplier = Float(0.0, iotype='in', desc='rotor assembly cost multiplier')
