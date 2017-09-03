@@ -134,6 +134,8 @@ print "Overall turbine cost is ${0:.2f} USD".format(trb.turbine_cost)
 
 # 10 ----------
 # 11 ----------
+from turbine_costsse.turbine_costsse_2015 import Turbine_CostsSE_2015
+
 turbine = Turbine_CostsSE_2015()
 
 # 11 ----------
@@ -208,6 +210,8 @@ print
 # 16 ----------
 
 # simple test of module
+from turbine_costsse.nrel_csm_tcc_2015 import nrel_csm_tcc_2015
+
 trb = nrel_csm_tcc_2015()
 
 # 16 ----------
