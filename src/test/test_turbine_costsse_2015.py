@@ -20,11 +20,11 @@ class TestNewAssembly(unittest.TestCase):
     turbine.bedplate_mass = 93090.6
     turbine.yaw_system_mass = 11878.24
     turbine.tower_mass = 434559.0
-    turbine.variable_speed_elec_mass = 1000. #Float(iotype='in', units='kg', desc='component mass [kg]')
-    turbine.hydraulic_cooling_mass = 1000. #Float(iotype='in', units='kg', desc='component mass [kg]')
-    turbine.nacelle_cover_mass = 1000. #Float(iotype='in', units='kg', desc='component mass [kg]')
-    turbine.nacelle_platforms_mass = 1000. #Float(iotype='in', units='kg', desc='component mass [kg]')
-    turbine.transformer_mass = 1000. #Float(iotype='in', units='kg', desc='component mass [kg]')    
+    turbine.variable_speed_elec_mass = 0. #obsolete - using transformer #Float(iotype='in', units='kg', desc='component mass [kg]')
+    turbine.hydraulic_cooling_mass = 400. #Float(iotype='in', units='kg', desc='component mass [kg]')
+    turbine.nacelle_cover_mass = 6837. #Float(iotype='in', units='kg', desc='component mass [kg]')
+    turbine.other_mass = 8220. #Float(iotype='in', units='kg', desc='component mass [kg]')
+    turbine.transformer_mass = 11485. #Float(iotype='in', units='kg', desc='component mass [kg]')    
 
     # other inputs
     turbine.machine_rating = 5000.0
@@ -36,8 +36,8 @@ class TestNewAssembly(unittest.TestCase):
     turbine.run()
     self.assertEqual(np.round(turbine.rotorCC.cost, 2), 1292397.85)
     self.assertEqual(np.round(turbine.nacelleCC.generatorCC.cost, 2), 207078.14)
-    self.assertEqual(np.round(turbine.nacelleCC.transformerCC.cost, 2), 18800.00)
-    self.assertEqual(np.round(turbine.turbine_cost, 2), 4387216.13)
+    self.assertEqual(np.round(turbine.nacelleCC.transformerCC.cost, 2), 215918.00)
+    self.assertEqual(np.round(turbine.turbine_cost, 2), 4664967.03)
     print "The results for the NREL 5 MW Reference Turbine in an offshore 20 m water depth location are:"
     print
     print "Overall rotor cost with 3 advanced blades is ${0:.2f} USD".format(turbine.rotorCC.cost)

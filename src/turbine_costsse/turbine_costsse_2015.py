@@ -452,7 +452,6 @@ class OtherMainframeCost2015(Component):
         #aggregate all three mainframe costs
         MainFrameCost = (NacellePlatformsCost + craneCost) # + BaseHardwareCost)
         self.cost  = MainFrameCost
-   
 
 #-------------------------------------------------------------------------------
 @implement_base(BaseComponentCostModel)
@@ -926,11 +925,11 @@ def example():
     turbine.bedplate_mass = 93090.6
     turbine.yaw_system_mass = 11878.24
     turbine.tower_mass = 434559.0
-    turbine.variable_speed_elec_mass = 1000. #Float(iotype='in', units='kg', desc='component mass [kg]')
-    turbine.hydraulic_cooling_mass = 1000. #Float(iotype='in', units='kg', desc='component mass [kg]')
-    turbine.nacelle_cover_mass = 1000. #Float(iotype='in', units='kg', desc='component mass [kg]')
-    turbine.nacelle_platforms_mass = 1000. #Float(iotype='in', units='kg', desc='component mass [kg]')
-    turbine.transformer_mass = 1000. #Float(iotype='in', units='kg', desc='component mass [kg]')    
+    turbine.variable_speed_elec_mass = 0. #obsolete - using transformer #Float(iotype='in', units='kg', desc='component mass [kg]')
+    turbine.hydraulic_cooling_mass = 400. #Float(iotype='in', units='kg', desc='component mass [kg]')
+    turbine.nacelle_cover_mass = 6837. #Float(iotype='in', units='kg', desc='component mass [kg]')
+    turbine.other_mass = 8220. #Float(iotype='in', units='kg', desc='component mass [kg]')
+    turbine.transformer_mass = 11485. #Float(iotype='in', units='kg', desc='component mass [kg]')    
 
     # other inputs
     turbine.machine_rating = 5000.0
