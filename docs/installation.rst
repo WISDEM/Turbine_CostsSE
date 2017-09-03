@@ -31,12 +31,16 @@ To check if installation was successful try to import the module from within an 
 
     > import turbine_costsse.turbine_costsse
     > import turbine_costsse.nrel_csm_tcc
+    > import turbine_costsse.turbine_costsse_2015
+    > import turbine_costsse.nrel_csm_tcc_2015
 
 or run the unit tests which include functional and gradient tests.  Analytic gradients are provided for variables only so warnings will appear for missing gradients on model input parameters; these can be ignored.
 
 .. code-block:: bash
 
    $ python src/test/test_Turbine_CostsSE.py
+   $ python src/test/test_Turbine_CostsSE_gradients.py
+   $ python src/test/test_turbine_costsse_2015.py
 
 An "OK" signifies that all the tests passed.
 

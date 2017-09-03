@@ -133,3 +133,117 @@ print "Overall turbine mass is {0:.2f} kg".format(trb.turbine_mass)
 print "Overall turbine cost is ${0:.2f} USD".format(trb.turbine_cost)
 
 # 10 ----------
+# 11 ----------
+turbine = Turbine_CostsSE_2015()
+
+# 11 ----------
+# 12 ----------
+
+turbine.blade_mass = 17650.67  # inline with the windpact estimates
+turbine.hub_mass = 31644.5
+turbine.pitch_system_mass = 17004.0
+turbine.spinner_mass = 1810.5
+turbine.low_speed_shaft_mass = 31257.3
+#bearingsMass = 9731.41
+turbine.main_bearing_mass = 9731.41 / 2
+turbine.second_bearing_mass = 9731.41 / 2 #KLD - revisit this in new model
+turbine.gearbox_mass = 30237.60
+turbine.high_speed_side_mass = 1492.45
+turbine.generator_mass = 16699.85
+turbine.bedplate_mass = 93090.6
+turbine.yaw_system_mass = 11878.24
+turbine.tower_mass = 434559.0
+turbine.variable_speed_elec_mass = 0. #obsolete - using transformer #Float(iotype='in', units='kg', desc='component mass [kg]')
+turbine.hydraulic_cooling_mass = 400. #Float(iotype='in', units='kg', desc='component mass [kg]')
+turbine.nacelle_cover_mass = 6837. #Float(iotype='in', units='kg', desc='component mass [kg]')
+turbine.other_mass = 8220. #Float(iotype='in', units='kg', desc='component mass [kg]')
+turbine.transformer_mass = 11485. #Float(iotype='in', units='kg', desc='component mass [kg]')    
+
+# 12 ----------
+# 13 ----------
+# other inputs
+turbine.machine_rating = 5000.0
+turbine.blade_number = 3
+turbine.crane = True
+turbine.offshore = True
+turbine.bearing_number = 2
+
+# 13 ----------
+# 14 ----------
+
+turbine.run()
+
+# 14 ----------
+# 15 ----------
+
+print "The results for the NREL 5 MW Reference Turbine in an offshore 20 m water depth location are:"
+print
+print "Overall rotor cost with 3 advanced blades is ${0:.2f} USD".format(turbine.rotorCC.cost)
+print "Blade cost is ${0:.2f} USD".format(turbine.rotorCC.bladeCC.cost)
+print "Hub cost is ${0:.2f} USD".format(turbine.rotorCC.hubCC.cost)
+print "Pitch system cost is ${0:.2f} USD".format(turbine.rotorCC.pitchSysCC.cost)
+print "Spinner cost is ${0:.2f} USD".format(turbine.rotorCC.spinnerCC.cost)
+print
+print "Overall nacelle cost is ${0:.2f} USD".format(turbine.nacelleCC.cost)
+print "LSS cost is ${0:.2f} USD".format(turbine.nacelleCC.lssCC.cost)
+print "Main bearings cost is ${0:.2f} USD".format(turbine.nacelleCC.bearingsCC.cost)
+print "Gearbox cost is ${0:.2f} USD".format(turbine.nacelleCC.gearboxCC.cost)
+print "High speed side cost is ${0:.2f} USD".format(turbine.nacelleCC.hssCC.cost)
+print "Generator cost is ${0:.2f} USD".format(turbine.nacelleCC.generatorCC.cost)
+print "Bedplate cost is ${0:.2f} USD".format(turbine.nacelleCC.bedplateCC.cost)
+print "Yaw system cost is ${0:.2f} USD".format(turbine.nacelleCC.yawSysCC.cost)
+print "Variable speed electronics cost is ${0:.2f} USD".format(turbine.nacelleCC.vsCC.cost)
+print "HVAC cost is ${0:.2f} USD".format(turbine.nacelleCC.hydraulicCC.cost)    
+print "Electrical connections cost is ${0:.2f} USD".format(turbine.nacelleCC.elecCC.cost)
+print "Controls cost is ${0:.2f} USD".format(turbine.nacelleCC.controlsCC.cost)
+print "Mainframe cost is ${0:.2f} USD".format(turbine.nacelleCC.mainframeCC.cost)
+print "Transformer cost is ${0:.2f} USD".format(turbine.nacelleCC.transformerCC.cost)
+print
+print "Tower cost is ${0:.2f} USD".format(turbine.towerCC.cost)
+print
+print "The overall turbine cost is ${0:.2f} USD".format(turbine.turbine_cost)
+print
+
+# 15 ----------
+# 16 ----------
+
+# simple test of module
+trb = nrel_csm_tcc_2015()
+
+# 16 ----------
+# 17 ----------
+
+trb.rotor_diameter = 100.0
+trb.turbine_class = 'II/III'
+trb.blade_has_carbon = True
+trb.blade_number = 3    
+trb.machine_rating = 2000.0
+trb.hub_height = 80.0
+trb.bearing_number = 2
+trb.crane = True
+trb.offshore = False
+
+# 17 ----------
+# 18 ----------
+
+# Rotor force calculations for nacelle inputs
+maxTipSpd = 80.0
+maxEfficiency = 0.9
+
+ratedHubPower  = trb.machine_rating*1000. / maxEfficiency 
+rotorSpeed     = (maxTipSpd/(0.5*trb.rotor_diameter)) * (60.0 / (2*np.pi))
+trb.rotor_torque = ratedHubPower/(rotorSpeed*(np.pi/30))
+
+# 18 ----------
+# 19 ----------
+
+trb.run()
+
+# 19 ----------
+# 20 ----------
+
+print "The results for the NREL 5 MW Reference Turbine in an offshore 20 m water depth location are:"
+print "Overall turbine mass is {0:.2f} kg".format(trb.turbine_mass)
+print "Overall turbine cost is ${0:.2f} USD".format(trb.turbine_cost)
+
+# 20 ----------
