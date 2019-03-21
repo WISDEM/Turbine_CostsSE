@@ -5,968 +5,776 @@ Created by Janine Freeman 2015 based on turbine_costsse.py 2012.
 Copyright (c) NREL. All rights reserved.
 """
 
-from openmdao.main.api import Component, Assembly
-from openmdao.main.datatypes.api import Array, Float, Bool, Int, Enum
+from openmdao.api import Component, Problem, Group, IndepVarComp
+
 import numpy as np
 
-from fusedwind.plant_cost.fused_tcc import FullTurbineCostModel, FullTCCAggregator, configure_full_tcc
-from fusedwind.interface import implement_base
-from fusedwind.plant_cost.fused_tcc import FullRotorCostModel, FullRotorCostAggregator, FullHubSystemCostAggregator, BaseComponentCostModel, configure_full_rcc
-from fusedwind.plant_cost.fused_tcc import FullNacelleCostModel, BaseComponentCostModel, FullNacelleCostAggregator, configure_full_ncc
-from fusedwind.plant_cost.fused_tcc import FullTowerCostModel, FullTowerCostAggregator, BaseComponentCostModel, configure_full_twcc
-
-
 ###### Rotor
-
 #-------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
 class BladeCost2015(Component):
 
-    # variables
-    blade_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    blade_mass_cost_coeff = Float(14.6, iotype='in', units='USD/kg', desc='blade mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    def __init__(self):
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capital costs excluding transportation costs')
+        super(BladeCost2015, self).__init__()
 
-    def execute(self):
+        # variables
+        self.add_param('blade_mass', 0.0, desc='component mass', units='kg')
+        self.add_param('blade_mass_cost_coeff', 14.6, desc='blade mass-cost coeff', units='USD/kg')
+    
+        # Outputs
+        self.add_output('blade_cost', 0.0, units='USD', desc='Overall wind turbine component capital costs excluding transportation costs')
+
+    def solve_nonlinear(self, params, unknowns, resids):
+
+        blade_mass = params['blade_mass']
+        blade_mass_cost_coeff = params['blade_mass_cost_coeff']
 
         # calculate component cost
-        BladeCost2015 = self.blade_mass_cost_coeff * self.blade_mass
-        self.cost = BladeCost2015
+        BladeCost2015 = blade_mass_cost_coeff * blade_mass
+        unknowns['blade_cost'] = BladeCost2015
         
 
 # -----------------------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
 class HubCost2015(Component):
 
-    # variables
-    hub_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    hub_mass_cost_coeff = Float(3.90, iotype='in', units='USD/kg', desc='hub mass-cost coefficient [$/kg]')
+    def __init__(self):
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+        super(HubCost2015, self).__init__()
 
-    def execute(self):
+        # variables
+        self.add_param('hub_mass', 0.0, desc='component mass', units='kg')
+        self.add_param('hub_mass_cost_coeff', 3.9, desc='hub mass-cost coeff', units='USD/kg')
+    
+        # Outputs
+        self.add_output('hub_cost', 0.0, units='USD', desc='Overall wind turbine component capial costs excluding transportation costs')
+
+    def solve_nonlinear(self, params, unknowns, resids):
+
+        hub_mass_cost_coeff = params['hub_mass_cost_coeff']
+        hub_mass = params['hub_mass']
 
         # calculate component cost
-        HubCost2015 = self.hub_mass_cost_coeff * self.hub_mass
-        self.cost = HubCost2015
-           
+        HubCost2015 = hub_mass_cost_coeff * hub_mass
+        unknowns['hub_cost'] = HubCost2015
+        
 
 #-------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
 class PitchSystemCost2015(Component):
 
-    # variables
-    pitch_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    pitch_system_mass_cost_coeff = Float(22.1, iotype='in', units='USD/kg', desc='pitch system mass-cost coefficient [$/kg]') #mass-cost coefficient with default from list
+    def __init__(self):
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+        super(PitchSystemCost2015,self).__init__()
 
-    def execute(self):
+        # variables
+        self.add_param('pitch_system_mass', 0.0, desc='component mass', units='kg')
+        self.add_param('pitch_system_mass_cost_coeff', 22.1, desc='pitch system mass-cost coeff', units='USD/kg')
+    
+        # Outputs
+        self.add_output('pitch_cost', 0.0, units='USD', desc='Overall wind turbine component capial costs excluding transportation costs')
 
+    def solve_nonlinear(self, params, unknowns, resids):
+        
+        pitch_system_mass = params['pitch_system_mass']
+        pitch_system_mass_cost_coeff = params['pitch_system_mass_cost_coeff']
+        
         #calculate system costs
-        PitchSystemCost2015 = self.pitch_system_mass_cost_coeff * self.pitch_system_mass
-        self.cost = PitchSystemCost2015
-   
+        PitchSystemCost2015 = pitch_system_mass_cost_coeff * pitch_system_mass
+        unknowns['pitch_cost'] = PitchSystemCost2015
         
 #-------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
 class SpinnerCost2015(Component):
 
-    # variables
-    spinner_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    spinner_mass_cost_coeff = Float(11.1, iotype='in', units='USD/kg', desc='spinner/nose cone mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    def __init__(self):
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+        super(SpinnerCost2015, self).__init__()
 
-    def execute(self):
+        # variables
+        self.add_param('spinner_mass', 0.0, desc='component mass', units='kg')
+        self.add_param('spinner_mass_cost_coeff', 11.1, desc='spinner/nose cone mass-cost coeff', units='USD/kg')
+    
+        # Outputs
+        self.add_output('spinner_cost', 0.0, units='USD', desc='Overall wind turbine component capial costs excluding transportation costs')
+
+    def solve_nonlinear(self, params, unknowns, resids):
+
+        spinner_mass_cost_coeff = params['spinner_mass_cost_coeff']
+        spinner_mass = params['spinner_mass']
 
         #calculate system costs
-        SpinnerCost2015 = self.spinner_mass_cost_coeff * self.spinner_mass
-        self.cost = SpinnerCost2015
-   
+        SpinnerCost2015 = spinner_mass_cost_coeff * spinner_mass
+        unknowns['spinner_cost'] = SpinnerCost2015
 
 #-------------------------------------------------------------------------------
-@implement_base(FullHubSystemCostAggregator)
 class HubSystemCostAdder2015(Component):
 
-    # variables
-    hub_cost = Float(iotype='in', units='USD', desc='hub component cost')
-    pitch_system_cost = Float(iotype='in', units='USD', desc='pitch system cost')
-    spinner_cost = Float(iotype='in', units='USD', desc='spinner component cost')
+    def __init__(self):
+
+        super(HubSystemCostAdder2015, self).__init__()
+
+        # variables
+        self.add_param('hub_cost', 0.0, units='USD', desc='hub component cost')
+        self.add_param('pitch_cost', 0.0, units='USD', desc='pitch system cost')
+        self.add_param('spinner_cost', 0.0, units='USD', desc='spinner component cost')
+        
+        # multipliers
+        self.add_param('hub_assemblyCostMultiplier', 0.0, desc='rotor assembly cost multiplier')
+        self.add_param('hub_overheadCostMultiplier', 0.0, desc='rotor overhead cost multiplier')
+        self.add_param('hub_profitMultiplier', 0.0, desc='rotor profit multiplier')
+        self.add_param('hub_transportMultiplier', 0.0, desc='rotor transport multiplier')
     
-    # multipliers
-    hub_assemblyCostMultiplier = Float(0.0, iotype='in', desc='rotor assembly cost multiplier')
-    hub_overheadCostMultiplier = Float(0.0, iotype='in', desc='rotor overhead cost multiplier')
-    hub_profitMultiplier = Float(0.0, iotype='in', desc='rotor profit multiplier')
-    hub_transportMultiplier = Float(0.0, iotype='in', desc='rotor transport multiplier')
+        # Outputs
+        self.add_output('hub_system_cost', 0.0, units='USD', desc='Overall wind sub-assembly capial costs including transportation costs')
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind sub-assembly capial costs including transportation costs')
+    def solve_nonlinear(self, params, unknowns, resids):
 
-    def execute(self):
+        hub_cost = params['hub_cost']
+        pitch_cost = params['pitch_cost']
+        spinner_cost = params['spinner_cost']
+        
+        hub_assemblyCostMultiplier = params['hub_assemblyCostMultiplier']
+        hub_overheadCostMultiplier = params['hub_overheadCostMultiplier']
+        hub_profitMultiplier = params['hub_profitMultiplier']
+        hub_transportMultiplier = params['hub_transportMultiplier']
 
-        partsCost = self.hub_cost + self.pitch_system_cost + self.spinner_cost
+        partsCost = hub_cost + pitch_cost + spinner_cost
         
         # updated calculations below to account for assembly, transport, overhead and profit
-        self.cost = (1 + self.hub_transportMultiplier + self.hub_profitMultiplier) * ((1 + self.hub_overheadCostMultiplier + self.hub_assemblyCostMultiplier) * partsCost)
+        unknowns['hub_system_cost'] = (1 + hub_transportMultiplier + hub_profitMultiplier) * ((1 + hub_overheadCostMultiplier + hub_assemblyCostMultiplier) * partsCost)
 
-   
 #-------------------------------------------------------------------------------
-@implement_base(FullRotorCostAggregator)
 class RotorCostAdder2015(Component):
     """
     RotorCostAdder adds up individual rotor system and component costs to get overall rotor cost.
     """
 
-    # variables
-    blade_cost = Float(iotype='in', units='USD', desc='individual blade cost')
-    hub_system_cost = Float(iotype='in', units='USD', desc='cost for hub system')
+    def __init__(self):
+        
+        super(RotorCostAdder2015, self).__init__()
+
+        # variables
+        self.add_param('blade_cost', 0.0, units='USD', desc='individual blade cost')
+        self.add_param('hub_system_cost', 0.0, units='USD', desc='cost for hub system')
+        
+        # parameters
+        self.add_param('blade_number', 3, desc='number of rotor blades', pass_by_obj=True)
     
-    # parameters
-    blade_number = Int(iotype='in', desc='number of rotor blades')
+        # Outputs
+        self.add_output('rotor_cost', 0.0, units='USD', desc='Overall wind sub-assembly capial costs including transportation costs')
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind sub-assembly capial costs including transportation costs')
+    def solve_nonlinear(self, params, unknowns, resids):
 
-    def execute(self):
+        blade_cost = params['blade_cost']
+        blade_number = params['blade_number']
+        hub_system_cost = params['hub_system_cost']
 
-        self.cost = self.blade_cost * self.blade_number + self.hub_system_cost
-   
-
-#-------------------------------------------------------------------------------
-@implement_base(FullRotorCostModel)
-class Rotor_CostsSE_2015(FullRotorCostModel):
-
-    '''
-       Rotor_CostsSE class
-          The Rotor_costsSE class is used to represent the rotor costs of a wind turbine.
-    '''
-
-    # variables
-    blade_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    blade_mass_cost_coeff = Float(13.08, iotype='in', units='USD/kg', desc='blade mass-cost coefficient [$/kg]')
-    hub_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    hub_mass_cost_coeff = Float(3.80, iotype='in', units='USD/kg', desc='hub mass-cost coefficient [$/kg]')
-    pitch_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    pitch_system_mass_cost_coeff = Float(22.91, iotype='in', units='USD/kg', desc='pitch system mass-cost coefficient [$/kg]') #mass-cost coefficient with default from list
-    spinner_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    spinner_mass_cost_coeff = Float(15.59, iotype='in', units='USD/kg', desc='spinner/nose cone mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
-
-    # parameters
-    blade_number = Int(iotype='in', desc='number of rotor blades')
-  
-    #multipliers
-    hub_assemblyCostMultiplier = Float(0.0, iotype='in', desc='rotor assembly cost multiplier')
-    hub_overheadCostMultiplier = Float(0.0, iotype='in', desc='rotor overhead cost multiplier')
-    hub_profitMultiplier = Float(0.0, iotype='in', desc='rotor profit multiplier')
-    hub_transportMultiplier = Float(0.0, iotype='in', desc='rotor transport multiplier')
-
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind sub-assembly capial costs including transportation costs')
-
-    def configure(self):
-
-        configure_full_rcc(self)
-
-        # select components
-        self.replace('bladeCC', BladeCost2015())
-        self.replace('hubCC', HubCost2015())
-        self.replace('pitchSysCC', PitchSystemCost2015())
-        self.replace('spinnerCC', SpinnerCost2015())
-        self.replace('hubSysCC', HubSystemCostAdder2015())
-        self.replace('rcc', RotorCostAdder2015())
-
-        # connect inputs
-        self.connect('blade_mass', 'bladeCC.blade_mass')
-        self.connect('blade_mass_cost_coeff', 'bladeCC.blade_mass_cost_coeff')
-        self.connect('hub_mass', 'hubCC.hub_mass')
-        self.connect('hub_mass_cost_coeff', 'hubCC.hub_mass_cost_coeff')
-        self.connect('pitch_system_mass', 'pitchSysCC.pitch_system_mass')
-        self.connect('pitch_system_mass_cost_coeff', 'pitchSysCC.pitch_system_mass_cost_coeff')
-        self.connect('spinner_mass', 'spinnerCC.spinner_mass')
-        self.connect('spinner_mass_cost_coeff', 'spinnerCC.spinner_mass_cost_coeff')
-    
-        # connect multipliers
-        self.connect('hub_assemblyCostMultiplier', 'hubSysCC.hub_assemblyCostMultiplier')
-        self.connect('hub_overheadCostMultiplier', 'hubSysCC.hub_overheadCostMultiplier')
-        self.connect('hub_profitMultiplier', 'hubSysCC.hub_profitMultiplier')
-        self.connect('hub_transportMultiplier', 'hubSysCC.hub_transportMultiplier')
+        unknowns['rotor_cost'] = blade_cost * blade_number + hub_system_cost
 
 #-------------------------------------------------------------------------------
 
 
 ###### Nacelle
-
 # -------------------------------------------------
-@implement_base(BaseComponentCostModel)
 class LowSpeedShaftCost2015(Component):
 
-    # variables
-    low_speed_shaft_mass = Float(iotype='in', units='kg', desc='component mass [kg]') #mass input
-    lss_mass_cost_coeff = Float(11.9, iotype='in', units='USD/kg', desc='low speed shaft mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    def __init__(self):
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs') #initialize cost output
+        super(LowSpeedShaftCost2015, self).__init__()
 
-    def execute(self):
+        # variables
+        self.add_param('lss_mass', 0.0, desc='component mass', units='kg') #mass input
+        self.add_param('lss_mass_cost_coeff', 11.9, desc='low speed shaft mass-cost coeff', units='USD/kg')
+    
+        # Outputs
+        self.add_output('lss_cost', 0.0, units='USD', desc='Overall wind turbine component capial costs excluding transportation costs') #initialize cost output
+
+    def solve_nonlinear(self, params, unknowns, resids):
+
+        lss_mass_cost_coeff = params['lss_mass_cost_coeff']
+        lss_mass = params['lss_mass']
 
         # calculate component cost
-        LowSpeedShaftCost2015 = self.lss_mass_cost_coeff * self.low_speed_shaft_mass
-        self.cost = LowSpeedShaftCost2015 #assign the cost to this object so don't have to return anything
-   
+        unknowns['lss_cost'] = lss_mass_cost_coeff * lss_mass
 
 #-------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
 class BearingsCost2015(Component):
 
-    # variables
-    main_bearing_mass = Float(iotype='in', units='kg', desc='component mass [kg]') #mass input
-    bearing_number = Float(2, iotype='in', desc='number of main bearings []') #number of main bearings- defaults to 2
-    bearings_mass_cost_coeff = Float(4.5, iotype='in', units='USD/kg', desc='main bearings mass-cost coefficient [$/kg]') #mass-cost coefficient- HALF of the 12.70 in powerpoint because it was based on TWO bearings
+    def __init__(self):
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+        super(BearingsCost2015, self).__init__()
 
-    def execute(self):
+        # variables
+        self.add_param('main_bearing_mass', 0.0, desc='component mass', units='kg') #mass input
+        self.add_param('bearing_number', 2, desc='number of main bearings', pass_by_obj=True) #number of main bearings- defaults to 2
+        self.add_param('bearings_mass_cost_coeff', 4.5, desc='main bearings mass-cost coeff', units='USD/kg')
     
-        #calculate component cost
-        BearingsCost2015 = self.bearings_mass_cost_coeff * self.main_bearing_mass * self.bearing_number
-        self.cost = BearingsCost2015
-   
+        # Outputs
+        self.add_output('bearing_cost', 0.0, units='USD', desc='Overall wind turbine component capial costs excluding transportation costs')
+
+    def solve_nonlinear(self, params, unknowns, resids):
+
+        main_bearing_mass = params['main_bearing_mass']
+        bearing_number = params['bearing_number']
+        bearings_mass_cost_coeff = params['bearings_mass_cost_coeff']
+
+        #calculate component cost 
+        unknowns['bearing_cost'] = bearings_mass_cost_coeff * main_bearing_mass * bearing_number
 
 #-------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
 class GearboxCost2015(Component):
 
-    # variables
-    gearbox_mass = Float(iotype='in', units='kg', desc='component mass')
-    gearbox_mass_cost_coeff = Float(12.9, iotype='in', units='USD/kg', desc='gearbox mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    def __init__(self):
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+        super(GearboxCost2015, self).__init__()
 
-    def execute(self):
+        # variables
+        self.add_param('gearbox_mass', 0.0, units='kg', desc='component mass')
+        self.add_param('gearbox_mass_cost_coeff', 12.9, desc='gearbox mass-cost coeff', units='USD/kg')
+    
+        # Outputs
+        self.add_output('gearbox_cost', 0.0, units='USD', desc='Overall wind turbine component capial costs excluding transportation costs')
 
-        # calculate component cost
-        GearboxCost2015 = self.gearbox_mass_cost_coeff * self.gearbox_mass
-        self.cost = GearboxCost2015
-   
+    def solve_nonlinear(self, params, unknowns, resids):
+
+        gearbox_mass = params['gearbox_mass']
+        gearbox_mass_cost_coeff = params['gearbox_mass_cost_coeff']
+
+        unknowns['gearbox_cost'] = gearbox_mass_cost_coeff * gearbox_mass
 
 #-------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
 class HighSpeedSideCost2015(Component):
 
-    # variables
-    high_speed_side_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    high_speed_side_mass_cost_coeff = Float(6.8, iotype='in', units='USD/kg', desc='high speed side mass-cost coefficient [$/kg]') #mass-cost coefficient with default from list
+    def __init__(self):
+        
+        super(HighSpeedSideCost2015, self).__init__()
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+        # variables
+        self.add_param('hss_mass', 0.0, desc='component mass', units='kg')
+        self.add_param('hss_mass_cost_coeff', 6.8, desc='high speed side mass-cost coeff', units='USD/kg')
+    
+        # Outputs
+        self.add_output('hss_cost', 0.0, units='USD', desc='Overall wind turbine component capial costs excluding transportation costs')
 
-    def execute(self):
+    def solve_nonlinear(self, params, unknowns, resids):
 
-        # calculate component cost
-        MechBrakeCost2015 = self.high_speed_side_mass_cost_coeff * self.high_speed_side_mass
-        self.cost = MechBrakeCost2015
-   
+        hss_mass = params['hss_mass']
+        hss_mass_cost_coeff = params['hss_mass_cost_coeff']
+        
+        unknowns['hss_cost'] = hss_mass_cost_coeff * hss_mass
 
 #-------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
 class GeneratorCost2015(Component):
 
-    # variables
-    generator_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    generator_mass_cost_coeff = Float(12.4, iotype='in', units= 'USD/kg', desc='generator mass cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    def __init__(self):
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+        super(GeneratorCost2015, self).__init__()
 
-    def execute(self):
+        # variables
+        self.add_param('generator_mass', 0.0, desc='component mass', units='kg')
+        self.add_param('generator_mass_cost_coeff', 12.4, desc='generator mass cost coeff', units='USD/kg')
+    
+        # Outputs
+        self.add_output('generator_cost', 0.0, units='USD', desc='Overall wind turbine component capial costs excluding transportation costs')
 
-        #calculate component cost
-        GeneratorCost2015 = self.generator_mass_cost_coeff * self.generator_mass
-        self.cost = GeneratorCost2015
-   
+    def solve_nonlinear(self, params, unknowns, resids):
+
+        generator_mass = params['generator_mass']
+        generator_mass_cost_coeff = params['generator_mass_cost_coeff']
+        
+        unknowns['generator_cost'] = generator_mass_cost_coeff * generator_mass
 
 #-------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
 class BedplateCost2015(Component):
 
-    # variables
-    bedplate_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    bedplate_mass_cost_coeff = Float(2.9, iotype='in', units='USD/kg', desc='bedplate mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    def __init__(self):
+        
+        super(BedplateCost2015, self).__init__()
+        
+        # variables
+        self.add_param('bedplate_mass', 0.0, desc='component mass', units='kg')
+        self.add_param('bedplate_mass_cost_coeff', 2.9, desc='bedplate mass-cost coeff', units='USD/kg')
+    
+        # Outputs
+        self.add_output('bedplate_cost', 0.0, units='USD', desc='Overall wind turbine component capial costs excluding transportation costs')
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+    def solve_nonlinear(self, params, unknowns, resids):
 
-    def execute(self):
+        bedplate_mass = params['bedplate_mass']
+        bedplate_mass_cost_coeff = params['bedplate_mass_cost_coeff']
 
-        # calculate component cost
-        BedplateCost2015 = self.bedplate_mass_cost_coeff * self.bedplate_mass
-        self.cost = BedplateCost2015
-   
+        unknowns['bedplate_cost'] = bedplate_mass_cost_coeff * bedplate_mass
 
 #---------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
 class YawSystemCost2015(Component):
 
-    # variables
-    yaw_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    yaw_system_mass_cost_coeff = Float(8.3, iotype='in', units='USD/kg', desc='yaw system mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
+    def __init__(self):
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+        super(YawSystemCost2015, self).__init__()
 
-    def execute(self):
+        # variables
+        self.add_param('yaw_mass', 0.0, desc='component mass', units='kg')
+        self.add_param('yaw_mass_cost_coeff', 8.3, desc='yaw system mass cost coeff', units='USD/kg')
+    
+        # Outputs
+        self.add_output('yaw_cost', 0.0, units='USD', desc='Overall wind turbine component capial costs excluding transportation costs')
 
-        # calculate cost
-        YawSystemCost2015 = self.yaw_system_mass_cost_coeff * self.yaw_system_mass
-        self.cost = YawSystemCost2015
-   
+    def solve_nonlinear(self, params, unknowns, resids):
+
+        yaw_mass = params['yaw_mass']
+        yaw_mass_cost_coeff = params['yaw_mass_cost_coeff']
+        
+        unknowns['yaw_cost'] = yaw_mass_cost_coeff * yaw_mass
 
 #---------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
 class VariableSpeedElecCost2015(Component):
 
-    # variables
-    variable_speed_elec_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    variable_speed_elec_mass_cost_coeff = Float(18.8, iotype='in', units='USD/kg', desc='variable speed electronics mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
+    def __init__(self):
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+        super(VariableSpeedElecCost2015, self).__init__()
 
-    def execute(self):
+        # variables
+        self.add_param('vs_electronics_mass', 0.0, desc='component mass', units='kg')
+        self.add_param('vs_electronics_mass_cost_coeff', 18.8, desc='variable speed electronics mass cost coeff', units='USD/kg')
+    
+        # Outputs
+        self.add_output('vs_cost', 0.0, units='USD', desc='Overall wind turbine component capial costs excluding transportation costs')
 
-        # calculate cost
-        VariableSpeedElecCost2015 = self.variable_speed_elec_mass_cost_coeff * self.variable_speed_elec_mass
-        self.cost = VariableSpeedElecCost2015
-   
+    def solve_nonlinear(self, params, unknowns, resids):
+
+        vs_electronics_mass = params['vs_electronics_mass']
+        vs_electronics_mass_cost_coeff = params['vs_electronics_mass_cost_coeff']
+
+        unknowns['vs_cost'] = vs_electronics_mass_cost_coeff * vs_electronics_mass
 
 #---------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
 class HydraulicCoolingCost2015(Component):
 
-    # variables
-    hydraulic_cooling_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    hydraulic_cooling_mass_cost_coeff = Float(124., iotype='in', units='USD/kg', desc='hydraulic and cooling system mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
+    def __init__(self):
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+        super(HydraulicCoolingCost2015, self).__init__()
 
-    def execute(self):
+        # variables
+        self.add_param('hvac_mass', 0.0, desc='component mass', units='kg')
+        self.add_param('hvac_mass_cost_coeff', 124.0, desc='hydraulic and cooling system mass cost coeff', units='USD/kg')
+    
+        # Outputs
+        self.add_output('hvac_cost', 0.0, units='USD', desc='Overall wind turbine component capial costs excluding transportation costs')
+
+    def solve_nonlinear(self, params, unknowns, resids):
+
+        hvac_mass = params['hvac_mass']
+        hvac_mass_cost_coeff = params['hvac_mass_cost_coeff']
 
         # calculate cost
-        HydraulicCoolingCost2015 = self.hydraulic_cooling_mass_cost_coeff * self.hydraulic_cooling_mass
-        self.cost = HydraulicCoolingCost2015
-   
+        unknowns['hvac_cost'] = hvac_mass_cost_coeff * hvac_mass
 
 #---------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
 class NacelleCoverCost2015(Component):
 
-    # variables
-    nacelle_cover_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    nacelle_cover_mass_cost_coeff = Float(5.7, iotype='in', units='USD/kg', desc='nacelle cover mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
+    def __init__(self):
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+        super(NacelleCoverCost2015, self).__init__()
 
-    def execute(self):
+        # variables
+        self.add_param('cover_mass', 0.0, desc='component mass', units='kg')
+        self.add_param('cover_mass_cost_coeff', 5.7, desc='nacelle cover mass cost coeff', units='USD/kg')
+    
+        # Outputs
+        self.add_output('cover_cost', 0.0, units='USD', desc='Overall wind turbine component capial costs excluding transportation costs')
 
-        # calculate cost
-        NacelleCoverCost2015 = self.nacelle_cover_mass_cost_coeff * self.nacelle_cover_mass
-        self.cost = NacelleCoverCost2015
-   
+    def solve_nonlinear(self, params, unknowns, resids):
+
+        cover_mass = params['cover_mass']
+        cover_mass_cost_coeff = params['cover_mass_cost_coeff']
+
+        unknowns['cover_cost'] = cover_mass_cost_coeff * cover_mass
 
 #---------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
 class ElecConnecCost2015(Component):
 
-    # variables
-    machine_rating = Float(iotype='in', units='kW', desc='machine rating')
-    elec_connec_machine_rating_cost_coeff = Float(41.85, iotype='in', units='USD/kW', desc='electrical connections cost coefficient per kW') #default from old CSM
+    def __init__(self):
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+        super(ElecConnecCost2015, self).__init__()
 
-    def execute(self):
+        # variables
+        self.add_param('machine_rating', 0.0, desc='machine rating', units='kW')
+        self.add_param('elec_connec_machine_rating_cost_coeff', 41.85, units='USD/kW', desc='electrical connections cost coefficient per kW')
+    
+        # Outputs
+        self.add_output('elec_cost', 0.0, units='USD', desc='Overall wind turbine component capial costs excluding transportation costs')
 
-        # electronic systems, hydraulics and controls
-        self.cost = self.elec_connec_machine_rating_cost_coeff * self.machine_rating  
-   
+    def solve_nonlinear(self, params, unknowns, resids):
+
+        machine_rating = params['machine_rating']
+        elec_connec_machine_rating_cost_coeff = params['elec_connec_machine_rating_cost_coeff']
+
+        unknowns['elec_cost'] = elec_connec_machine_rating_cost_coeff * machine_rating
+
 
 #---------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
 class ControlsCost2015(Component):
 
-    # variables
-    machine_rating = Float(iotype='in', units='kW', desc='machine rating')
-    controls_machine_rating_cost_coeff = Float(21.15, iotype='in', units='USD/kW', desc='controls cost coefficient per kW') #default from old CSM
+    def __init__(self):
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+        super(ControlsCost2015, self).__init__()
 
-    def execute(self):
+        # variables
+        self.add_param('machine_rating', 0.0, desc='machine rating', units='kW')
+        self.add_param('controls_machine_rating_cost_coeff', 21.15, units='USD/kW', desc='controls cost coefficient per kW')
+    
+        # Outputs
+        self.add_output('controls_cost', 0.0, units='USD', desc='Overall wind turbine component capial costs excluding transportation costs')
 
-        self.cost = self.machine_rating * self.controls_machine_rating_cost_coeff
-   
+    def solve_nonlinear(self, params, unknowns, resids):
+
+        machine_rating = params['machine_rating']
+        coeff          = params['controls_machine_rating_cost_coeff']
+
+        unknowns['controls_cost'] = machine_rating * coeff
 
 #---------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
 class OtherMainframeCost2015(Component):
 
-    #model all three (nacelle platform, service crane, and base hardware) from old model
-  
-    # variables
-    nacelle_platforms_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    nacelle_platforms_mass_cost_coeff = Float(17.1, iotype='in', units='USD/kg', desc='nacelle platforms mass cost coefficient [$/kg]') #default from old CSM
-    crane = Bool(iotype='in', desc='flag for presence of onboard crane')
-    crane_cost = Float(12000.0, iotype='in', units='USD', desc='crane cost if present [$]') #default from old CSM
-    bedplate_cost = Float(iotype='in', units='USD', desc='component cost [USD]')
-    base_hardware_cost_coeff = Float(0.7, iotype='in', desc='base hardware cost coefficient based on bedplate cost') #default from old CSM
+    def __init__(self):  
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+        super(OtherMainframeCost2015, self).__init__()
 
-    def execute(self):
+        # variables
+        self.add_param('platforms_mass', 0.0, desc='component mass', units='kg')
+        self.add_param('platforms_mass_cost_coeff', 17.1, desc='nacelle platforms mass cost coeff', units='USD/kg')
+        self.add_param('crane', False, desc='flag for presence of onboard crane', pass_by_obj=True)
+        self.add_param('crane_cost', 12000.0, desc='crane cost if present', units='USD')
+        self.add_param('bedplate_cost', 0.0, desc='component cost', units='USD')
+        self.add_param('base_hardware_cost_coeff', 0.7, desc='base hardware cost coeff based on bedplate cost')
+    
+        # Outputs
+        self.add_output('other_cost', 0.0, units='USD', desc='Overall wind turbine component capial costs excluding transportation costs')
+
+    def solve_nonlinear(self, params, unknowns, resids):
+
+        platforms_mass = params['platforms_mass']
+        platforms_mass_cost_coeff = params['platforms_mass_cost_coeff']
+        crane = params['crane']
+        crane_cost = params['crane_cost']
+        bedplate_cost = params['bedplate_cost']
+        base_hardware_cost_coeff = params['base_hardware_cost_coeff']
 
         # nacelle platform cost
-        NacellePlatformsCost = self.nacelle_platforms_mass_cost_coeff * self.nacelle_platforms_mass
 
         # crane cost
-        if (self.crane):
-            NacellePlatformsCost = self.nacelle_platforms_mass_cost_coeff * (self.nacelle_platforms_mass - 3000.0)
-            craneCost  = self.crane_cost
+        if (crane):
+            craneCost  = crane_cost
+            craneMass  = 3e3
+            NacellePlatformsCost = platforms_mass_cost_coeff * (platforms_mass - craneMass)
         else:
-            NacellePlatformsCost = self.nacelle_platforms_mass_cost_coeff * self.nacelle_platforms_mass
             craneCost  = 0.0
+            NacellePlatformsCost = platforms_mass_cost_coeff * platforms_mass
 
         # base hardware cost
-        #BaseHardwareCost = self.bedplate_cost * self.base_hardware_cost_coeff
+        #BaseHardwareCost = bedplate_cost * base_hardware_cost_coeff
     
         #aggregate all three mainframe costs
-        MainFrameCost = (NacellePlatformsCost + craneCost) # + BaseHardwareCost)
-        self.cost  = MainFrameCost
+        unknowns['other_cost'] = NacellePlatformsCost + craneCost #+ BaseHardwareCost
 
 #-------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
 class TransformerCost2015(Component):
 
-    # variables
-    transformer_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    transformer_mass_cost_coeff = Float(18.8, iotype='in', units= 'USD/kg', desc='transformer mass cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    def __init__(self):
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+        super(TransformerCost2015, self).__init__()
 
-    def execute(self):
+        # variables
+        self.add_param('transformer_mass', 0.0, desc='component mass', units='kg')
+        self.add_param('transformer_mass_cost_coeff', 18.8, desc='transformer mass cost coeff', units='USD/kg') #mass-cost coeff with default from ppt
+    
+        # Outputs
+        self.add_output('transformer_cost', 0.0, units='USD', desc='Overall wind turbine component capial costs excluding transportation costs')
 
-        #calculate component cost
-        TransformerCost2015 = self.transformer_mass_cost_coeff * self.transformer_mass
-        self.cost = TransformerCost2015
-   
+    def solve_nonlinear(self, params, unknowns, resids):
+
+        transformer_mass = params['transformer_mass']
+        transformer_mass_cost_coeff = params['transformer_mass_cost_coeff']
+        
+        unknowns['transformer_cost'] = transformer_mass_cost_coeff * transformer_mass
+
 #-------------------------------------------------------------------------------
-@implement_base(FullNacelleCostAggregator)
 class NacelleSystemCostAdder2015(Component):
 
-    # variables
-    lss_cost = Float(iotype='in', units='USD', desc='component cost')
-    bearings_cost = Float(iotype='in', units='USD', desc='component cost')
-    gearbox_cost = Float(iotype='in', units='USD', desc='component cost')
-    hss_cost = Float(iotype='in', units='USD', desc='component cost')
-    generator_cost = Float(iotype='in', units='USD', desc='component cost')
-    bedplate_cost = Float(iotype='in', units='USD', desc='component cost')
-    yaw_system_cost = Float(iotype='in', units='USD', desc='component cost')
-    variable_speed_elec_cost = Float(iotype='in', units='USD', desc='component cost')
-    hydraulic_cooling_cost = Float(iotype='in', units='USD', desc='component cost')
-    nacelle_cover_cost = Float(iotype='in', units='USD', desc='component cost')
-    elec_connec_cost = Float(iotype='in', units='USD', desc='component cost')
-    controls_cost = Float(iotype='in', units='USD', desc='component cost')
-    other_mainframe_cost = Float(iotype='in', units='USD', desc='component cost')
-    transformer_cost = Float(iotype='in', units='USD', desc='component cost')
+    def __init__(self):
+        
+        super(NacelleSystemCostAdder2015, self).__init__()
+
+        # variables
+        self.add_param('lss_cost', 0.0, units='USD', desc='component cost')
+        self.add_param('bearing_cost', 0.0, units='USD', desc='component cost')
+        self.add_param('gearbox_cost', 0.0, units='USD', desc='component cost')
+        self.add_param('hss_cost', 0.0, units='USD', desc='component cost')
+        self.add_param('generator_cost', 0.0, units='USD', desc='component cost')
+        self.add_param('bedplate_cost', 0.0, units='USD', desc='component cost')
+        self.add_param('yaw_cost', 0.0, units='USD', desc='component cost')
+        self.add_param('vs_cost', 0.0, units='USD', desc='component cost')
+        self.add_param('hvac_cost', 0.0, units='USD', desc='component cost')
+        self.add_param('cover_cost', 0.0, units='USD', desc='component cost')
+        self.add_param('elec_cost', 0.0, units='USD', desc='component cost')
+        self.add_param('controls_cost', 0.0, units='USD', desc='component cost')
+        self.add_param('other_cost', 0.0, units='USD', desc='component cost')
+        self.add_param('transformer_cost', 0.0, units='USD', desc='component cost')
+        self.add_param('bearing_number', 2, desc ='number of bearings', pass_by_obj=True)
+        
+        #multipliers
+        self.add_param('nacelle_assemblyCostMultiplier', 0.0, desc='nacelle assembly cost multiplier')
+        self.add_param('nacelle_overheadCostMultiplier', 0.0, desc='nacelle overhead cost multiplier')
+        self.add_param('nacelle_profitMultiplier', 0.0, desc='nacelle profit multiplier')
+        self.add_param('nacelle_transportMultiplier', 0.0, desc='nacelle transport multiplier')
     
-    #multipliers
-    nacelle_assemblyCostMultiplier = Float(0.0, iotype='in', desc='nacelle assembly cost multiplier')
-    nacelle_overheadCostMultiplier = Float(0.0, iotype='in', desc='nacelle overhead cost multiplier')
-    nacelle_profitMultiplier = Float(0.0, iotype='in', desc='nacelle profit multiplier')
-    nacelle_transportMultiplier = Float(0.0, iotype='in', desc='nacelle transport multiplier')
+        # returns
+        self.add_output('nacelle_cost', 0.0, units='USD', desc='component cost')
 
-    # returns
-    cost = Float(iotype='out', units='USD', desc='component cost')
+    def solve_nonlinear(self, params, unknowns, resids):
 
-    def execute(self):
+        lss_cost = params['lss_cost']
+        bearing_cost = params['bearing_cost']
+        gearbox_cost = params['gearbox_cost']
+        hss_cost = params['hss_cost']
+        generator_cost = params['generator_cost']
+        bedplate_cost = params['bedplate_cost']
+        yaw_cost = params['yaw_cost']
+        vs_cost = params['vs_cost']
+        hvac_cost = params['hvac_cost']
+        cover_cost = params['cover_cost']
+        elec_cost = params['elec_cost']
+        controls_cost = params['controls_cost']
+        other_cost = params['other_cost']
+        transformer_cost = params['transformer_cost']
+        bearing_number = params['bearing_number']
+
+        nacelle_assemblyCostMultiplier = params['nacelle_assemblyCostMultiplier']
+        nacelle_overheadCostMultiplier = params['nacelle_overheadCostMultiplier']
+        nacelle_profitMultiplier = params['nacelle_profitMultiplier']
+        nacelle_transportMultiplier = params['nacelle_transportMultiplier']
 
         # aggregation of nacelle costs
-        partsCost = self.lss_cost + \
-                    self.bearings_cost + \
-                    self.gearbox_cost + \
-                    self.hss_cost + \
-                    self.generator_cost + \
-                    self.bedplate_cost + \
-                    self.yaw_system_cost + \
-                    self.variable_speed_elec_cost + \
-                    self.hydraulic_cooling_cost + \
-                    self.nacelle_cover_cost + \
-                    self.elec_connec_cost + \
-                    self.controls_cost + \
-                    self.other_mainframe_cost + \
-                    self.transformer_cost
+        partsCost = lss_cost + \
+                    bearing_number * bearing_cost + \
+                    gearbox_cost + \
+                    hss_cost + \
+                    generator_cost + \
+                    bedplate_cost + \
+                    yaw_cost + \
+                    vs_cost + \
+                    hvac_cost + \
+                    cover_cost + \
+                    elec_cost + \
+                    controls_cost + \
+                    other_cost + \
+                    transformer_cost
 
         #apply multipliers for assembly, transport, overhead, and profits
-        self.cost = (1 + self.nacelle_transportMultiplier + self.nacelle_profitMultiplier) * ((1 + self.nacelle_overheadCostMultiplier + self.nacelle_assemblyCostMultiplier) * partsCost) 
-
-#---------------------------------------------------------------------------------------------
-class Nacelle_CostsSE_2015(FullNacelleCostModel):
-
-    '''
-       Nacelle_CostsSE class
-          The Rotor_costsSE class is used to represent the rotor costs of a wind turbine.
-    '''
-
-    # variables
-    low_speed_shaft_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    main_bearing_mass = Float(iotype='in', units='kg', desc='component mass [kg]') #mass input
-    gearbox_mass = Float(iotype='in', units='kg', desc='component mass')
-    high_speed_side_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    generator_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    bedplate_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    yaw_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    variable_speed_elec_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    hydraulic_cooling_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    nacelle_cover_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    other_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    transformer_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-
-    # parameters / high level inputs
-    machine_rating = Float(iotype='in', units='kW', desc='machine rating')
-    offshore = Bool(iotype='in', desc='flag for offshore project')
-    crane = Bool(iotype='in', desc='flag for presence of onboard crane')
-    bearing_number = Float(2, iotype='in', desc='number of main bearings []') #number of main bearings- defaults to 2
-
-    # coefficients
-    lss_mass_cost_coeff = Float(11.9, iotype='in', units='USD/kg', desc='low speed shaft mass-cost coefficient [$/kg]')
-    bearings_mass_cost_coeff = Float(4.5, iotype='in', units='USD/kg', desc='main bearings mass-cost coefficient [$/kg]') #mass-cost coefficient- HALF of the 12.70 in powerpoint because it was based on TWO bearings 
-    gearbox_mass_cost_coeff = Float(12.9, iotype='in', units='USD/kg', desc='gearbox mass-cost coefficient [$/kg]')
-    high_speed_side_mass_cost_coeff = Float(6.8, iotype='in', units='USD/kg', desc='high speed side mass-cost coefficient [$/kg]') #mass-cost coefficient with default from list
-    generator_mass_cost_coeff = Float(12.4, iotype='in', units= 'USD/kg', desc='generator mass cost coefficient [$/kg]')
-    bedplate_mass_cost_coeff = Float(2.9, iotype='in', units='USD/kg', desc='bedplate mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
-    yaw_system_mass_cost_coeff = Float(8.3, iotype='in', units='USD/kg', desc='yaw system mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
-    variable_speed_elec_mass_cost_coeff = Float(18.8, iotype='in', units='USD/kg', desc='variable speed electronics mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
-    hydraulic_cooling_mass_cost_coeff = Float(124., iotype='in', units='USD/kg', desc='hydraulic and cooling system mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
-    nacelle_cover_mass_cost_coeff = Float(5.7, iotype='in', units='USD/kg', desc='nacelle cover mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
-    elec_connec_machine_rating_cost_coeff = Float(41.85, iotype='in', units='USD/kW', desc='2002 electrical connections cost coefficient per kW')
-    controls_machine_rating_cost_coeff = Float(21.15, iotype='in', units='USD/kW', desc='controls cost coefficient per kW') #default from old CSM
-    nacelle_platforms_mass_cost_coeff = Float(17.1, iotype='in', units='USD/kg', desc='nacelle platforms mass cost coefficient [$/kg]') #default from old CSM
-    crane_cost = Float(12000.0, iotype='in', units='USD', desc='crane cost if present [$]') #default from old CSM
-    base_hardware_cost_coeff = Float(0.7, iotype='in', desc='base hardware cost coefficient based on bedplate cost') #default from old CSM
-    transformer_mass_cost_coeff = Float(18.8, iotype='in', units= 'USD/kg', desc='transformer mass cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
-  
-    #multipliers
-    nacelle_assemblyCostMultiplier = Float(0.0, iotype='in', desc='nacelle assembly cost multiplier')
-    nacelle_overheadCostMultiplier = Float(0.0, iotype='in', desc='nacelle overhead cost multiplier')
-    nacelle_profitMultiplier = Float(0.0, iotype='in', desc='nacelle profit multiplier')
-    nacelle_transportMultiplier = Float(0.0, iotype='in', desc='nacelle transport multiplier')
-
-    # outputs
-    cost = Float(iotype='out', units='USD', desc='component cost')
-
-    def configure(self):
-
-        configure_full_ncc(self)
-
-        # select components #this creates an instance of each of these components with the name in ''
-        self.replace('lssCC', LowSpeedShaftCost2015())
-        self.replace('bearingsCC', BearingsCost2015())
-        self.replace('gearboxCC', GearboxCost2015())
-        self.replace('hssCC', HighSpeedSideCost2015())
-        self.replace('generatorCC', GeneratorCost2015())
-        self.replace('bedplateCC', BedplateCost2015())
-        self.replace('yawSysCC', YawSystemCost2015())
-        self.add('vsCC', VariableSpeedElecCost2015())
-        self.add('hydraulicCC', HydraulicCoolingCost2015())
-        self.add('nacelleCC', NacelleCoverCost2015())
-        self.add('elecCC', ElecConnecCost2015())
-        self.add('controlsCC', ControlsCost2015())
-        self.add('mainframeCC', OtherMainframeCost2015())
-        self.add('transformerCC', TransformerCost2015())
-        self.replace('ncc', NacelleSystemCostAdder2015())
-        
-        self.driver.workflow.add(['vsCC', 'hydraulicCC', 'nacelleCC', 'elecCC', 'controlsCC', 'mainframeCC', 'transformerCC'])
-
-        # connect inputs
-        self.connect('low_speed_shaft_mass', 'lssCC.low_speed_shaft_mass')
-        self.connect('lss_mass_cost_coeff', 'lssCC.lss_mass_cost_coeff')
-        self.connect('main_bearing_mass', 'bearingsCC.main_bearing_mass')
-        self.connect('bearing_number', 'bearingsCC.bearing_number')
-        self.connect('bearings_mass_cost_coeff', 'bearingsCC.bearings_mass_cost_coeff')
-        self.connect('gearbox_mass', 'gearboxCC.gearbox_mass')
-        self.connect('gearbox_mass_cost_coeff', 'gearboxCC.gearbox_mass_cost_coeff')
-        self.connect('high_speed_side_mass', 'hssCC.high_speed_side_mass')
-        self.connect('high_speed_side_mass_cost_coeff', 'hssCC.high_speed_side_mass_cost_coeff')
-        self.connect('generator_mass', 'generatorCC.generator_mass')
-        self.connect('generator_mass_cost_coeff', 'generatorCC.generator_mass_cost_coeff')
-        self.connect('bedplate_mass', ['bedplateCC.bedplate_mass'])
-        self.connect('bedplate_mass_cost_coeff', 'bedplateCC.bedplate_mass_cost_coeff')
-        self.connect('yaw_system_mass', 'yawSysCC.yaw_system_mass')
-        self.connect('yaw_system_mass_cost_coeff', 'yawSysCC.yaw_system_mass_cost_coeff')
-        self.connect('variable_speed_elec_mass', 'vsCC.variable_speed_elec_mass')
-        self.connect('variable_speed_elec_mass_cost_coeff', 'vsCC.variable_speed_elec_mass_cost_coeff')
-        self.connect('hydraulic_cooling_mass', 'hydraulicCC.hydraulic_cooling_mass')
-        self.connect('hydraulic_cooling_mass_cost_coeff', 'hydraulicCC.hydraulic_cooling_mass_cost_coeff')
-        self.connect('nacelle_cover_mass', 'nacelleCC.nacelle_cover_mass')
-        self.connect('nacelle_cover_mass_cost_coeff', 'nacelleCC.nacelle_cover_mass_cost_coeff')
-        self.connect('machine_rating','elecCC.machine_rating')
-        self.connect('elec_connec_machine_rating_cost_coeff', 'elecCC.elec_connec_machine_rating_cost_coeff')
-        self.connect('controls_machine_rating_cost_coeff', 'controlsCC.controls_machine_rating_cost_coeff')
-        self.connect('machine_rating','controlsCC.machine_rating')
-        self.connect('other_mass', 'mainframeCC.nacelle_platforms_mass')
-        self.connect('nacelle_platforms_mass_cost_coeff', 'mainframeCC.nacelle_platforms_mass_cost_coeff')
-        self.connect('crane', 'mainframeCC.crane')
-        self.connect('crane_cost', 'mainframeCC.crane_cost')
-        self.connect('base_hardware_cost_coeff', 'mainframeCC.base_hardware_cost_coeff')
-        self.connect('transformer_mass', 'transformerCC.transformer_mass')
-        self.connect('transformer_mass_cost_coeff', 'transformerCC.transformer_mass_cost_coeff')
-
-        # internal connections
-        self.connect('bedplateCC.cost', 'mainframeCC.bedplate_cost')
-        self.connect('vsCC.cost','ncc.variable_speed_elec_cost')
-        self.connect('hydraulicCC.cost','ncc.hydraulic_cooling_cost')
-        self.connect('nacelleCC.cost','ncc.nacelle_cover_cost')
-        self.connect('elecCC.cost','ncc.elec_connec_cost')
-        self.connect('controlsCC.cost','ncc.controls_cost')
-        self.connect('mainframeCC.cost','ncc.other_mainframe_cost')
-        self.connect('transformerCC.cost','ncc.transformer_cost')
-        
-        # connect multipliers
-        self.connect('nacelle_assemblyCostMultiplier', 'ncc.nacelle_assemblyCostMultiplier')
-        self.connect('nacelle_overheadCostMultiplier', 'ncc.nacelle_overheadCostMultiplier')
-        self.connect('nacelle_profitMultiplier', 'ncc.nacelle_profitMultiplier')
-        self.connect('nacelle_transportMultiplier', 'ncc.nacelle_transportMultiplier')
-
+        unknowns['nacelle_cost'] = (1 + nacelle_transportMultiplier + nacelle_profitMultiplier) * ((1 + nacelle_overheadCostMultiplier + nacelle_assemblyCostMultiplier) * partsCost)
 
 ###### Tower
-
 #-------------------------------------------------------------------------------
-@implement_base(BaseComponentCostModel)
 class TowerCost2015(Component):
 
-    # variables
-    tower_mass = Float(iotype='in', units='kg', desc='tower mass [kg]')
-    tower_mass_cost_coefficient = Float(2.9, iotype='in', units='USD/kg', desc='tower mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
+    def __init__(self):
+      
+        super(TowerCost2015, self).__init__()
 
-    # Outputs
-    cost = Float(0.0, iotype='out', desc='Overall wind turbine component capial costs excluding transportation costs')
+        # variables
+        self.add_param('tower_mass', 0.0, desc='tower mass', units='kg')
+        self.add_param('tower_mass_cost_coeff', 2.9, desc='tower mass-cost coeff', units='USD/kg') #mass-cost coeff with default from ppt
+    
+        # Outputs
+        self.add_output('tower_parts_cost', 0.0, units='USD', desc='Overall wind turbine component capial costs excluding transportation costs')
 
-    def execute(self):
+    def solve_nonlinear(self, params, unknowns, resids):
 
-        # calculate component cost
-        TowerCost2015 = self.tower_mass_cost_coefficient * self.tower_mass
-        self.cost = TowerCost2015
-   
+        tower_mass = params['tower_mass']
+        tower_mass_cost_coeff = params['tower_mass_cost_coeff']
+ 
+        unknowns['tower_parts_cost'] = tower_mass_cost_coeff * tower_mass
 
 #-------------------------------------------------------------------------------
-@implement_base(FullTowerCostAggregator)
 class TowerCostAdder2015(Component):
 
-    # variables
-    tower_cost = Float(iotype='in', units='USD', desc='component cost')
-  
-    # multipliers
-    tower_assemblyCostMultiplier = Float(0.0, iotype='in', desc='tower assembly cost multiplier')
-    tower_overheadCostMultiplier = Float(0.0, iotype='in', desc='tower overhead cost multiplier')
-    tower_profitMultiplier = Float(0.0, iotype='in', desc='tower profit cost multiplier')
-    tower_transportMultiplier = Float(0.0, iotype='in', desc='tower transport cost multiplier')
-    
-    # returns
-    cost = Float(iotype='out', units='USD', desc='component cost') 
+    def __init__(self):
 
-    def execute(self):
+        super(TowerCostAdder2015, self).__init__()
 
-        partsCost = self.tower_cost
-        self.cost = (1 + self.tower_transportMultiplier + self.tower_profitMultiplier) * ((1 + self.tower_overheadCostMultiplier + self.tower_assemblyCostMultiplier) * partsCost)
-   
-
-#-------------------------------------------------------------------------------
-@implement_base(FullTowerCostModel)
-class Tower_CostsSE_2015(Assembly):
-
-    # variables
-    tower_mass = Float(iotype='in', units='kg', desc='tower mass [kg]')
-    tower_mass_cost_coefficient = Float(2.9, iotype='in', units='USD/kg', desc='tower mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
-    
-    # multipliers
-    tower_assemblyCostMultiplier = Float(0.0, iotype='in', desc='tower assembly cost multiplier')
-    tower_overheadCostMultiplier = Float(0.0, iotype='in', desc='tower overhead cost multiplier')
-    tower_profitMultiplier = Float(0.0, iotype='in', desc='tower profit cost multiplier')
-    tower_transportMultiplier = Float(0.0, iotype='in', desc='tower transport cost multiplier')
-
-    # returns
-    cost = Float(iotype='out', units='USD', desc='component cost')
-
-    def configure(self):
-
-        configure_full_twcc(self)
-
-        # create instances of components
-        self.replace('towerCC', TowerCost2015())
-        self.replace('twrcc', TowerCostAdder2015())
-    
-        # connect inputs
-        self.connect('tower_mass', 'towerCC.tower_mass')
-        self.connect('tower_mass_cost_coefficient', 'towerCC.tower_mass_cost_coefficient')
+        # variables
+        self.add_param('tower_parts_cost', 0.0, units='USD', desc='component cost')
+      
+        # multipliers
+        self.add_param('tower_assemblyCostMultiplier', 0.0, desc='tower assembly cost multiplier')
+        self.add_param('tower_overheadCostMultiplier', 0.0, desc='tower overhead cost multiplier')
+        self.add_param('tower_profitMultiplier', 0.0, desc='tower profit cost multiplier')
+        self.add_param('tower_transportMultiplier', 0.0, desc='tower transport cost multiplier')
         
-        # connect multipliers
-        self.connect('tower_assemblyCostMultiplier', 'twrcc.tower_assemblyCostMultiplier')
-        self.connect('tower_overheadCostMultiplier', 'twrcc.tower_overheadCostMultiplier')
-        self.connect('tower_profitMultiplier', 'twrcc.tower_profitMultiplier')
-        self.connect('tower_transportMultiplier', 'twrcc.tower_transportMultiplier')
+        # returns
+        self.add_output('tower_cost', 0.0, units='USD', desc='component cost') 
 
+    def solve_nonlinear(self, params, unknowns, resids):
 
+        tower_parts_cost = params['tower_parts_cost']
 
-#-------------------------------------------------------------------------------
-@implement_base(FullTurbineCostModel)
-class Turbine_CostsSE_2015(Assembly):
+        tower_assemblyCostMultiplier = params['tower_assemblyCostMultiplier']
+        tower_overheadCostMultiplier = params['tower_overheadCostMultiplier']
+        tower_profitMultiplier = params['tower_profitMultiplier']
+        tower_transportMultiplier = params['tower_transportMultiplier']
 
-    # variables
-    blade_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    hub_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    pitch_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    spinner_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    low_speed_shaft_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    main_bearing_mass = Float(iotype='in', units='kg', desc='component mass [kg]') #mass input
-    gearbox_mass = Float(iotype='in', units='kg', desc='component mass')
-    high_speed_side_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    generator_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    bedplate_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    yaw_system_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    variable_speed_elec_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    hydraulic_cooling_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    nacelle_cover_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    other_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    transformer_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-    tower_mass = Float(iotype='in', units='kg', desc='component mass [kg]')
-
-    # parameters / high level inputs
-    machine_rating = Float(iotype='in', units='kW', desc='machine rating')
-    blade_number = Int(iotype='in', desc='number of rotor blades')
-    offshore = Bool(iotype='in', desc='flag for offshore project')
-    crane = Bool(iotype='in', desc='flag for presence of onboard crane')
-    bearing_number = Float(2, iotype='in', desc='number of main bearings []') #number of main bearings- defaults to 2
-
-    # cost coefficients
-    blade_mass_cost_coeff = Float(14.6, iotype='in', units='USD/kg', desc='blade mass-cost coefficient [$/kg]')
-    hub_mass_cost_coeff = Float(3.9, iotype='in', units='USD/kg', desc='hub mass-cost coefficient [$/kg]')
-    pitch_system_mass_cost_coeff = Float(22.1, iotype='in', units='USD/kg', desc='pitch system mass-cost coefficient [$/kg]') #mass-cost coefficient with default from list
-    spinner_mass_cost_coeff = Float(11.1, iotype='in', units='USD/kg', desc='spinner/nose cone mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
-    lss_mass_cost_coeff = Float(11.9, iotype='in', units='USD/kg', desc='low speed shaft mass-cost coefficient [$/kg]')
-    bearings_mass_cost_coeff = Float(4.5, iotype='in', units='USD/kg', desc='main bearings mass-cost coefficient [$/kg]') #mass-cost coefficient- HALF of the 12.70 in powerpoint because it was based on TWO bearings 
-    gearbox_mass_cost_coeff = Float(12.9, iotype='in', units='USD/kg', desc='gearbox mass-cost coefficient [$/kg]')
-    high_speed_side_mass_cost_coeff = Float(6.8, iotype='in', units='USD/kg', desc='high speed side mass-cost coefficient [$/kg]') #mass-cost coefficient with default from list
-    generator_mass_cost_coeff = Float(12.4, iotype='in', units= 'USD/kg', desc='generator mass cost coefficient [$/kg]')
-    bedplate_mass_cost_coeff = Float(2.9, iotype='in', units='USD/kg', desc='bedplate mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
-    yaw_system_mass_cost_coeff = Float(8.3, iotype='in', units='USD/kg', desc='yaw system mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
-    variable_speed_elec_mass_cost_coeff = Float(18.8, iotype='in', units='USD/kg', desc='variable speed electronics mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
-    hydraulic_cooling_mass_cost_coeff = Float(124., iotype='in', units='USD/kg', desc='hydraulic and cooling system mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
-    nacelle_cover_mass_cost_coeff = Float(5.7, iotype='in', units='USD/kg', desc='nacelle cover mass cost coefficient [$/kg]') #mass-cost coefficient with default from list
-    elec_connec_machine_rating_cost_coeff = Float(41.85, iotype='in', units='USD/kW', desc='2002 electrical connections cost coefficient per kW')
-    controls_machine_rating_cost_coeff = Float(21.15, iotype='in', units='USD/kW', desc='controls cost coefficient per kW') #default from old CSM
-    nacelle_platforms_mass_cost_coeff = Float(17.1, iotype='in', units='USD/kg', desc='nacelle platforms mass cost coefficient [$/kg]') #default from old CSM
-    crane_cost = Float(12000.0, iotype='in', units='USD', desc='crane cost if present [$]') #default from old CSM
-    base_hardware_cost_coeff = Float(0.7, iotype='in', desc='base hardware cost coefficient based on bedplate cost') #default from old CSM
-    transformer_mass_cost_coeff = Float(18.8, iotype='in', units= 'USD/kg', desc='transformer mass cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
-    tower_mass_cost_coefficient = Float(2.9, iotype='in', units='USD/kg', desc='tower mass-cost coefficient [$/kg]') #mass-cost coefficient with default from ppt
-  
-    #multipliers
-    hub_assemblyCostMultiplier = Float(0.0, iotype='in', desc='rotor assembly cost multiplier')
-    hub_overheadCostMultiplier = Float(0.0, iotype='in', desc='rotor overhead cost multiplier')
-    hub_profitMultiplier = Float(0.0, iotype='in', desc='rotor profit multiplier')
-    hub_transportMultiplier = Float(0.0, iotype='in', desc='rotor transport multiplier')
-
-    nacelle_assemblyCostMultiplier = Float(0.0, iotype='in', desc='nacelle assembly cost multiplier')
-    nacelle_overheadCostMultiplier = Float(0.0, iotype='in', desc='nacelle overhead cost multiplier')
-    nacelle_profitMultiplier = Float(0.0, iotype='in', desc='nacelle profit multiplier')
-    nacelle_transportMultiplier = Float(0.0, iotype='in', desc='nacelle transport multiplier')
-
-    tower_assemblyCostMultiplier = Float(0.0, iotype='in', desc='tower assembly cost multiplier')
-    tower_overheadCostMultiplier = Float(0.0, iotype='in', desc='tower overhead cost multiplier')
-    tower_profitMultiplier = Float(0.0, iotype='in', desc='tower profit cost multiplier')
-    tower_transportMultiplier = Float(0.0, iotype='in', desc='tower transport cost multiplier')
-
-    turbine_assemblyCostMultiplier = Float(0.0, iotype='in', desc='turbine multiplier for assembly cost in manufacturing')
-    turbine_overheadCostMultiplier = Float(0.0, iotype='in', desc='turbine multiplier for overhead')
-    turbine_profitMultiplier = Float(0.0, iotype='in', desc='turbine multiplier for profit markup')
-    turbine_transportMultiplier = Float(0.0, iotype='in', desc='turbine multiplier for transport costs')
-
-    # Outputs
-    turbine_cost = Float(0.0, iotype='out', desc='Overall wind turbine capial costs including transportation costs')
-
-    def configure(self):
-
-        configure_full_tcc(self)
-
-        # select components
-        self.replace('rotorCC', Rotor_CostsSE_2015())
-        self.replace('nacelleCC', Nacelle_CostsSE_2015())
-        self.replace('towerCC', Tower_CostsSE_2015())
-        self.replace('tcc', TurbineCostAdder2015())
-
-        # connect inputs
-        self.connect('blade_mass', 'rotorCC.blade_mass')
-        self.connect('blade_mass_cost_coeff', 'rotorCC.blade_mass_cost_coeff')
-        self.connect('hub_mass', 'rotorCC.hub_mass')
-        self.connect('hub_mass_cost_coeff', 'rotorCC.hub_mass_cost_coeff')
-        self.connect('pitch_system_mass', 'rotorCC.pitch_system_mass')
-        self.connect('pitch_system_mass_cost_coeff', 'rotorCC.pitch_system_mass_cost_coeff')
-        self.connect('spinner_mass', 'rotorCC.spinner_mass')
-        self.connect('spinner_mass_cost_coeff', 'rotorCC.spinner_mass_cost_coeff')
-        self.connect('blade_number', 'rotorCC.blade_number')
-        self.connect('low_speed_shaft_mass', 'nacelleCC.low_speed_shaft_mass')
-        self.connect('lss_mass_cost_coeff', 'nacelleCC.lss_mass_cost_coeff')
-        self.connect('main_bearing_mass', 'nacelleCC.main_bearing_mass')
-        self.connect('bearing_number', 'nacelleCC.bearing_number')
-        self.connect('bearings_mass_cost_coeff', 'nacelleCC.bearings_mass_cost_coeff')
-        self.connect('gearbox_mass', 'nacelleCC.gearbox_mass')
-        self.connect('gearbox_mass_cost_coeff', 'nacelleCC.gearbox_mass_cost_coeff')
-        self.connect('high_speed_side_mass', 'nacelleCC.high_speed_side_mass')
-        self.connect('high_speed_side_mass_cost_coeff', 'nacelleCC.high_speed_side_mass_cost_coeff')
-        self.connect('generator_mass', 'nacelleCC.generator_mass')
-        self.connect('generator_mass_cost_coeff', 'nacelleCC.generator_mass_cost_coeff')
-        self.connect('bedplate_mass', 'nacelleCC.bedplate_mass')
-        self.connect('bedplate_mass_cost_coeff', 'nacelleCC.bedplate_mass_cost_coeff')
-        self.connect('yaw_system_mass', 'nacelleCC.yaw_system_mass')
-        self.connect('yaw_system_mass_cost_coeff', 'nacelleCC.yaw_system_mass_cost_coeff')
-        self.connect('variable_speed_elec_mass', 'nacelleCC.variable_speed_elec_mass')
-        self.connect('variable_speed_elec_mass_cost_coeff', 'nacelleCC.variable_speed_elec_mass_cost_coeff')
-        self.connect('hydraulic_cooling_mass', 'nacelleCC.hydraulic_cooling_mass')
-        self.connect('hydraulic_cooling_mass_cost_coeff', 'nacelleCC.hydraulic_cooling_mass_cost_coeff')
-        self.connect('nacelle_cover_mass', 'nacelleCC.nacelle_cover_mass')
-        self.connect('nacelle_cover_mass_cost_coeff', 'nacelleCC.nacelle_cover_mass_cost_coeff')
-        self.connect('machine_rating','nacelleCC.machine_rating')
-        self.connect('elec_connec_machine_rating_cost_coeff', 'nacelleCC.elec_connec_machine_rating_cost_coeff')
-        self.connect('offshore', 'nacelleCC.offshore')
-        self.connect('controls_machine_rating_cost_coeff', 'nacelleCC.controls_machine_rating_cost_coeff')
-        self.connect('other_mass', 'nacelleCC.other_mass')
-        self.connect('nacelle_platforms_mass_cost_coeff', 'nacelleCC.nacelle_platforms_mass_cost_coeff')
-        self.connect('crane', 'nacelleCC.crane')
-        self.connect('crane_cost', 'nacelleCC.crane_cost')
-        self.connect('base_hardware_cost_coeff', 'nacelleCC.base_hardware_cost_coeff')
-        self.connect('transformer_mass', 'nacelleCC.transformer_mass')
-        self.connect('transformer_mass_cost_coeff', 'nacelleCC.transformer_mass_cost_coeff')
-        self.connect('tower_mass', 'towerCC.tower_mass')
-        
-        # connect multipliers
-        self.connect('hub_assemblyCostMultiplier', 'rotorCC.hub_assemblyCostMultiplier')
-        self.connect('hub_overheadCostMultiplier', 'rotorCC.hub_overheadCostMultiplier')
-        self.connect('hub_profitMultiplier', 'rotorCC.hub_profitMultiplier')
-        self.connect('hub_transportMultiplier', 'rotorCC.hub_transportMultiplier')
-        self.connect('nacelle_assemblyCostMultiplier', 'nacelleCC.nacelle_assemblyCostMultiplier')
-        self.connect('nacelle_overheadCostMultiplier', 'nacelleCC.nacelle_overheadCostMultiplier')
-        self.connect('nacelle_profitMultiplier', 'nacelleCC.nacelle_profitMultiplier')
-        self.connect('nacelle_transportMultiplier', 'nacelleCC.nacelle_transportMultiplier')
-        self.connect('tower_assemblyCostMultiplier', 'towerCC.tower_assemblyCostMultiplier')
-        self.connect('tower_overheadCostMultiplier', 'towerCC.tower_overheadCostMultiplier')
-        self.connect('tower_profitMultiplier', 'towerCC.tower_profitMultiplier')
-        self.connect('tower_transportMultiplier', 'towerCC.tower_transportMultiplier')
-        self.connect('turbine_assemblyCostMultiplier', 'tcc.turbine_assemblyCostMultiplier')
-        self.connect('turbine_overheadCostMultiplier', 'tcc.turbine_overheadCostMultiplier')
-        self.connect('turbine_profitMultiplier', 'tcc.turbine_profitMultiplier')
-        self.connect('turbine_transportMultiplier', 'tcc.turbine_transportMultiplier')
-
+        partsCost = tower_parts_cost
+        unknowns['tower_cost'] = (1 + tower_transportMultiplier + tower_profitMultiplier) * ((1 + tower_overheadCostMultiplier + tower_assemblyCostMultiplier) * partsCost)
 
 #-------------------------------------------------------------------------------
-@implement_base(FullTCCAggregator)
 class TurbineCostAdder2015(Component):
 
-    # Variables
-    rotor_cost = Float(iotype='in', units='USD', desc='rotor cost')
-    nacelle_cost = Float(iotype='in', units='USD', desc='nacelle cost')
-    tower_cost = Float(iotype='in', units='USD', desc='tower cost')
+    def __init__(self):
 
-    # parameters
-    turbine_assemblyCostMultiplier = Float(0.0, iotype='in', desc='turbine multiplier for assembly cost in manufacturing')
-    turbine_overheadCostMultiplier = Float(0.0, iotype='in', desc='turbine multiplier for overhead')
-    turbine_profitMultiplier = Float(0.0, iotype='in', desc='turbine multiplier for profit markup')
-    turbine_transportMultiplier = Float(0.0, iotype='in', desc='turbine multiplier for transport costs')
+        super(TurbineCostAdder2015, self).__init__()
 
-    # Outputs
-    turbine_cost = Float(0.0, iotype='out', desc='Overall wind turbine capial costs including transportation costs')
+        # Variables
+        self.add_param('rotor_cost', 0.0, units='USD', desc='rotor cost')
+        self.add_param('nacelle_cost', 0.0, units='USD', desc='nacelle cost')
+        self.add_param('tower_cost', 0.0, units='USD', desc='tower cost')
+        self.add_param('machine_rating', 0.0, desc='machine rating', units='kW')
+    
+        # parameters
+        self.add_param('turbine_assemblyCostMultiplier', 0.0, desc='turbine multiplier for assembly cost in manufacturing')
+        self.add_param('turbine_overheadCostMultiplier', 0.0, desc='turbine multiplier for overhead')
+        self.add_param('turbine_profitMultiplier', 0.0, desc='turbine multiplier for profit markup')
+        self.add_param('turbine_transportMultiplier', 0.0, desc='turbine multiplier for transport costs')
+    
+        # Outputs
+        self.add_output('turbine_cost', 0.0, units='USD', desc='Overall wind turbine capial costs including transportation costs')
+        self.add_output('turbine_cost_kW', 0.0, units='USD/kW', desc='Overall wind turbine capial costs including transportation costs')
 
-    def execute(self):
+    def solve_nonlinear(self, params, unknowns, resids):
 
-        partsCost = self.rotor_cost + self.nacelle_cost + self.tower_cost
+        rotor_cost = params['rotor_cost']
+        nacelle_cost = params['nacelle_cost']
+        tower_cost = params['tower_cost']
+        
+        turbine_assemblyCostMultiplier = params['turbine_assemblyCostMultiplier']
+        turbine_overheadCostMultiplier = params['turbine_overheadCostMultiplier']
+        turbine_profitMultiplier = params['turbine_profitMultiplier']
+        turbine_transportMultiplier = params['turbine_transportMultiplier']
 
-        self.turbine_cost = (1 + self.turbine_transportMultiplier + self.turbine_profitMultiplier) * ((1 + self.turbine_overheadCostMultiplier + self.turbine_assemblyCostMultiplier) * partsCost)
-   
+        partsCost = rotor_cost + nacelle_cost + tower_cost
+
+        unknowns['turbine_cost'] = (1 + turbine_transportMultiplier + turbine_profitMultiplier) * ((1 + turbine_overheadCostMultiplier + turbine_assemblyCostMultiplier) * partsCost)
+        unknowns['turbine_cost_kW'] = unknowns['turbine_cost'] / params['machine_rating']
+
+
 
 #-------------------------------------------------------------------------------
+class Turbine_CostsSE_2015(Group):
 
+    def __init__(self):
+        super(Turbine_CostsSE_2015, self).__init__()
+
+        self.add('blade_mass_cost_coeff',                 IndepVarComp('blade_mass_cost_coeff', val=14.6), promotes=['*'])
+        self.add('hub_mass_cost_coeff',                   IndepVarComp('hub_mass_cost_coeff', val=3.9), promotes=['*'])
+        self.add('pitch_system_mass_cost_coeff',          IndepVarComp('pitch_system_mass_cost_coeff', val=22.1), promotes=['*'])
+        self.add('spinner_mass_cost_coeff',               IndepVarComp('spinner_mass_cost_coeff', val=11.1), promotes=['*'])
+        self.add('lss_mass_cost_coeff',                   IndepVarComp('lss_mass_cost_coeff', val=11.9), promotes=['*'])
+        self.add('bearings_mass_cost_coeff',              IndepVarComp('bearings_mass_cost_coeff', val=4.5), promotes=['*'])
+        self.add('gearbox_mass_cost_coeff',               IndepVarComp('gearbox_mass_cost_coeff', val=12.9), promotes=['*'])
+        self.add('hss_mass_cost_coeff',                   IndepVarComp('hss_mass_cost_coeff', val=6.8), promotes=['*'])
+        self.add('generator_mass_cost_coeff',             IndepVarComp('generator_mass_cost_coeff', val=12.4), promotes=['*'])
+        self.add('bedplate_mass_cost_coeff',              IndepVarComp('bedplate_mass_cost_coeff', val=2.9), promotes=['*'])
+        self.add('yaw_mass_cost_coeff',                   IndepVarComp('yaw_mass_cost_coeff', val=8.3), promotes=['*'])
+        self.add('vs_electronics_mass_cost_coeff',        IndepVarComp('vs_electronics_mass_cost_coeff', val=18.8), promotes=['*'])
+        self.add('hvac_mass_cost_coeff',                  IndepVarComp('hvac_mass_cost_coeff', val=124.0), promotes=['*'])
+        self.add('cover_mass_cost_coeff',                 IndepVarComp('cover_mass_cost_coeff', val=5.7), promotes=['*'])
+        self.add('elec_connec_machine_rating_cost_coeff', IndepVarComp('elec_connec_machine_rating_cost_coeff', val=41.85), promotes=['*'])
+        self.add('platforms_mass_cost_coeff',             IndepVarComp('platforms_mass_cost_coeff', val=17.1), promotes=['*'])
+        self.add('base_hardware_cost_coeff',              IndepVarComp('base_hardware_cost_coeff', val=0.7), promotes=['*'])
+        self.add('transformer_mass_cost_coeff',           IndepVarComp('transformer_mass_cost_coeff', val=18.8), promotes=['*'])
+        self.add('tower_mass_cost_coeff',                 IndepVarComp('tower_mass_cost_coeff', val=2.9), promotes=['*'])
+        self.add('controls_machine_rating_cost_coeff',    IndepVarComp('controls_machine_rating_cost_coeff', val=21.15), promotes=['*'])
+        self.add('crane_cost',                            IndepVarComp('crane_cost', val=12e3), promotes=['*'])
+        
+        self.add('hub_assemblyCostMultiplier',            IndepVarComp('hub_assemblyCostMultiplier', val=0.0), promotes=['*'])
+        self.add('hub_overheadCostMultiplier',            IndepVarComp('hub_overheadCostMultiplier', val=0.0), promotes=['*'])
+        self.add('nacelle_assemblyCostMultiplier',        IndepVarComp('nacelle_assemblyCostMultiplier', val=0.0), promotes=['*'])
+        self.add('nacelle_overheadCostMultiplier',        IndepVarComp('nacelle_overheadCostMultiplier', val=0.0), promotes=['*'])
+        self.add('tower_assemblyCostMultiplier',          IndepVarComp('tower_assemblyCostMultiplier', val=0.0), promotes=['*'])
+        self.add('tower_overheadCostMultiplier',          IndepVarComp('tower_overheadCostMultiplier', val=0.0), promotes=['*'])
+        self.add('turbine_assemblyCostMultiplier',        IndepVarComp('turbine_assemblyCostMultiplier', val=0.0), promotes=['*'])
+        self.add('turbine_overheadCostMultiplier',        IndepVarComp('turbine_overheadCostMultiplier', val=0.0), promotes=['*'])
+        self.add('hub_profitMultiplier',                  IndepVarComp('hub_profitMultiplier', val=0.0), promotes=['*'])
+        self.add('nacelle_profitMultiplier',              IndepVarComp('nacelle_profitMultiplier', val=0.0), promotes=['*'])
+        self.add('tower_profitMultiplier',                IndepVarComp('tower_profitMultiplier', val=0.0), promotes=['*'])
+        self.add('turbine_profitMultiplier',              IndepVarComp('turbine_profitMultiplier', val=0.0), promotes=['*'])
+        self.add('hub_transportMultiplier',               IndepVarComp('hub_transportMultiplier', val=0.0), promotes=['*'])
+        self.add('nacelle_transportMultiplier',           IndepVarComp('nacelle_transportMultiplier', val=0.0), promotes=['*'])
+        self.add('tower_transportMultiplier',             IndepVarComp('tower_transportMultiplier', val=0.0), promotes=['*'])
+        self.add('turbine_transportMultiplier',           IndepVarComp('turbine_transportMultiplier', val=0.0), promotes=['*'])
+
+         
+        self.add('blade_c'       , BladeCost2015(), promotes=['*'])
+        self.add('hub_c'         , HubCost2015(), promotes=['*'])
+        self.add('pitch_c'       , PitchSystemCost2015(), promotes=['*'])
+        self.add('spinner_c'     , SpinnerCost2015(), promotes=['*'])
+        self.add('hub_adder'     , HubSystemCostAdder2015(), promotes=['*'])
+        self.add('rotor_adder'   , RotorCostAdder2015(), promotes=['*'])
+        self.add('lss_c'         , LowSpeedShaftCost2015(), promotes=['*'])
+        self.add('bearing_c'     , BearingsCost2015(), promotes=['*'])
+        self.add('gearbox_c'     , GearboxCost2015(), promotes=['*'])
+        self.add('hss_c'         , HighSpeedSideCost2015(), promotes=['*'])
+        self.add('generator_c'   , GeneratorCost2015(), promotes=['*'])
+        self.add('bedplate_c'    , BedplateCost2015(), promotes=['*'])
+        self.add('yaw_c'         , YawSystemCost2015(), promotes=['*'])
+        self.add('hvac_c'        , HydraulicCoolingCost2015(), promotes=['*'])
+        self.add('controls_c'    , ControlsCost2015(), promotes=['*'])
+        self.add('vs_c'          ,  VariableSpeedElecCost2015(), promotes=['*'])
+        self.add('elec_c'        ,  ElecConnecCost2015(), promotes=['*'])
+        self.add('cover_c'       , NacelleCoverCost2015(), promotes=['*'])
+        self.add('other_c'       , OtherMainframeCost2015(), promotes=['*'])
+        self.add('transformer_c' , TransformerCost2015(), promotes=['*'])
+        self.add('nacelle_adder' , NacelleSystemCostAdder2015(), promotes=['*'])
+        self.add('tower_c'       , TowerCost2015(), promotes=['*'])
+        self.add('tower_adder'   , TowerCostAdder2015(), promotes=['*'])
+        self.add('turbine_c'     , TurbineCostAdder2015(), promotes=['*'])
+  
+
+#-------------------------------------------------------------------------------
 def example():
 
     # simple test of module
-
     turbine = Turbine_CostsSE_2015()
+    prob = Problem(turbine)
+    prob.setup()
 
-    turbine.blade_mass = 17650.67  # inline with the windpact estimates
-    turbine.hub_mass = 31644.5
-    turbine.pitch_system_mass = 17004.0
-    turbine.spinner_mass = 1810.5
-    turbine.low_speed_shaft_mass = 31257.3
-    #bearingsMass = 9731.41
-    turbine.main_bearing_mass = 9731.41 / 2
-    turbine.second_bearing_mass = 9731.41 / 2 #KLD - revisit this in new model
-    turbine.gearbox_mass = 30237.60
-    turbine.high_speed_side_mass = 1492.45
-    turbine.generator_mass = 16699.85
-    turbine.bedplate_mass = 93090.6
-    turbine.yaw_system_mass = 11878.24
-    turbine.tower_mass = 434559.0
-    turbine.variable_speed_elec_mass = 0. #obsolete - using transformer #Float(iotype='in', units='kg', desc='component mass [kg]')
-    turbine.hydraulic_cooling_mass = 400. #Float(iotype='in', units='kg', desc='component mass [kg]')
-    turbine.nacelle_cover_mass = 6837. #Float(iotype='in', units='kg', desc='component mass [kg]')
-    turbine.other_mass = 8220. #Float(iotype='in', units='kg', desc='component mass [kg]')
-    turbine.transformer_mass = 11485. #Float(iotype='in', units='kg', desc='component mass [kg]')    
+    prob['blade_mass'] = 17650.67  # inline with the windpact estimates
+    prob['hub_mass'] = 31644.5
+    prob['pitch_system_mass'] = 17004.0
+    prob['spinner_mass'] = 1810.5
+    prob['lss_mass'] = 31257.3
+    #bearingsMass'] = 9731.41
+    prob['main_bearing_mass'] = 9731.41 / 2
+    prob['gearbox_mass'] = 30237.60
+    prob['hss_mass'] = 1492.45
+    prob['generator_mass'] = 16699.85
+    prob['bedplate_mass'] = 93090.6
+    prob['yaw_mass'] = 11878.24
+    prob['tower_mass'] = 434559.0
+    prob['vs_electronics_mass'] = 1000.
+    prob['hvac_mass'] = 1000.
+    prob['cover_mass'] = 1000.
+    prob['platforms_mass'] = 1000.
+    prob['transformer_mass'] = 1000.
 
     # other inputs
-    turbine.machine_rating = 5000.0
-    turbine.blade_number = 3
-    turbine.crane = True
-    turbine.offshore = True
-    turbine.bearing_number = 2
+    prob['machine_rating'] = 5000.0
+    prob['blade_number'] = 3
+    prob['crane'] = True
+    prob['bearing_number'] = 2
 
-    turbine.run()
+    prob.run()
 
-    print "The results for the NREL 5 MW Reference Turbine in an offshore 20 m water depth location are:"
-    print
-    print "Overall rotor cost with 3 advanced blades is ${0:.2f} USD".format(turbine.rotorCC.cost)
-    print "Blade cost is ${0:.2f} USD".format(turbine.rotorCC.bladeCC.cost)
-    print "Hub cost is ${0:.2f} USD".format(turbine.rotorCC.hubCC.cost)
-    print "Pitch system cost is ${0:.2f} USD".format(turbine.rotorCC.pitchSysCC.cost)
-    print "Spinner cost is ${0:.2f} USD".format(turbine.rotorCC.spinnerCC.cost)
-    print
-    print "Overall nacelle cost is ${0:.2f} USD".format(turbine.nacelleCC.cost)
-    print "LSS cost is ${0:.2f} USD".format(turbine.nacelleCC.lssCC.cost)
-    print "Main bearings cost is ${0:.2f} USD".format(turbine.nacelleCC.bearingsCC.cost)
-    print "Gearbox cost is ${0:.2f} USD".format(turbine.nacelleCC.gearboxCC.cost)
-    print "High speed side cost is ${0:.2f} USD".format(turbine.nacelleCC.hssCC.cost)
-    print "Generator cost is ${0:.2f} USD".format(turbine.nacelleCC.generatorCC.cost)
-    print "Bedplate cost is ${0:.2f} USD".format(turbine.nacelleCC.bedplateCC.cost)
-    print "Yaw system cost is ${0:.2f} USD".format(turbine.nacelleCC.yawSysCC.cost)
-    print "Variable speed electronics cost is ${0:.2f} USD".format(turbine.nacelleCC.vsCC.cost)
-    print "HVAC cost is ${0:.2f} USD".format(turbine.nacelleCC.hydraulicCC.cost)    
-    print "Electrical connections cost is ${0:.2f} USD".format(turbine.nacelleCC.elecCC.cost)
-    print "Controls cost is ${0:.2f} USD".format(turbine.nacelleCC.controlsCC.cost)
-    print "Mainframe cost is ${0:.2f} USD".format(turbine.nacelleCC.mainframeCC.cost)
-    print "Transformer cost is ${0:.2f} USD".format(turbine.nacelleCC.transformerCC.cost)
-    print
-    print "Tower cost is ${0:.2f} USD".format(turbine.towerCC.cost)
-    print
-    print "The overall turbine cost is ${0:.2f} USD".format(turbine.turbine_cost)
-    print
+    #print('The results for the NREL 5 MW Reference Turbine in an offshore 20 m water depth location are')
+    for io in turbine.unknowns:
+        print(io + ' ' + str(turbine.unknowns[io]))
 
 
 if __name__ == "__main__":
