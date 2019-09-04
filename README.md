@@ -1,3 +1,11 @@
+# DEPRECATED
+------------
+
+**THIS REPOSITORY IS DEPRECATED AND WILL BE ARCHIVED (READ-ONLY) IN NOVEMBER 2019.**
+
+WISDEM has moved to a single, integrated repository at https://github.com/wisdem/wisdem
+
+---------------
 # Turbine_CostsSE
 
 Turbine_CostsSE is a set of models for assessing the costs of a wind turbine.  The first model is a new version of NREL's turbine Cost and Scaling Model that uses 2015 survey data to compute component mass properties from key turbine parameters such as rotor diameter, rated power and hub height.  A second model is a new mass-to-cost model which takes the individual component masses as inputs to estimate each component costs with additional cost factors for assembly, overhead, and profits.
